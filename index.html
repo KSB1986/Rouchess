@@ -41,7 +41,6 @@
         button { padding: 8px 12px; cursor: pointer; border: none; border-radius: 6px; background: #3498db; color: white; font-size: 13px; transition: 0.2s; }
         button:hover { background: #2980b9; }
         
-        /* RESPONSIVE LAYOUT ENGINE */
         .container { display: flex; flex-direction: column; margin-top: 55px; width: 100%; min-height: calc(100vh - 55px); }
         .left-panel, .right-panel { padding: 12px; background: #1a1a1a; }
         .main-content { padding: 12px; display: flex; flex-direction: column; background: #1a1a1a; width: 100%; }
@@ -56,7 +55,6 @@
         .card { background: #2c3e50; padding: 14px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #34495e; }
         .card h3 { margin-bottom: 10px; color: #3498db; font-size: 16px; }
         
-        /* CHESSBOARD RESPONSIVE CONTAINER */
         .board-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
         .board-container { width: 100%; aspect-ratio: 1 / 1; position: relative; margin: 8px 0; }
         #board { width: 100% !important; height: 100% !important; border: 4px solid #ffffff; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
@@ -64,7 +62,8 @@
         .white-1e1d7, .square-55d63 { background-color: #ffffff !important; }
         .black-3c85d, .square-b58863 { background-color: #262626 !important; }
         
-        /* HIGHLIGHT OVERLAYS & PREMOVE DOTS */
+        /* VISUAL HIGHLIGHTS & TAP DOTS */
+        .highlight-selected { background-color: #baca44 !important; }
         .highlight-lastmove { background-color: rgba(245, 230, 83, 0.55) !important; }
         .highlight-premove { background-color: rgba(186, 85, 211, 0.6) !important; }
         .move-dot { width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.35); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
@@ -73,9 +72,17 @@
         .player-info { font-size: 14px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
         .clock { font-size: 20px; font-weight: bold; color: #f39c12; font-family: monospace; }
         
-        .game-alert-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(26, 26, 26, 0.95); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 22px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none; border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        .game-alert-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(26, 26, 26, 0.95); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 20px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none; border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.6); width: 85%; }
         @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* PAWN PROMOTION MODAL */
+        .promotion-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; border-radius: 4px; }
+        .promotion-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #3498db; }
+        .promotion-options { display: flex; gap: 12px; }
+        .promotion-btn { background: #34495e; border: 2px solid #3498db; border-radius: 8px; padding: 10px; cursor: pointer; transition: 0.2s; width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; }
+        .promotion-btn:hover { background: #3498db; }
+        .promotion-btn img { width: 100%; height: 100%; object-fit: contain; }
 
         .game-info { background: #34495e; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 13px; border-left: 4px solid #3498db; text-align: center; }
         .chat-box { flex: 1; display: flex; flex-direction: column; background: #2c3e50; border-radius: 10px; border: 1px solid #34495e; overflow: hidden; height: 300px; }
@@ -200,12 +207,12 @@
                     <div class="game-info" id="gameStatus">Select setup and press Start</div>
                     
                     <div class="board-wrapper">
-                        <!-- TOP PLAYER (BLACK OR OPPONENT) -->
+                        <!-- TOP PLAYER -->
                         <div class="player-bar">
                             <div class="player-info" id="topPlayer">Black: Opponent</div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <div id="topSideBtns" class="hidden">
-                                    <button onclick="resignAs('top')" class="side-action-btn" style="background:#e74c3c;">Resign</button>
+                                    <button onclick="resignAs()" class="side-action-btn" style="background:#e74c3c;">Resign</button>
                                 </div>
                                 <div class="clock" id="topClock">5:00</div>
                             </div>
@@ -213,15 +220,26 @@
 
                         <div class="board-container">
                             <div id="board"></div>
+
+                            <!-- PROMOTION MODAL OVERLAY -->
+                            <div id="promotionOverlay" class="promotion-overlay hidden">
+                                <div class="promotion-title">Promote Pawn To:</div>
+                                <div class="promotion-options">
+                                    <button class="promotion-btn" onclick="selectPromotionPiece('q')"><img id="promQ" src="" alt="Queen"></button>
+                                    <button class="promotion-btn" onclick="selectPromotionPiece('r')"><img id="promR" src="" alt="Rook"></button>
+                                    <button class="promotion-btn" onclick="selectPromotionPiece('b')"><img id="promB" src="" alt="Bishop"></button>
+                                    <button class="promotion-btn" onclick="selectPromotionPiece('n')"><img id="promN" src="" alt="Knight"></button>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- BOTTOM PLAYER (WHITE OR SELF) -->
+                        <!-- BOTTOM PLAYER -->
                         <div class="player-bar">
                             <div class="player-info" id="bottomPlayer">White: You</div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <div id="bottomSideBtns" class="hidden">
-                                    <button onclick="resignAs('bottom')" class="side-action-btn" style="background:#e74c3c;">Resign</button>
-                                    <button onclick="offerDrawAs('bottom')" class="side-action-btn" style="background:#f39c12;">Draw</button>
+                                    <button onclick="resignAs()" class="side-action-btn" style="background:#e74c3c;">Resign</button>
+                                    <button onclick="offerDrawAs()" class="side-action-btn" style="background:#f39c12;">Draw</button>
                                 </div>
                                 <div class="clock" id="bottomClock">5:00</div>
                             </div>
@@ -313,14 +331,8 @@
         const db = firebase.database();
 
         /* =======================================
-           2. BASE VARIABLES & ENGINE INIT 
+           2. BASE VARIABLES
            ======================================= */
-        let stockfish = null;
-        try {
-            const workerData = new Blob([`importScripts("https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js");`], { type: "application/javascript" });
-            stockfish = new Worker(window.URL.createObjectURL(workerData));
-        } catch (e) { console.warn("Stockfish worker offline."); }
-
         let users = {}; 
         let currentUser = localStorage.getItem('currentUser');
         let game = new Chess();
@@ -339,6 +351,7 @@
         let moveEvaluations = [];
         let lastMove = null;
         let premove = null;
+        let pendingPromotionMove = null;
 
         // Auto-seed default testing account
         db.ref('users/Rounakgod_65').once('value').then(s => {
@@ -370,7 +383,7 @@
         }
 
         /* =======================================
-           3. BOARD INITIALIZATION & DRAG-DROP / PREMOVE
+           3. STRICT TAP-TO-MOVE ENGINE (NO DRAG)
            ======================================= */
         function initializeBoard(orientation) { 
             if(board) board.destroy(); 
@@ -378,19 +391,23 @@
             const config = {
                 position: 'start',
                 orientation: orientation,
-                draggable: true,
-                onDragStart: onDragStart,
-                onDrop: onDrop,
-                onSnapEnd: onSnapEnd,
+                draggable: false, // DRAG AND DROP DISABLED EXPLICITLY
                 pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
             };
             
             board = ChessBoard('board', config); 
             $(window).resize(() => board.resize());
 
-            // Bind click fallback for tap-to-move
-            document.getElementById('board').removeEventListener('click', handleBoardClick);
-            document.getElementById('board').addEventListener('click', handleBoardClick); 
+            // Listen directly for clean taps on squares
+            $('#board').off('click pointerdown', '.square-55d63, .square-b58863')
+                       .on('click pointerdown', '.square-55d63, .square-b58863', function(e) {
+                if (e.type === 'pointerdown' && e.pointerType === 'mouse') return;
+                const square = $(this).attr('data-square');
+                if (square) {
+                    e.preventDefault();
+                    handleSquareTap(square);
+                }
+            });
         }
 
         function isMyTurn() {
@@ -399,54 +416,12 @@
             return (isWhiteTurn && playerColor === 'w') || (!isWhiteTurn && playerColor === 'b');
         }
 
-        function onDragStart(source, piece) {
-            if (!gameActive) return false;
-            
-            // Allow drag if it's my turn and my piece
-            if (isMyTurn()) {
-                if ((isWhiteTurn && piece.search(/^w/) === -1) || (!isWhiteTurn && piece.search(/^b/) === -1)) {
-                    return false;
-                }
-            } else {
-                // If not my turn, allow selecting my piece for PREMOVE
-                if ((playerColor === 'w' && piece.search(/^w/) === -1) || (playerColor === 'b' && piece.search(/^b/) === -1)) {
-                    return false;
-                }
-            }
-            return true;
-        }
+        /* HARDENED TAP ENGINE */
+        function handleSquareTap(square) {
+            if (!gameActive || pendingPromotionMove) return;
 
-        function onDrop(source, target) {
-            if (source === target) return;
-
-            // PREMOVE HANDLER
+            // 1. PREMOVE TAP LOGIC (Opponent's turn)
             if (!isMyTurn()) {
-                premove = { from: source, to: target };
-                highlightPremove(source, target);
-                return;
-            }
-
-            // REGULAR MOVE HANDLER
-            const move = game.move({ from: source, to: target, promotion: 'q' });
-            if (move === null) return 'snapback';
-
-            lastMove = { from: source, to: target };
-            clearHighlights();
-            finishMoveLogic(move);
-        }
-
-        function onSnapEnd() {
-            board.position(game.fen());
-        }
-
-        function handleBoardClick(e) {
-            if (!gameActive) return;
-            const squareEl = e.target.closest('[data-square]');
-            if (!squareEl) return;
-            const square = squareEl.getAttribute('data-square');
-
-            if (!isMyTurn()) {
-                // Click-based premove logic
                 if (selectedPiece === null) {
                     const piece = game.get(square);
                     if (piece && piece.color === playerColor) {
@@ -454,41 +429,121 @@
                         highlightSquare(square, '#baca44');
                     }
                 } else {
-                    premove = { from: selectedPiece, to: square };
-                    highlightPremove(selectedPiece, square);
-                    selectedPiece = null;
+                    if (square === selectedPiece) {
+                        clearHighlights();
+                        premove = null;
+                    } else {
+                        premove = { from: selectedPiece, to: square };
+                        highlightPremove(selectedPiece, square);
+                        selectedPiece = null;
+                    }
                 }
                 return;
             }
 
+            // 2. REGULAR TURN TAP LOGIC
             if (selectedPiece === null) {
                 const piece = game.get(square);
                 if (piece && piece.color === (isWhiteTurn ? 'w' : 'b')) {
                     selectedPiece = square;
+                    clearHighlights();
                     highlightSquare(square, '#baca44');
                     showLegalMoves(square);
                 }
             } else {
-                if (square === selectedPiece) { clearHighlights(); return; }
+                if (square === selectedPiece) { 
+                    clearHighlights(); 
+                    return; 
+                }
+
                 const piece = game.get(square);
                 if (piece && piece.color === (isWhiteTurn ? 'w' : 'b')) {
-                    clearHighlights(); selectedPiece = square;
-                    highlightSquare(square, '#baca44'); showLegalMoves(square);
+                    clearHighlights(); 
+                    selectedPiece = square;
+                    highlightSquare(square, '#baca44'); 
+                    showLegalMoves(square);
                     return;
                 }
 
+                // Check for Pawn Promotion Eligibility
+                const movingPiece = game.get(selectedPiece);
+                const isPawn = movingPiece && movingPiece.type === 'p';
+                const targetRank = square.charAt(1);
+                const isPromoting = isPawn && ((movingPiece.color === 'w' && targetRank === '8') || (movingPiece.color === 'b' && targetRank === '1'));
+
+                if (isPromoting) {
+                    // Check if move is legal before opening modal
+                    const testMoves = game.moves({ square: selectedPiece, verbose: true });
+                    const isLegal = testMoves.some(m => m.to === square);
+                    if (isLegal) {
+                        pendingPromotionMove = { from: selectedPiece, to: square };
+                        showPromotionOverlay(movingPiece.color);
+                        return;
+                    }
+                }
+
+                // Execute Standard Move
                 const move = game.move({ from: selectedPiece, to: square, promotion: 'q' });
-                if (move === null) { clearHighlights(); return; }
+                if (move === null) { 
+                    clearHighlights(); 
+                    return; 
+                }
                 
                 lastMove = { from: selectedPiece, to: square };
+                selectedPiece = null;
                 clearHighlights();
+                finishMoveLogic(move);
+            }
+        }
+
+        /* PROMOTION SELECTION MODAL LOGIC */
+        function showPromotionOverlay(color) {
+            const baseUrl = 'https://chessboardjs.com/img/chesspieces/wikipedia/';
+            document.getElementById('promQ').src = `${baseUrl}${color}Q.png`;
+            document.getElementById('promR').src = `${baseUrl}${color}R.png`;
+            document.getElementById('promB').src = `${baseUrl}${color}B.png`;
+            document.getElementById('promN').src = `${baseUrl}${color}N.png`;
+            document.getElementById('promotionOverlay').classList.remove('hidden');
+        }
+
+        function selectPromotionPiece(pieceType) {
+            if (!pendingPromotionMove) return;
+            
+            const move = game.move({
+                from: pendingPromotionMove.from,
+                to: pendingPromotionMove.to,
+                promotion: pieceType
+            });
+
+            document.getElementById('promotionOverlay').classList.add('hidden');
+            lastMove = { from: pendingPromotionMove.from, to: pendingPromotionMove.to };
+            pendingPromotionMove = null;
+            selectedPiece = null;
+            clearHighlights();
+
+            if (move !== null) {
                 finishMoveLogic(move);
             }
         }
 
         function executePremove() {
             if (!premove || !isMyTurn()) return;
-            const move = game.move({ from: premove.from, to: premove.to, promotion: 'q' });
+
+            // Check if premove triggers promotion
+            const movingPiece = game.get(premove.from);
+            const isPawn = movingPiece && movingPiece.type === 'p';
+            const targetRank = premove.to.charAt(1);
+            const isPromoting = isPawn && ((movingPiece.color === 'w' && targetRank === '8') || (movingPiece.color === 'b' && targetRank === '1'));
+
+            let promotionPiece = 'q';
+            if (isPromoting) {
+                pendingPromotionMove = { from: premove.from, to: premove.to };
+                premove = null;
+                showPromotionOverlay(movingPiece.color);
+                return;
+            }
+
+            const move = game.move({ from: premove.from, to: premove.to, promotion: promotionPiece });
             const pm = premove;
             premove = null;
             clearHighlights();
@@ -535,7 +590,9 @@
         function clearHighlights() { 
             document.querySelectorAll('.move-dot').forEach(d => d.remove());
             $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', '');
-            selectedPiece = null; 
+            if (selectedPiece) {
+                highlightSquare(selectedPiece, '#baca44');
+            }
             highlightLastMove();
         } 
 
@@ -554,9 +611,10 @@
 
         function startGameInternal(orientation) {
             gameActive = true; game = new Chess();
-            moveEvaluations = []; lastMove = null; premove = null;
+            moveEvaluations = []; lastMove = null; premove = null; selectedPiece = null; pendingPromotionMove = null;
+            document.getElementById('promotionOverlay').classList.add('hidden');
             initializeBoard(orientation === 'b' ? 'black' : 'white');
-            isWhiteTurn = true; selectedPiece = null;
+            isWhiteTurn = true;
             clearHighlights(); updateButtonVisibility();
             
             if(!isOnlineGame) {
@@ -683,7 +741,7 @@
         }
 
         /* =======================================
-           7. MOVE EVALUATIONS & CLOCKS
+           7. MOVE EVALUATIONS, CLOCKS & RATINGS
            ======================================= */
         function calculateEngineFeedback(move) {
             if(!move) return;
@@ -735,17 +793,79 @@
 
         function endGame(forcedWinner = null, reason = null) {
             if (!gameActive) return;
-            gameActive = false; clearInterval(gameTimer);
+            gameActive = false; 
+            clearInterval(gameTimer);
             
             let resultText = 'Game Over';
-            if (forcedWinner) resultText = `${forcedWinner} won by ${reason}`;
-            else if (game.in_checkmate()) resultText = `${game.turn() === 'w' ? 'Black' : 'White'} won by Checkmate`;
-            else if (game.in_draw()) resultText = 'Draw';
-            else if (whiteTime <= 0) resultText = 'Black won on time';
-            else if (blackTime <= 0) resultText = 'White won on time';
+            let outcome = null; 
+
+            if (forcedWinner) {
+                outcome = forcedWinner.toLowerCase();
+                resultText = `${forcedWinner} won by ${reason}`;
+            } else if (game.in_checkmate()) {
+                outcome = (game.turn() === 'w') ? 'black' : 'white';
+                resultText = `${outcome === 'white' ? 'White' : 'Black'} won by Checkmate`;
+            } else if (game.in_stalemate() || game.in_draw() || game.in_threefold_repetition()) {
+                outcome = 'draw';
+                resultText = 'Draw';
+            } else if (whiteTime <= 0) {
+                outcome = 'black';
+                resultText = 'Black won on time';
+            } else if (blackTime <= 0) {
+                outcome = 'white';
+                resultText = 'White won on time';
+            }
+
+            // RATING ENGINE SYNC
+            if (gameMode !== 'local' && users[currentUser]) {
+                let user = users[currentUser];
+                let format = document.getElementById('matchTimeFormat').value;
+                let currentRating = format === 'rapid' ? (user.rapidRating || 1500) : (user.blitzRating || 1500);
+                let oppRating = 1500;
+
+                if (gameMode === 'bot') {
+                    let level = parseInt(document.getElementById('botLevelSlider').value);
+                    oppRating = 400 + ((level - 1) * 100);
+                } else if (gameMode === 'online') {
+                    let oppName = playerColor === 'w' ? document.getElementById('topPlayer').textContent.replace('Black: ', '') : document.getElementById('topPlayer').textContent.replace('White: ', '');
+                    if (users[oppName]) {
+                        oppRating = format === 'rapid' ? (users[oppName].rapidRating || 1500) : (users[oppName].blitzRating || 1500);
+                    }
+                }
+
+                let actualScore = 0.5;
+                if (outcome === (playerColor === 'w' ? 'white' : 'black')) actualScore = 1;
+                else if (outcome === 'draw') actualScore = 0.5;
+                else actualScore = 0;
+
+                let expectedScore = 1 / (1 + Math.pow(10, (oppRating - currentRating) / 400));
+                let kFactor = currentRating < 2100 ? 32 : (currentRating < 2400 ? 24 : 16);
+                let ratingChange = Math.round(kFactor * (actualScore - expectedScore));
+
+                if (format === 'rapid') user.rapidRating = Math.max(100, currentRating + ratingChange);
+                else user.blitzRating = Math.max(100, currentRating + ratingChange);
+
+                if (actualScore === 1) user.wins = (user.wins || 0) + 1;
+                else if (actualScore === 0) user.losses = (user.losses || 0) + 1;
+
+                db.ref('users/' + currentUser).update({
+                    blitzRating: user.blitzRating || 1500,
+                    rapidRating: user.rapidRating || 1500,
+                    wins: user.wins || 0,
+                    losses: user.losses || 0
+                });
+
+                let ratingSign = ratingChange >= 0 ? '+' : '';
+                let ratingColor = ratingChange >= 0 ? '#27ae60' : '#e74c3c';
+                resultText += `<br><span style="font-size: 14px; color: ${ratingColor}; display: block; margin-top: 6px;">📊 Rating: ${currentRating} (${ratingSign}${ratingChange}) ➝ ${currentRating + ratingChange}</span>`;
+            }
 
             document.getElementById('gameStatus').innerHTML = `<strong>${resultText}</strong>`;
-            showGameAlert(resultText, 'draw');
+            showGameAlert(forcedWinner ? `${forcedWinner} Won!` : resultText.split('<br>')[0], 'draw');
+            
+            if (isOnlineGame && onlineRef && !forcedWinner) {
+                db.ref('rooms/' + onlineRoomId).update({ status: 'finished' });
+            }
         }
 
         /* =======================================
@@ -800,11 +920,19 @@
             const old = document.getElementById('gameAlert'); if (old) old.remove();
             const alertEl = document.createElement('div');
             alertEl.id = 'gameAlert'; alertEl.className = 'game-alert-overlay animate-pop'; alertEl.innerText = text;
-            setTimeout(() => alertEl.remove(), 2000);
+            setTimeout(() => alertEl.remove(), 2200);
             document.querySelector('.board-container').appendChild(alertEl);
         }
 
-        function resignAs() { if(gameActive && confirm("Resign match?")) endGame(playerColor === 'w' ? 'Black' : 'White', 'Resignation'); }
+        function resignAs() { 
+            if(gameActive && confirm("Are you sure you want to resign?")) {
+                let winner = playerColor === 'w' ? 'Black' : 'White';
+                endGame(winner, 'Resignation');
+                if (isOnlineGame && onlineRoomId) {
+                    db.ref('rooms/' + onlineRoomId).update({ forcedWinner: winner, reason: 'Resignation' });
+                }
+            } 
+        }
         function offerDrawAs() { if(gameActive) showGameAlert("Draw offer sent", "draw"); }
 
         function switchAuthTab(t, e) { document.querySelectorAll('.auth-form, .auth-tab').forEach(el => el.classList.remove('active')); document.getElementById(t+'Form').classList.add('active'); if(e) e.target.classList.add('active'); }
@@ -844,17 +972,40 @@
         }
         function displayProfile() { 
             const u = users[currentUser]; if(!u) return;
-            document.getElementById('myProfile').innerHTML = `<strong>${u.realname}</strong><br>User: ${currentUser}<br>Rating: ${u.blitzRating}`;
+            document.getElementById('myProfile').innerHTML = `<strong>${u.realname}</strong><br>User: ${currentUser}<br>Rating: ${u.blitzRating || 1500}`;
         }
         function displayStats() { 
             const u = users[currentUser]; if(!u) return;
-            const total = u.wins + u.losses;
+            const total = (u.wins || 0) + (u.losses || 0);
             document.getElementById('statsInfo').innerHTML = `
-                <div class="rating-box"><div class="label">Blitz</div><div class="value">${u.blitzRating}</div></div>
-                <div class="rating-box"><div class="label">Rapid</div><div class="value">${u.rapidRating}</div></div>
+                <div class="rating-box"><div class="label">Blitz</div><div class="value">${u.blitzRating || 1500}</div></div>
+                <div class="rating-box"><div class="label">Rapid</div><div class="value">${u.rapidRating || 1500}</div></div>
                 <div class="rating-box"><div class="label">Games</div><div class="value">${total}</div></div>
-                <div class="rating-box"><div class="label">Win Rate</div><div class="value">${total>0?Math.round((u.wins/total)*100):0}%</div></div>
+                <div class="rating-box"><div class="label">Win Rate</div><div class="value">${total>0?Math.round(((u.wins || 0)/total)*100):0}%</div></div>
             `;
+        }
+
+        function searchProfile() {
+            let q = document.getElementById('searchUserInput').value.trim();
+            let resArea = document.getElementById('searchResultArea');
+            if(!q) return;
+            if (users[q]) {
+                let u = users[q];
+                let bHtml = (u.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+                resArea.innerHTML = `
+                    <div class="profile-card" style="border-left-color: #27ae60;">
+                        <strong>${u.realname} (${q})</strong> ${bHtml}<br>
+                        Blitz: ${u.blitzRating || 1500} | Rapid: ${u.rapidRating || 1500}<br>
+                        <button onclick="addFriend('${q}')" style="margin-top:6px; width:100%; background:#27ae60;">➕ Add Friend</button>
+                    </div>
+                `;
+            } else { resArea.innerHTML = `<span class="error">User not found.</span>`; }
+        }
+
+        function addFriend(name) {
+            if (name === currentUser) return alert("You can't add yourself!");
+            db.ref(`users/${currentUser}/friends/${name}`).set(true);
+            alert(`Added ${name}!`);
         }
 
         function renderFriends() {
