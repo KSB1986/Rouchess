@@ -11,59 +11,30 @@
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
-            color: #fff;
-        }
-        .auth-page {
-            display: flex; height: 100vh; justify-content: center; align-items: center;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%);
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #fff; }
+        .auth-page { display: flex; height: 100vh; justify-content: center; align-items: center; background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%); }
         .auth-container { width: 100%; max-width: 400px; padding: 40px; }
-        .auth-card {
-            background: #2c3e50; padding: 40px; border-radius: 15px;
-            border: 2px solid #3498db; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
+        .auth-card { background: #2c3e50; padding: 40px; border-radius: 15px; border: 2px solid #3498db; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
         .auth-card h1 { font-size: 36px; margin-bottom: 30px; text-align: center; color: #3498db; }
         .auth-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .auth-tab {
-            flex: 1; padding: 10px; background: #34495e; border: none;
-            color: white; cursor: pointer; border-radius: 6px; font-size: 14px; transition: 0.3s;
-        }
+        .auth-tab { flex: 1; padding: 10px; background: #34495e; border: none; color: white; cursor: pointer; border-radius: 6px; font-size: 14px; transition: 0.3s; }
         .auth-tab.active { background: #3498db; }
-        .auth-form { display: none; }
-        .auth-form.active { display: block; }
-        .input {
-            display: block; margin: 12px 0; padding: 12px; width: 100%;
-            background: #34495e; border: 1px solid #7f8c8d; color: white; border-radius: 6px; font-size: 14px;
-        }
+        .auth-form { display: none; } .auth-form.active { display: block; }
+        .input { display: block; margin: 12px 0; padding: 12px; width: 100%; background: #34495e; border: 1px solid #7f8c8d; color: white; border-radius: 6px; font-size: 14px; }
         .input:focus { outline: none; border-color: #3498db; }
-        .submit-btn {
-            width: 100%; padding: 12px; background: #3498db; border: none; color: white;
-            border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.3s;
-        }
+        .submit-btn { width: 100%; padding: 12px; background: #3498db; border: none; color: white; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
         .submit-btn:hover { background: #2980b9; }
         .auth-msg { margin-top: 12px; font-size: 13px; text-align: center; }
-        .error { color: #e74c3c; }
-        .success { color: #27ae60; }
+        .error { color: #e74c3c; } .success { color: #27ae60; }
         
         .app-container { display: none; }
         .app-container.active { display: flex; }
-        .navbar {
-            background: #2c3e50; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #3498db; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px;
-        }
+        .navbar { background: #2c3e50; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 60px; }
         .navbar h1 { color: #3498db; font-size: 28px; font-weight: bold; }
         .navbar-right { display: flex; gap: 16px; align-items: center; }
         .user-badge { background: #34495e; padding: 8px 16px; border-radius: 20px; font-size: 14px; border: 1px solid #3498db; }
-        .badge {
-            display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px;
-            margin-left: 4px; color: white; font-weight: bold; text-transform: uppercase;
-        }
-        .owner { background: #e74c3c; } .verified { background: #27ae60; }
-        .gm { background: #9b59b6; } .fm { background: #f39c12; }
-        .im { background: #3498db; } .cm { background: #1abc9c; }
+        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 4px; color: white; font-weight: bold; text-transform: uppercase; }
+        .owner { background: #e74c3c; } .verified { background: #27ae60; } .gm { background: #9b59b6; } .fm { background: #f39c12; } .im { background: #3498db; } .cm { background: #1abc9c; }
         
         button { padding: 10px 14px; cursor: pointer; border: none; border-radius: 6px; background: #3498db; color: white; font-size: 14px; transition: 0.2s; }
         button:hover { background: #2980b9; }
@@ -81,53 +52,27 @@
         .white-1e1d7, .square-55d63 { background-color: #ffffff !important; }
         .black-3c85d, .square-b58863 { background-color: #262626 !important; }
         
-        .move-dot {
-            width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.25); border-radius: 50%;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
-        }
-
-        .game-alert-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
-            background: rgba(26, 26, 26, 0.95); color: #fff; padding: 15px 30px; border-radius: 10px;
-            font-size: 28px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none;
-            border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-
-        @keyframes popIn {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-            70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-        }
+        .move-dot { width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.35); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
+        .game-alert-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(26, 26, 26, 0.95); color: #fff; padding: 15px 30px; border-radius: 10px; font-size: 28px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none; border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
         .game-info { background: #34495e; padding: 16px; border-radius: 6px; margin: 10px 0; font-size: 14px; border-left: 4px solid #3498db; }
-        .chat-box { flex: 1; display: flex; flex-direction: column; background: #2c3e50; border-radius: 10px; border: 1px solid #34495e; overflow: hidden; }
+        .chat-box { flex: 1; display: flex; flex-direction: column; background: #2c3e50; border-radius: 10px; border: 1px solid #34495e; overflow: hidden; height: 350px; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 12px; background: #1a252f; }
         .chat-msg { margin: 8px 0; padding: 8px; background: #34495e; border-radius: 4px; font-size: 13px; border-left: 3px solid #3498db; }
-        .chat-input-area { padding: 12px; display: flex; gap: 8px; }
-        .chat-input-area input { flex: 1; }
+        .chat-input-area { padding: 12px; display: flex; gap: 8px; } .chat-input-area input { flex: 1; }
         
         .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
         .tab-btn { background: #34495e; padding: 8px 16px; border-radius: 4px; cursor: pointer; border: 2px solid transparent; color: white; font-size: 13px; }
         .tab-btn.active { background: #3498db; border-color: #3498db; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .tab-content { display: none; } .tab-content.active { display: block; }
         
         .moves-list { background: #34495e; padding: 12px; border-radius: 6px; font-size: 13px; max-height: 180px; overflow-y: auto; word-wrap: break-word; line-height: 1.5; }
         .move-item { display: inline-block; margin-right: 8px; margin-bottom: 6px; padding: 4px 8px; background: #2c3e50; border-radius: 3px; font-size: 12px; }
         
-        /* Chess.com Label Theme System */
         .move-annotation { font-size: 11px; font-weight: bold; margin-left: 5px; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; }
-        .move-annotation.brilliant { background: #1abc9c; color: #fff; } 
-        .move-annotation.great { background: #4a90e2; color: #fff; } 
-        .move-annotation.best { background: #2b733c; color: #fff; } 
-        .move-annotation.excellent { background: #81b64c; color: #fff; } 
-        .move-annotation.good { background: #a3a3a3; color: #fff; }
-        .move-annotation.forced { background: #607d8b; color: #fff; }
-        .move-annotation.book { background: #d5a04a; color: #fff; }
-        .move-annotation.inaccuracy { background: #f5b041; color: #fff; } 
-        .move-annotation.mistake { background: #e67e22; color: #fff; } 
-        .move-annotation.blunder { background: #df4745; color: #fff; } 
+        .move-annotation.brilliant { background: #1abc9c; color: #fff; } .move-annotation.great { background: #4a90e2; color: #fff; } .move-annotation.best { background: #2b733c; color: #fff; } .move-annotation.excellent { background: #81b64c; color: #fff; } .move-annotation.good { background: #a3a3a3; color: #fff; } .move-annotation.forced { background: #607d8b; color: #fff; } .move-annotation.book { background: #d5a04a; color: #fff; } .move-annotation.inaccuracy { background: #f5b041; color: #fff; } .move-annotation.mistake { background: #e67e22; color: #fff; } .move-annotation.blunder { background: #df4745; color: #fff; } 
         
         .game-setup-panel { background: #34495e; padding: 14px; border-radius: 8px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 10px; }
         .setup-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -137,11 +82,11 @@
         .profile-card { background: #34495e; padding: 12px; margin: 10px 0; border-radius: 6px; border-left: 4px solid #3498db; }
         .rating-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
         .rating-box { background: #34495e; padding: 10px; border-radius: 4px; text-align: center; }
-        .rating-box .value { font-size: 18px; font-weight: bold; color: #3498db; }
-        .rating-box .label { font-size: 12px; color: #bdc3c7; }
+        .rating-box .value { font-size: 18px; font-weight: bold; color: #3498db; } .rating-box .label { font-size: 12px; color: #bdc3c7; }
         .hidden { display: none !important; }
         .clock { font-size: 28px; font-weight: bold; color: #f39c12; margin: 10px 0; font-family: monospace; }
-        .side-action-btn { width: 100%; font-size: 12px; padding: 6px; margin-top: 4px; }
+        .side-action-btn { width: 100%; font-size: 12px; padding: 6px; margin-top: 4px; display: block; }
+        .friend-item { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #34495e; }
     </style>
 </head>
 <body>
@@ -184,7 +129,11 @@
             <div class="left-panel">
                 <div class="card">
                     <h3>👤 My Profile</h3>
-                    <div class="profile-card" id="myProfile"></div>
+                    <div class="profile-card" id="myProfile">Loading...</div>
+                </div>
+                <div class="card">
+                    <h3>📊 My Stats</h3>
+                    <div class="rating-info" id="statsInfo"></div>
                 </div>
             </div>
 
@@ -232,6 +181,7 @@
                             <div class="clock" id="whiteClock">0:00</div>
                             <div id="whiteSideBtns" class="hidden" style="margin-top: 10px;">
                                 <button onclick="resignAs('w')" class="side-action-btn" style="background: #e74c3c;">🏳️ Resign</button>
+                                <button onclick="offerDrawAs('w')" class="side-action-btn" style="background: #f39c12;">🤝 Offer Draw</button>
                             </div>
                         </div>
 
@@ -244,6 +194,7 @@
                             <div class="clock" id="blackClock">0:00</div>
                             <div id="blackSideBtns" class="hidden" style="margin-top: 10px;">
                                 <button onclick="resignAs('b')" class="side-action-btn" style="background: #e74c3c;">🏳️ Resign</button>
+                                <button onclick="offerDrawAs('b')" class="side-action-btn" style="background: #f39c12;">🤝 Offer Draw</button>
                             </div>
                         </div>
                     </div>
@@ -255,17 +206,33 @@
             <div class="right-panel">
                 <div class="tabs">
                     <button class="tab-btn active" onclick="switchTab('chat', event)">💬 Chat</button>
+                    <button class="tab-btn" onclick="switchTab('social', event)">👥 Social</button>
                     <button class="tab-btn hidden" id="adminTabBtn" onclick="switchTab('admin', event)">⚙️ Admin</button>
-                    <button class="tab-btn" onclick="switchTab('stats', event)">📊 Stats</button>
                 </div>
 
                 <div class="tab-content active" id="chat-tab">
                     <div class="chat-box">
-                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-messages" id="chatMessages">Loading global chat...</div>
                         <div class="chat-input-area">
                             <input class="input" id="chatInput" placeholder="Message..." style="margin: 0;">
                             <button onclick="sendMessage()" style="width: 50px; padding: 10px;">Send</button>
                         </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="social-tab">
+                    <div class="card">
+                        <h3>🔍 Search Users</h3>
+                        <div style="display:flex; gap:5px;">
+                            <input class="input" id="searchUserInput" placeholder="Enter username" style="margin:0;">
+                            <button onclick="searchProfile()">Search</button>
+                        </div>
+                        <div id="searchResultArea" style="margin-top: 10px;"></div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🤝 My Friends</h3>
+                        <div id="friendsListArea">No friends yet.</div>
                     </div>
                 </div>
 
@@ -284,19 +251,11 @@
                         <button onclick="giveBadge()" style="width: 100%; margin-bottom: 8px;">Give Badge</button>
                         <button onclick="takeBadge()" style="width: 100%; background: #e67e22; margin-bottom: 8px;">Take Badge</button>
                     </div>
-                    
                     <div class="card">
                         <h3>🚫 Moderation Control</h3>
                         <input class="input" id="modUsername" placeholder="Target username">
                         <button onclick="adminBanPlayer()" style="width: 100%; background: #e74c3c; margin-bottom: 8px;">Ban User</button>
                         <button onclick="adminUnbanPlayer()" style="width: 100%; background: #27ae60; margin-bottom: 8px;">Unban User</button>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="stats-tab">
-                    <div class="card">
-                        <h3>📊 Game Stats</h3>
-                        <div class="rating-info" id="statsInfo"></div>
                     </div>
                 </div>
             </div>
@@ -325,37 +284,38 @@
         const db = firebase.database();
 
         /* =======================================
-           2. STOCKFISH ENGINE (WITH CORS BYPASS)
+           2. STOCKFISH ENGINE
            ======================================= */
-        const workerData = new Blob([`importScripts("https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js");`], { type: "text/javascript" });
-        let stockfish = new Worker(window.URL.createObjectURL(workerData));
-        
+        let stockfish = null;
         let lastEngineEval = 0; 
         
-        stockfish.onmessage = function(event) {
-            let line = event.data;
-            if (line.includes("info depth 12") && line.includes("score cp")) {
-                let match = line.match(/score cp (-?\d+)/);
-                if (match) {
-                    lastEngineEval = parseInt(match[1]); 
-                    if (!isWhiteTurn) lastEngineEval = -lastEngineEval; 
+        try {
+            const workerData = new Blob([`importScripts("https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js");`], { type: "application/javascript" });
+            stockfish = new Worker(window.URL.createObjectURL(workerData));
+            stockfish.onmessage = function(event) {
+                let line = event.data;
+                if (line.includes("info depth 12") && line.includes("score cp")) {
+                    let match = line.match(/score cp (-?\d+)/);
+                    if (match) {
+                        lastEngineEval = parseInt(match[1]); 
+                        if (!isWhiteTurn) lastEngineEval = -lastEngineEval; 
+                    }
+                } else if (line.includes("score mate")) {
+                    let match = line.match(/score mate (-?\d+)/);
+                    if(match) { lastEngineEval = parseInt(match[1]) > 0 ? 9999 : -9999; }
                 }
-            } else if (line.includes("score mate")) {
-                let match = line.match(/score mate (-?\d+)/);
-                if(match) { lastEngineEval = parseInt(match[1]) > 0 ? 9999 : -9999; }
-            }
-        };
+            };
+        } catch (e) {
+            console.warn("Stockfish worker failed. Engine evaluation will use heuristics instead.");
+        }
 
         /* =======================================
            3. BASE VARIABLES & INIT 
            ======================================= */
-        let users = JSON.parse(localStorage.getItem('users')) || {
-            'Rounakgod_65': { password: 'Jiko@123', realname: 'Rounak', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, classicalRating: 2700, wins: 3200, losses: 1800, banned: false }
-        };
+        let users = {}; // Now synced completely with Firebase
         let currentUser = localStorage.getItem('currentUser');
         let game = new Chess();
         let board;
-        let chatMessages = JSON.parse(localStorage.getItem('chatMessages')) || [];
         let gameActive = false;
         let whiteTime = 300, blackTime = 300, increment = 3, gameTimer;
         let isWhiteTurn = true;
@@ -369,6 +329,13 @@
         
         let moveEvaluations = [];
 
+        // Pre-fill local testing data to Firebase if it doesn't exist
+        db.ref('users/Rounakgod_65').once('value').then(s => {
+            if(!s.exists()) {
+                db.ref('users/Rounakgod_65').set({ password: 'Jiko@123', realname: 'Rounak Bera', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, classicalRating: 2700, wins: 3200, losses: 1800, banned: false });
+            }
+        });
+
         function initApp() {
             if (!currentUser) {
                 document.getElementById('authPage').style.display = 'flex';
@@ -377,17 +344,123 @@
                 document.getElementById('authPage').style.display = 'none';
                 document.getElementById('appContainer').classList.add('active');
                 initializeBoard('white');
-                updateUI();
-                displayProfile();
-                displayStats();
-                loadChatMessages();
+                
+                // Sync users and update UI
+                db.ref('users').on('value', snap => {
+                    users = snap.val() || {};
+                    updateUI();
+                    displayProfile();
+                    displayStats();
+                    renderFriends();
+                });
+
+                listenToChat();
+                listenForPings();
                 toggleSetupFields();
-                stockfish.postMessage("uci");
+                if(stockfish) stockfish.postMessage("uci");
             }
         }
 
         /* =======================================
-           4. MATCHMAKING & UI TOGGLE
+           4. SOCIAL, PING & CHAT LOGIC
+           ======================================= */
+        function searchProfile() {
+            let q = document.getElementById('searchUserInput').value.trim();
+            let resArea = document.getElementById('searchResultArea');
+            if(!q) return;
+            
+            if (users[q]) {
+                let u = users[q];
+                let bHtml = (u.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+                resArea.innerHTML = `
+                    <div class="profile-card" style="border-left-color: #27ae60;">
+                        <strong>${u.realname} (${q})</strong> ${bHtml}<br>
+                        Blitz: ${u.blitzRating} | Rapid: ${u.rapidRating}<br>
+                        Wins: ${u.wins} | Losses: ${u.losses}<br>
+                        <button onclick="addFriend('${q}')" style="margin-top:8px; width:100%; background:#27ae60;">➕ Add Friend</button>
+                    </div>
+                `;
+            } else {
+                resArea.innerHTML = `<span class="error">User not found.</span>`;
+            }
+        }
+
+        function addFriend(name) {
+            if (name === currentUser) return alert("You can't add yourself!");
+            db.ref(`users/${currentUser}/friends/${name}`).set(true);
+            alert(`Added ${name} to your friends list!`);
+            document.getElementById('searchResultArea').innerHTML = '';
+            document.getElementById('searchUserInput').value = '';
+        }
+
+        function removeFriend(name) {
+            db.ref(`users/${currentUser}/friends/${name}`).remove();
+        }
+
+        function renderFriends() {
+            let listArea = document.getElementById('friendsListArea');
+            if(!users[currentUser] || !users[currentUser].friends) {
+                listArea.innerHTML = "No friends yet.";
+                return;
+            }
+            let html = '';
+            Object.keys(users[currentUser].friends).forEach(f => {
+                html += `
+                    <div class="friend-item">
+                        <span><strong>${f}</strong> [${users[f]?.blitzRating || '?'}]</span>
+                        <div>
+                            <button onclick="pingFriend('${f}')" style="padding: 5px 10px; background: #8e44ad; font-size:12px;">🔔 Ping</button>
+                            <button onclick="removeFriend('${f}')" style="padding: 5px 10px; background: #e74c3c; font-size:12px;">❌</button>
+                        </div>
+                    </div>
+                `;
+            });
+            listArea.innerHTML = html;
+        }
+
+        function pingFriend(name) {
+            db.ref(`users/${name}/pings`).push({
+                from: currentUser,
+                time: firebase.database.ServerValue.TIMESTAMP
+            });
+            alert(`Ping sent to ${name}!`);
+        }
+
+        function listenForPings() {
+            db.ref(`users/${currentUser}/pings`).on('child_added', snap => {
+                let ping = snap.val();
+                showGameAlert(`🔔 PING from ${ping.from}!`, 'draw');
+                snap.ref.remove(); // clear it after showing
+            });
+        }
+
+        function sendMessage() {
+            const msg = document.getElementById('chatInput').value.trim();
+            if (!msg) return;
+            db.ref('globalChat').push({
+                user: currentUser,
+                text: msg,
+                time: firebase.database.ServerValue.TIMESTAMP
+            });
+            document.getElementById('chatInput').value = '';
+        }
+
+        function listenToChat() {
+            db.ref('globalChat').limitToLast(40).on('value', snap => {
+                let html = '';
+                snap.forEach(child => {
+                    let m = child.val();
+                    let uBadges = (users[m.user]?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+                    html += `<div class="chat-msg"><strong>${m.user}</strong> ${uBadges}: ${m.text}</div>`;
+                });
+                const chatBox = document.getElementById('chatMessages');
+                chatBox.innerHTML = html;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        /* =======================================
+           5. MATCHMAKING 
            ======================================= */
         function toggleSetupFields() {
             const mode = document.getElementById('gameModeSelect').value;
@@ -408,6 +481,17 @@
             }
         }
 
+        function updateButtonVisibility() {
+            if (gameMode === 'local') {
+                document.getElementById('whiteSideBtns').classList.remove('hidden');
+                document.getElementById('blackSideBtns').classList.remove('hidden');
+            } else {
+                // Hide opponent's buttons in Bot and Online modes
+                document.getElementById('whiteSideBtns').classList.toggle('hidden', playerColor !== 'w');
+                document.getElementById('blackSideBtns').classList.toggle('hidden', playerColor !== 'b');
+            }
+        }
+
         function findOnlineMatch() {
             const format = document.getElementById('matchTimeFormat').value;
             let baseTime = format === 'rapid' ? 600 : 300;
@@ -415,47 +499,38 @@
             whiteTime = baseTime;
             blackTime = baseTime;
 
-            document.getElementById('gameStatus').innerText = "Looking for an opponent...";
+            document.getElementById('gameStatus').innerText = "Connecting to Firebase Database...";
             isOnlineGame = true;
             
-            db.ref('rooms').orderByChild('status').equalTo('waiting').once('value', snapshot => {
+            db.ref('rooms').orderByChild('status').equalTo('waiting').once('value')
+            .then(snapshot => {
                 const rooms = snapshot.val();
-                
                 if (rooms) {
                     const roomId = Object.keys(rooms)[0]; 
                     if (rooms[roomId].whitePlayer === currentUser) {
                         document.getElementById('gameStatus').innerText = "You are already waiting for an opponent.";
                         return;
                     }
-                    
                     onlineRoomId = roomId;
                     playerColor = 'b';
-                    
-                    db.ref('rooms/' + roomId).update({
-                        blackPlayer: currentUser,
-                        status: 'playing'
-                    });
-                    
+                    db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing' });
                     listenToOnlineRoom();
                     startGameInternal('b');
                 } else {
                     onlineRoomId = db.ref('rooms').push().key; 
                     playerColor = 'w';
-                    
                     db.ref('rooms/' + onlineRoomId).set({
-                        fen: game.fen(),
-                        whitePlayer: currentUser,
-                        blackPlayer: null,
-                        status: 'waiting',
-                        whiteTime: whiteTime,
-                        blackTime: blackTime,
+                        fen: game.fen(), whitePlayer: currentUser, blackPlayer: null,
+                        status: 'waiting', whiteTime: whiteTime, blackTime: blackTime,
                         lastMoveTime: firebase.database.ServerValue.TIMESTAMP
                     });
-
                     listenToOnlineRoom();
                     startGameInternal('w');
                     document.getElementById('gameStatus').innerText = "Waiting for an opponent to join...";
                 }
+            }).catch(error => {
+                alert("Database Connection Failed!\n" + error.message);
+                document.getElementById('gameStatus').innerText = "Failed to connect to matchmaking.";
             });
         }
 
@@ -467,22 +542,36 @@
                 const data = snapshot.val();
                 if (!data) return;
 
-                // Handle Resignation / opponent leaving
+                // Check for forced ends (Resignations)
                 if (gameActive && data.forcedWinner) {
                     endGame(data.forcedWinner, data.reason);
+                }
+
+                // Check for Draw Offers
+                if (gameActive && data.drawOffer) {
+                    if (data.drawOffer === 'accepted') {
+                        endGame(null, 'Draw Agreement');
+                        db.ref('rooms/' + onlineRoomId).update({ drawOffer: null });
+                    } else if (data.drawOffer === 'declined' && data.drawOfferFrom === currentUser) {
+                        showGameAlert("Opponent declined draw", "draw");
+                        db.ref('rooms/' + onlineRoomId).update({ drawOffer: null });
+                    } else if (data.drawOffer !== currentUser && data.drawOffer !== 'declined') {
+                        if (confirm("Opponent offered a draw. Do you accept?")) {
+                            db.ref('rooms/' + onlineRoomId).update({ drawOffer: 'accepted' });
+                        } else {
+                            db.ref('rooms/' + onlineRoomId).update({ drawOffer: 'declined', drawOfferFrom: data.drawOffer });
+                        }
+                    }
                 }
 
                 if (data.status === 'playing') {
                     document.getElementById('whitePlayer').textContent = `White: ${data.whitePlayer}`;
                     document.getElementById('blackPlayer').textContent = `Black: ${data.blackPlayer}`;
-                    
-                    if(document.getElementById('gameStatus').innerText.includes("Waiting")) {
-                        updateGameStatus();
-                    }
+                    if(document.getElementById('gameStatus').innerText.includes("Waiting")) updateGameStatus();
                 }
 
-                if (data.fen !== game.fen() && data.lastMoveFrom !== currentUser && !data.forcedWinner) {
-                    game.load(data.fen);
+                if (data.fen !== game.fen() && data.lastMoveFrom !== currentUser && !data.forcedWinner && data.lastMoveData) {
+                    game.move(data.lastMoveData.san);
                     board.position(game.fen());
                     isWhiteTurn = game.turn() === 'w';
                     whiteTime = data.whiteTime;
@@ -498,7 +587,7 @@
         }
 
         /* =======================================
-           5. GAME MECHANICS, MOVES & DOTS
+           6. GAME MECHANICS, MOVES & DOTS
            ======================================= */
         function triggerPlayConfiguration() {
             isOnlineGame = false;
@@ -520,9 +609,10 @@
             moveEvaluations = [];
             initializeBoard(orientation === 'b' ? 'black' : 'white');
             isWhiteTurn = true;
+            selectedPiece = null;
+            clearHighlights();
             
-            document.getElementById('whiteSideBtns').classList.remove('hidden');
-            document.getElementById('blackSideBtns').classList.remove('hidden');
+            updateButtonVisibility();
             
             if(!isOnlineGame) {
                 document.getElementById('whitePlayer').textContent = gameMode === 'local' ? 'White: Player 1' : `White: ${playerColor==='w'?currentUser:'Bot'}`;
@@ -531,8 +621,10 @@
             }
             
             startClock();
-            stockfish.postMessage(`position fen ${game.fen()}`);
-            stockfish.postMessage("go depth 12"); 
+            if(stockfish) {
+                stockfish.postMessage(`position fen ${game.fen()}`);
+                stockfish.postMessage("go depth 12"); 
+            }
             
             if (gameMode === 'bot' && playerColor === 'b') setTimeout(makeBotMove, 800);
         }
@@ -554,11 +646,7 @@
                     showLegalMoves(square);
                 }
             } else {
-                if (square === selectedPiece) { 
-                    clearHighlights(); 
-                    return; 
-                }
-                
+                if (square === selectedPiece) { clearHighlights(); return; }
                 const piece = game.get(square);
                 if (piece && piece.color === (isWhiteTurn ? 'w' : 'b')) {
                     clearHighlights();
@@ -569,10 +657,7 @@
                 }
 
                 const move = game.move({ from: selectedPiece, to: square, promotion: 'q' });
-                if (move === null) { 
-                    clearHighlights(); 
-                    return; 
-                }
+                if (move === null) { clearHighlights(); return; }
                 
                 clearHighlights();
                 finishMoveLogic(move);
@@ -601,7 +686,6 @@
             document.querySelectorAll('.move-dot').forEach(dot => dot.remove());
             if (selectedPiece) {
                 const sq = document.querySelector(`[data-square="${selectedPiece}"]`);
-                // Resets color to default board scheme automatically
                 if(sq) sq.style.backgroundColor = '';
             }
             selectedPiece = null; 
@@ -612,7 +696,7 @@
             const moves = game.moves({ verbose: true });
             if (moves.length === 0) return;
             const selectedMove = moves[Math.floor(Math.random() * moves.length)];
-            game.move(selectedMove);
+            game.move(selectedMove.san);
             finishMoveLogic(selectedMove);
         }
 
@@ -626,16 +710,15 @@
             updateMovesList();
             updateGameStatus();
 
-            stockfish.postMessage(`position fen ${game.fen()}`);
-            stockfish.postMessage("go depth 12");
+            if(stockfish) {
+                stockfish.postMessage(`position fen ${game.fen()}`);
+                stockfish.postMessage("go depth 12");
+            }
             
             if (isOnlineGame) {
                 db.ref('rooms/' + onlineRoomId).update({
-                    fen: game.fen(),
-                    whiteTime: whiteTime,
-                    blackTime: blackTime,
-                    lastMoveFrom: currentUser,
-                    lastMoveData: move
+                    fen: game.fen(), whiteTime: whiteTime, blackTime: blackTime,
+                    lastMoveFrom: currentUser, lastMoveData: move
                 });
             }
 
@@ -647,30 +730,30 @@
         }
 
         /* =======================================
-           6. CHESS.COM ELO LOGIC & MOVE EVALUATION
+           7. CHESS.COM ELO LOGIC & MOVE EVALUATION
            ======================================= */
         function calculateEngineFeedback(move) {
             if(!move) return;
-            let label = "Excellent";
-            let cssClass = "excellent";
+            let label = "Excellent", cssClass = "excellent";
             
             if (game.history().length <= 6) { moveEvaluations.push({ label: "Book", class: "book" }); return; }
             
             game.undo();
             const legalMovesBefore = game.moves().length;
-            game.move(move);
-            if(legalMovesBefore === 1) {
-                moveEvaluations.push({ label: "Forced", class: "forced" }); return;
-            }
-
+            game.move(move.san);
+            
+            if(legalMovesBefore === 1) { moveEvaluations.push({ label: "Forced", class: "forced" }); return; }
             if (move.san.includes('#')) { moveEvaluations.push({ label: "Brilliant", class: "brilliant" }); return; }
 
             const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
             let valueCaptured = move.captured ? pieceValues[move.captured] : 0;
             let movingPieceValue = pieceValues[move.piece];
 
-            let tempGame = new Chess(game.fen());
-            tempGame.turn(tempGame.turn() === 'w' ? 'b' : 'w'); 
+            let fenTokens = game.fen().split(' ');
+            fenTokens[1] = fenTokens[1] === 'w' ? 'b' : 'w';
+            fenTokens[3] = '-'; 
+            let tempGame = new Chess();
+            tempGame.load(fenTokens.join(' '));
             let opponentMoves = tempGame.moves({ verbose: true });
             let isAttacked = opponentMoves.some(m => m.to === move.to);
 
@@ -689,19 +772,17 @@
                 else if (r > 0.4) { label = "Excellent"; cssClass = "excellent"; }
                 else { label = "Good"; cssClass = "good"; }
             }
-
             moveEvaluations.push({ label: label, class: cssClass });
         }
 
         /* =======================================
-           7. TIMERS & GAME STATE LOGIC
+           8. TIMERS & GAME OVER
            ======================================= */
         function startClock() {
             if (gameTimer) clearInterval(gameTimer);
             updateClocks();
             gameTimer = setInterval(() => {
                 if (!gameActive) return;
-                
                 if(isOnlineGame && document.getElementById('gameStatus').innerText.includes("Waiting")) return;
 
                 if (isWhiteTurn) whiteTime = Math.max(0, whiteTime - 1);
@@ -767,7 +848,6 @@
             
             let alertText = resultText;
 
-            // Rating System (Elo Math)
             if (gameMode !== 'local') {
                 const user = users[currentUser];
                 const format = document.getElementById('matchTimeFormat').value;
@@ -784,7 +864,6 @@
                     }
                 }
 
-                // Chess.com Elo standard formula
                 const expectedScore = 1 / (1 + Math.pow(10, (oppRating - currentRating) / 400));
                 let kFactor = currentRating < 2100 ? 32 : (currentRating < 2400 ? 24 : 16);
                 let ratingChange = Math.round(kFactor * (resultValue - expectedScore));
@@ -795,10 +874,8 @@
                 if (resultValue === 1) user.wins++;
                 else if (resultValue === 0) user.losses++;
                 
-                localStorage.setItem('users', JSON.stringify(users));
-                displayProfile();
-                displayStats();
-
+                db.ref('users/' + currentUser).update(user); // Sync to FB
+                
                 let color = ratingChange >= 0 ? '#27ae60' : '#e74c3c';
                 let sign = ratingChange >= 0 ? '+' : '';
                 resultText += `<br><span style="font-size: 16px; color: ${color}; display: block; margin-top: 8px;">📊 Rating: ${currentRating} ${sign}${ratingChange} ➝ ${currentRating + ratingChange}</span>`;
@@ -838,6 +915,7 @@
             document.querySelector('.board-container').appendChild(alertEl);
         }
 
+        /* ACTION CONTROLS: RESIGN & DRAW */
         function resignAs(side) { 
             if(!gameActive) return;
             if(confirm("Are you sure you want to resign?")) {
@@ -848,23 +926,33 @@
                         reason: 'Resignation' 
                     });
                 }
+                // Reset the board to normal completely after resignation processed
+                game.reset();
+                board.position('start');
+                clearHighlights();
+                document.getElementById('whiteSideBtns').classList.add('hidden');
+                document.getElementById('blackSideBtns').classList.add('hidden');
+            }
+        }
+
+        function offerDrawAs(side) {
+            if (!gameActive) return;
+            if (gameMode === 'bot') {
+                if (Math.random() > 0.5) { endGame(null, 'Draw Agreement'); } 
+                else { showGameAlert("Bot declined the draw.", 'draw'); }
+            } else if (gameMode === 'local') {
+                if (confirm("Opponent offers a draw. Do you accept?")) { endGame(null, 'Draw Agreement'); }
+            } else if (isOnlineGame) {
+                db.ref('rooms/' + onlineRoomId).update({ drawOffer: currentUser });
+                showGameAlert("Draw offer sent", "draw");
             }
         }
         
         /* =======================================
-           8. UI, AUTH & ADMIN FUNCTIONS
+           9. UI, AUTH & ADMIN
            ======================================= */
-        function switchAuthTab(t, e) { 
-            document.querySelectorAll('.auth-form, .auth-tab').forEach(el => el.classList.remove('active')); 
-            document.getElementById(t+'Form').classList.add('active'); 
-            if(e) e.target.classList.add('active'); 
-        }
-        
-        function switchTab(t, e) { 
-            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); 
-            document.getElementById(t+'-tab').classList.add('active'); 
-            if(e) e.target.classList.add('active'); 
-        }
+        function switchAuthTab(t, e) { document.querySelectorAll('.auth-form, .auth-tab').forEach(el => el.classList.remove('active')); document.getElementById(t+'Form').classList.add('active'); if(e) e.target.classList.add('active'); }
+        function switchTab(t, e) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t+'-tab').classList.add('active'); if(e) e.target.classList.add('active'); }
         
         function login(e) {
             e.preventDefault();
@@ -872,23 +960,20 @@
             const password = document.getElementById('loginPassword').value;
             const msg = document.getElementById('loginMsg');
             
-            if (users[username] && users[username].password === password) {
-                if (users[username].banned) {
-                    msg.textContent = '✗ Your account has been banned';
-                    msg.classList.add('error');
-                    return;
+            db.ref('users/' + username).once('value').then(snap => {
+                let u = snap.val();
+                if (u && u.password === password) {
+                    if (u.banned) { msg.textContent = '✗ Your account is banned'; msg.classList.add('error'); return; }
+                    currentUser = username;
+                    localStorage.setItem('currentUser', currentUser);
+                    msg.textContent = '✓ Login successful!';
+                    msg.className = 'auth-msg success';
+                    setTimeout(() => initApp(), 500);
+                } else {
+                    msg.textContent = '✗ Invalid credentials';
+                    msg.className = 'auth-msg error';
                 }
-                currentUser = username;
-                localStorage.setItem('currentUser', currentUser);
-                msg.textContent = '✓ Login successful!';
-                msg.classList.remove('error');
-                msg.classList.add('success');
-                setTimeout(() => initApp(), 500);
-            } else {
-                msg.textContent = '✗ Invalid credentials';
-                msg.classList.remove('success');
-                msg.classList.add('error');
-            }
+            });
         }
 
         function signup(e) {
@@ -898,47 +983,36 @@
             const password = document.getElementById('signupPassword').value;
             const msg = document.getElementById('signupMsg');
             
-            if (users[username]) {
-                msg.textContent = '✗ Username taken';
-                msg.classList.add('error');
-                return;
-            }
-            
-            users[username] = {
-                password: password,
-                realname: realname,
-                badges: [],
-                blitzRating: 1500,
-                rapidRating: 1500,
-                classicalRating: 1500,
-                wins: 0,
-                losses: 0,
-                banned: false
-            };
-            
-            localStorage.setItem('users', JSON.stringify(users));
-            msg.textContent = '✓ Account created! Login now.';
-            msg.classList.remove('error');
-            msg.classList.add('success');
-            setTimeout(() => switchAuthTab('login'), 800);
+            db.ref('users/' + username).once('value').then(snap => {
+                if (snap.exists()) {
+                    msg.textContent = '✗ Username taken'; msg.className = 'auth-msg error';
+                } else {
+                    db.ref('users/' + username).set({
+                        password: password, realname: realname, badges: [],
+                        blitzRating: 1500, rapidRating: 1500, classicalRating: 1500,
+                        wins: 0, losses: 0, banned: false
+                    });
+                    msg.textContent = '✓ Account created! Login now.'; msg.className = 'auth-msg success';
+                    setTimeout(() => switchAuthTab('login'), 800);
+                }
+            });
         }
 
-        function logout() { currentUser = null; localStorage.removeItem('currentUser'); initApp(); }
+        function logout() { currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
         
         function updateUI() { 
             const user = users[currentUser];
             if(!user) return;
-            let badgeHtml = '';
-            user.badges.forEach(b => { badgeHtml += ` <span class="badge ${b}">${b.toUpperCase()}</span>`; });
+            let badgeHtml = (user.badges||[]).map(b => ` <span class="badge ${b}">${b.toUpperCase()}</span>`).join('');
             document.getElementById('userDisplay').innerHTML = `${currentUser}${badgeHtml}`;
-            if (user.badges.includes('owner')) document.getElementById('adminTabBtn').classList.remove('hidden');
+            if ((user.badges||[]).includes('owner')) document.getElementById('adminTabBtn').classList.remove('hidden');
         }
 
         function displayProfile() { 
             const user = users[currentUser];
             if(!user) return;
             let html = `<strong>${user.realname}</strong><br>Username: ${currentUser}<br>Rating: ${user.blitzRating}`;
-            user.badges.forEach(b => { html += ` <span class="badge ${b}">${b}</span>`; });
+            html += (user.badges||[]).map(b => ` <span class="badge ${b}">${b}</span>`).join('');
             document.getElementById('myProfile').innerHTML = html;
         }
 
@@ -947,89 +1021,58 @@
             if(!user) return;
             const totalGames = user.wins + user.losses;
             const winRate = totalGames > 0 ? Math.round((user.wins / totalGames) * 100) : 0;
-            let html = `
+            document.getElementById('statsInfo').innerHTML = `
                 <div class="rating-box"><div class="label">Blitz Rating</div><div class="value">${user.blitzRating}</div></div>
                 <div class="rating-box"><div class="label">Rapid Rating</div><div class="value">${user.rapidRating}</div></div>
                 <div class="rating-box"><div class="label">Total Games</div><div class="value">${totalGames}</div></div>
                 <div class="rating-box"><div class="label">Win Rate</div><div class="value">${winRate}%</div></div>
             `;
-            document.getElementById('statsInfo').innerHTML = html;
-        }
-
-        function sendMessage() {
-            const msg = document.getElementById('chatInput').value.trim();
-            if (!msg) return;
-            chatMessages.push({ user: currentUser, text: msg });
-            localStorage.setItem('chatMessages', JSON.stringify(chatMessages));
-            document.getElementById('chatInput').value = '';
-            loadChatMessages();
-        }
-
-        function loadChatMessages() {
-            let html = '';
-            chatMessages.slice(-30).forEach(m => {
-                let uBadges = (users[m.user]?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
-                html += `<div class="chat-msg"><strong>${m.user}</strong> ${uBadges}: ${m.text}</div>`;
-            });
-            document.getElementById('chatMessages').innerHTML = html;
         }
 
         function giveBadge() {
             const user = users[currentUser];
-            if (!user || !user.badges.includes('owner')) return;
-            const username = document.getElementById('verifyUsername').value.trim();
+            if (!user || !(user.badges||[]).includes('owner')) return;
+            const target = document.getElementById('verifyUsername').value.trim();
             const badge = document.getElementById('badgeSelect').value;
-            if (!username || !badge || !users[username]) return;
-            if (users[username].badges.includes(badge)) return;
-            users[username].badges.push(badge);
-            localStorage.setItem('users', JSON.stringify(users));
-            updateUI();
+            if (!target || !badge || !users[target]) return;
+            let bArr = users[target].badges || [];
+            if (!bArr.includes(badge)) {
+                bArr.push(badge);
+                db.ref('users/' + target + '/badges').set(bArr);
+                alert("Badge given!");
+            }
         }
 
         function takeBadge() {
             const user = users[currentUser];
-            if (!user || !user.badges.includes('owner')) return;
-            const username = document.getElementById('verifyUsername').value.trim();
+            if (!user || !(user.badges||[]).includes('owner')) return;
+            const target = document.getElementById('verifyUsername').value.trim();
             const badge = document.getElementById('badgeSelect').value;
-            if (!username || !badge || !users[username]) return;
-            const idx = users[username].badges.indexOf(badge);
+            if (!target || !badge || !users[target]) return;
+            let bArr = users[target].badges || [];
+            const idx = bArr.indexOf(badge);
             if (idx > -1) {
-                users[username].badges.splice(idx, 1);
-                localStorage.setItem('users', JSON.stringify(users));
-                updateUI();
+                bArr.splice(idx, 1);
+                db.ref('users/' + target + '/badges').set(bArr);
+                alert("Badge taken.");
             }
         }
 
         function adminBanPlayer() {
-            const myUser = users[currentUser];
-            if (!myUser || !myUser.badges.includes('owner')) return;
+            if (!(users[currentUser].badges||[]).includes('owner')) return;
             const target = document.getElementById('modUsername').value.trim();
-            if (users[target]) {
-                users[target].banned = true;
-                localStorage.setItem('users', JSON.stringify(users));
-                alert(target + " has been banned.");
-            }
+            if (users[target]) { db.ref('users/' + target + '/banned').set(true); alert(target + " banned."); }
         }
 
         function adminUnbanPlayer() {
-            const myUser = users[currentUser];
-            if (!myUser || !myUser.badges.includes('owner')) return;
+            if (!(users[currentUser].badges||[]).includes('owner')) return;
             const target = document.getElementById('modUsername').value.trim();
-            if (users[target]) {
-                users[target].banned = false;
-                localStorage.setItem('users', JSON.stringify(users));
-                alert(target + " has been unbanned.");
-            }
+            if (users[target]) { db.ref('users/' + target + '/banned').set(false); alert(target + " unbanned."); }
         }
 
         function initializeBoard(o) { 
             if(board) board.destroy(); 
-            board = ChessBoard('board', { 
-                position: 'start', 
-                orientation: o, 
-                draggable: false,
-                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
-            }); 
+            board = ChessBoard('board', { position: 'start', orientation: o, draggable: false, pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png' }); 
             document.getElementById('board').removeEventListener('click', handleBoardClick);
             document.getElementById('board').addEventListener('click', handleBoardClick); 
         }
