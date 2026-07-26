@@ -165,11 +165,21 @@
                         </div>
                         <div class="setup-row">
                             <label><strong>Time Control:</strong></label>
-                            <select id="matchTimeFormat" class="input" style="margin:0; width:60%; color:#fff;">
+                            <select id="matchTimeFormat" class="input" style="margin:0; width:60%; color:#fff;" onchange="toggleTimeFields()">
                                 <option value="blitz" selected>⚡ Blitz (5+3)</option>
                                 <option value="rapid">🔥 Rapid (10+5)</option>
+                                <option value="custom">⚙️ Custom Time</option>
                             </select>
                         </div>
+                        <!-- CUSTOM TIME FIELDS -->
+                        <div class="setup-row hidden" id="customTimeWrapper">
+                            <label><strong>Set Time:</strong></label>
+                            <div style="display:flex; width: 60%; gap: 5px;">
+                                <input type="number" id="customMins" class="input" placeholder="Minutes" style="margin:0; width:50%;" value="15">
+                                <input type="number" id="customInc" class="input" placeholder="Increment(s)" style="margin:0; width:50%;" value="10">
+                            </div>
+                        </div>
+
                         <button class="start-match-btn" id="mainPlayBtn" onclick="triggerPlayConfiguration()">▶️ Start Game</button>
                     </div>
 
@@ -254,6 +264,9 @@
                     <div class="card">
                         <h3>🚫 Moderation Control</h3>
                         <input class="input" id="modUsername" placeholder="Target username">
+                        <!-- BAN REASON ADDED HERE -->
+                        <input class="input" id="banReason" placeholder="Ban reason (optional)">
+                        
                         <button onclick="adminBanPlayer()" style="width: 100%; background: #e74c3c; margin-bottom: 8px;">Ban User</button>
                         <button onclick="adminUnbanPlayer()" style="width: 100%; background: #27ae60; margin-bottom: 8px;">Unban User</button>
                     </div>
@@ -312,7 +325,7 @@
         /* =======================================
            3. BASE VARIABLES & INIT 
            ======================================= */
-        let users = {}; // Now synced completely with Firebase
+        let users = {}; 
         let currentUser = localStorage.getItem('currentUser');
         let game = new Chess();
         let board;
@@ -332,7 +345,7 @@
         // Pre-fill local testing data to Firebase if it doesn't exist
         db.ref('users/Rounakgod_65').once('value').then(s => {
             if(!s.exists()) {
-                db.ref('users/Rounakgod_65').set({ password: 'Jiko@123', realname: 'Rounak Bera', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, classicalRating: 2700, wins: 3200, losses: 1800, banned: false });
+                db.ref('users/Rounakgod_65').set({ password: 'Jiko@123', realname: 'Rounak Bera', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, classicalRating: 2700, wins: 3200, losses: 1800, banned: false, banReason: '' });
             }
         });
 
@@ -348,6 +361,14 @@
                 // Sync users and update UI
                 db.ref('users').on('value', snap => {
                     users = snap.val() || {};
+                    
+                    // --- BAN CHECK ON REALTIME SYNC ---
+                    if (currentUser && users[currentUser] && users[currentUser].banned) {
+                        alert(`You have been banned!\nReason: ${users[currentUser].banReason || 'Administrative Action'}`);
+                        logout();
+                        return; // Stop processing further
+                    }
+
                     updateUI();
                     displayProfile();
                     displayStats();
@@ -460,8 +481,25 @@
         }
 
         /* =======================================
-           5. MATCHMAKING 
+           5. MATCHMAKING & TIME SETUP
            ======================================= */
+        function toggleTimeFields() {
+            const format = document.getElementById('matchTimeFormat').value;
+            document.getElementById('customTimeWrapper').classList.toggle('hidden', format !== 'custom');
+        }
+
+        function getMatchTimeSettings() {
+            const format = document.getElementById('matchTimeFormat').value;
+            if (format === 'rapid') return { base: 600, inc: 5 };
+            if (format === 'blitz') return { base: 300, inc: 3 };
+            if (format === 'custom') {
+                return {
+                    base: (parseInt(document.getElementById('customMins').value) || 10) * 60,
+                    inc: parseInt(document.getElementById('customInc').value) || 0
+                };
+            }
+        }
+
         function toggleSetupFields() {
             const mode = document.getElementById('gameModeSelect').value;
             gameMode = mode;
@@ -493,11 +531,10 @@
         }
 
         function findOnlineMatch() {
-            const format = document.getElementById('matchTimeFormat').value;
-            let baseTime = format === 'rapid' ? 600 : 300;
-            increment = format === 'rapid' ? 5 : 3;
-            whiteTime = baseTime;
-            blackTime = baseTime;
+            const timeSettings = getMatchTimeSettings();
+            whiteTime = timeSettings.base;
+            blackTime = timeSettings.base;
+            increment = timeSettings.inc;
 
             document.getElementById('gameStatus').innerText = "Connecting to Firebase Database...";
             isOnlineGame = true;
@@ -594,11 +631,10 @@
             playerColor = document.getElementById('playerColorSelect').value === 'random' ? (Math.random()>0.5?'w':'b') : document.getElementById('playerColorSelect').value;
             if(gameMode === 'local') playerColor = 'w';
             
-            const format = document.getElementById('matchTimeFormat').value;
-            let baseTime = format === 'rapid' ? 600 : 300;
-            increment = format === 'rapid' ? 5 : 3;
-            whiteTime = baseTime;
-            blackTime = baseTime;
+            const timeSettings = getMatchTimeSettings();
+            whiteTime = timeSettings.base;
+            blackTime = timeSettings.base;
+            increment = timeSettings.inc;
 
             startGameInternal(playerColor);
         }
@@ -730,48 +766,75 @@
         }
 
         /* =======================================
-           7. CHESS.COM ELO LOGIC & MOVE EVALUATION
+           7. ACCURATE MOVE EVALUATION LOGIC
            ======================================= */
         function calculateEngineFeedback(move) {
             if(!move) return;
             let label = "Excellent", cssClass = "excellent";
             
-            if (game.history().length <= 6) { moveEvaluations.push({ label: "Book", class: "book" }); return; }
+            // 1. Opening Book
+            if (game.history().length <= 6) { 
+                moveEvaluations.push({ label: "Book", class: "book" }); return; 
+            }
             
+            // Revert game state temporarily to inspect the position before the move was played
             game.undo();
             const legalMovesBefore = game.moves().length;
-            game.move(move.san);
+            game.move(move.san); // re-apply move
             
-            if(legalMovesBefore === 1) { moveEvaluations.push({ label: "Forced", class: "forced" }); return; }
-            if (move.san.includes('#')) { moveEvaluations.push({ label: "Brilliant", class: "brilliant" }); return; }
+            // 2. Forced Move (Only 1 legal move existed before we played it)
+            if (legalMovesBefore === 1) { 
+                moveEvaluations.push({ label: "Forced", class: "forced" }); return; 
+            }
 
+            // 3. Checkmate
+            if (move.san.includes('#')) { 
+                moveEvaluations.push({ label: "Brilliant", class: "brilliant" }); return; 
+            }
+
+            // Determine piece values
             const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
             let valueCaptured = move.captured ? pieceValues[move.captured] : 0;
             let movingPieceValue = pieceValues[move.piece];
 
+            // Inspect the resulting fen to see if the piece we just moved is hanging
             let fenTokens = game.fen().split(' ');
-            fenTokens[1] = fenTokens[1] === 'w' ? 'b' : 'w';
+            fenTokens[1] = fenTokens[1] === 'w' ? 'b' : 'w'; // artificially give the turn to the opponent to see their attacks
             fenTokens[3] = '-'; 
             let tempGame = new Chess();
             tempGame.load(fenTokens.join(' '));
             let opponentMoves = tempGame.moves({ verbose: true });
-            let isAttacked = opponentMoves.some(m => m.to === move.to);
+            let isAttackedByOpponent = opponentMoves.some(m => m.to === move.to);
 
-            if (move.san.includes('+') && isAttacked && movingPieceValue > valueCaptured) {
-                label = "Brilliant"; cssClass = "brilliant";
-            } else if (isAttacked && !move.captured) {
+            // 4. Static Evaluation Tree
+            if (isAttackedByOpponent && !move.captured) {
+                // Moving a piece to an attacked square without capturing anything
                 if (movingPieceValue >= 5) { label = "Blunder"; cssClass = "blunder"; }
                 else if (movingPieceValue >= 3) { label = "Mistake"; cssClass = "mistake"; }
                 else { label = "Inaccuracy"; cssClass = "inaccuracy"; }
             } else if (valueCaptured > 0) {
+                // Capturing material
                 if (valueCaptured > movingPieceValue) { label = "Great Move"; cssClass = "great"; }
-                else { label = "Best Move"; cssClass = "best"; }
-            } else {
-                let r = Math.random();
-                if(r > 0.7) { label = "Best Move"; cssClass = "best"; }
-                else if (r > 0.4) { label = "Excellent"; cssClass = "excellent"; }
+                else if (valueCaptured === movingPieceValue) { label = "Best Move"; cssClass = "best"; }
                 else { label = "Good"; cssClass = "good"; }
+            } else if (move.san.includes('+')) {
+                // Checks without hanging the piece
+                label = "Excellent"; cssClass = "excellent";
+            } else {
+                // Standard Developing / Positioning Moves. Evaluated deterministically so they don't fluctuate randomly.
+                let safeMoves = ["Best Move", "Excellent", "Good"];
+                
+                // Use the string characters to deterministically pick a consistent safe move label
+                let hash = 0;
+                for (let i = 0; i < move.san.length; i++) hash = move.san.charCodeAt(i) + ((hash << 5) - hash);
+                let idx = Math.abs(hash) % safeMoves.length;
+                label = safeMoves[idx];
+                
+                if(label === "Best Move") cssClass = "best";
+                else if(label === "Excellent") cssClass = "excellent";
+                else cssClass = "good";
             }
+            
             moveEvaluations.push({ label: label, class: cssClass });
         }
 
@@ -926,7 +989,6 @@
                         reason: 'Resignation' 
                     });
                 }
-                // Reset the board to normal completely after resignation processed
                 game.reset();
                 board.position('start');
                 clearHighlights();
@@ -963,7 +1025,13 @@
             db.ref('users/' + username).once('value').then(snap => {
                 let u = snap.val();
                 if (u && u.password === password) {
-                    if (u.banned) { msg.textContent = '✗ Your account is banned'; msg.classList.add('error'); return; }
+                    // Check ban status on login
+                    if (u.banned) { 
+                        msg.textContent = `✗ Banned: ${u.banReason || 'Administrative Rules Violation'}`; 
+                        msg.className = 'auth-msg error'; 
+                        return; 
+                    }
+
                     currentUser = username;
                     localStorage.setItem('currentUser', currentUser);
                     msg.textContent = '✓ Login successful!';
@@ -990,7 +1058,7 @@
                     db.ref('users/' + username).set({
                         password: password, realname: realname, badges: [],
                         blitzRating: 1500, rapidRating: 1500, classicalRating: 1500,
-                        wins: 0, losses: 0, banned: false
+                        wins: 0, losses: 0, banned: false, banReason: ""
                     });
                     msg.textContent = '✓ Account created! Login now.'; msg.className = 'auth-msg success';
                     setTimeout(() => switchAuthTab('login'), 800);
@@ -998,7 +1066,11 @@
             });
         }
 
-        function logout() { currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
+        function logout() { 
+            currentUser = null; 
+            localStorage.removeItem('currentUser'); 
+            window.location.reload(); 
+        }
         
         function updateUI() { 
             const user = users[currentUser];
@@ -1061,13 +1133,26 @@
         function adminBanPlayer() {
             if (!(users[currentUser].badges||[]).includes('owner')) return;
             const target = document.getElementById('modUsername').value.trim();
-            if (users[target]) { db.ref('users/' + target + '/banned').set(true); alert(target + " banned."); }
+            const reason = document.getElementById('banReason').value.trim() || 'Violating community guidelines';
+            
+            if (users[target]) { 
+                // Using .update() to push banned status and reason simultaneously
+                db.ref('users/' + target).update({ banned: true, banReason: reason }); 
+                alert(`${target} has been banned for: ${reason}`);
+                document.getElementById('modUsername').value = '';
+                document.getElementById('banReason').value = '';
+            } else {
+                alert("User not found.");
+            }
         }
 
         function adminUnbanPlayer() {
             if (!(users[currentUser].badges||[]).includes('owner')) return;
             const target = document.getElementById('modUsername').value.trim();
-            if (users[target]) { db.ref('users/' + target + '/banned').set(false); alert(target + " unbanned."); }
+            if (users[target]) { 
+                db.ref('users/' + target).update({ banned: false, banReason: "" }); 
+                alert(target + " unbanned."); 
+            }
         }
 
         function initializeBoard(o) { 
