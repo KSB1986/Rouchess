@@ -112,7 +112,7 @@
         .tab-btn.active { background: #3498db; border-color: #3498db; }
         .tab-content { display: none; } .tab-content.active { display: block; }
         
-        /* CHESS.COM ANNOTATIONS */
+        /* ANNOTATIONS */
         .moves-list { background: #34495e; padding: 10px; border-radius: 6px; font-size: 13px; max-height: 120px; overflow-y: auto; line-height: 1.6; margin-top: 10px; }
         .move-item { display: inline-block; margin-right: 8px; margin-bottom: 4px; background: #2c3e50; border-radius: 4px; padding: 2px 6px;}
         .move-annotation { font-size: 11px; font-weight: bold; margin-left: 4px; padding: 2px 4px; border-radius: 3px; color: #fff;}
@@ -141,14 +141,11 @@
         .social-item { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 13px; }
         .streak-fire { color: #e67e22; font-weight: bold; font-size: 16px; margin-left: 5px; }
         
-        /* File Input */
         input[type="file"]::file-selector-button { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 10px; }
         input[type="file"]::file-selector-button:hover { background: #2980b9; }
 
-        /* Direct Message Screen */
         .dm-header { display: flex; align-items: center; gap: 10px; background: #2c3e50; padding: 8px; border-bottom: 1px solid #34495e; }
 
-        /* Match History Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 15px; }
         .modal-content { background: #2c3e50; width: 100%; max-width: 500px; height: 85vh; border-radius: 10px; border: 2px solid #3498db; display: flex; flex-direction: column; overflow: hidden; }
         .modal-header { padding: 12px 15px; background: #1a252f; border-bottom: 1px solid #34495e; display: flex; justify-content: space-between; align-items: center; }
@@ -412,9 +409,7 @@
                     <h3 id="historyTitle">Match History</h3>
                     <button class="close-btn" onclick="document.getElementById('historyModal').classList.add('hidden')">✖</button>
                 </div>
-                <div class="modal-body" id="historyList">
-                    <!-- History gets loaded here -->
-                </div>
+                <div class="modal-body" id="historyList"></div>
             </div>
         </div>
     </div>
@@ -424,9 +419,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.js"></script>
 
     <script>
-        /* =======================================
-           1. FIREBASE CONFIGURATION 
-           ======================================= */
+        /* FIREBASE CONFIGURATION */
         const firebaseConfig = {
             apiKey: "AIzaSyASwi2xYvco3VyzenmR6n_y3eIM-qVL6EY",
             authDomain: "rouchess.firebaseapp.com",
@@ -443,9 +436,7 @@
         const DEFAULT_AVATAR = "https://i.imgur.com/8Q5g16S.png";
         const BOT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2334495e'/%3E%3Ctext x='50' y='60' font-size='50' text-anchor='middle' dominant-baseline='middle'%3E🤖%3C/text%3E%3C/svg%3E";
 
-        /* =======================================
-           2. BASE VARIABLES
-           ======================================= */
+        /* BASE VARIABLES */
         let users = {}; 
         let currentUser = localStorage.getItem('currentUser');
         let game = new Chess();
@@ -502,9 +493,6 @@
             }
         }
 
-        /* =======================================
-           PRESENCE & STREAK SYSTEM
-           ======================================= */
         function setupPresence() {
             var myConnectionsRef = db.ref(`users/${currentUser}/online`);
             var connectedRef = db.ref('.info/connected');
@@ -542,9 +530,7 @@
             });
         }
 
-        /* =======================================
-           3. STRICT TAP-TO-MOVE ENGINE
-           ======================================= */
+        /* CHESSBOARD ENGINE */
         function initializeBoard(orientation) { 
             if(board) board.destroy(); 
             
@@ -666,9 +652,7 @@
             if (move !== null) { lastMove = { from: pm.from, to: pm.to }; finishMoveLogic(move); }
         }
 
-        /* =======================================
-           4. VISUAL HIGHLIGHTS
-           ======================================= */
+        /* VISUAL HIGHLIGHTS */
         function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function highlightLastMove() {
             if (!lastMove) return;
@@ -695,11 +679,10 @@
             highlightLastMove();
         } 
 
-        /* =======================================
-           5. GAME CONTROL & ENGINE LOGIC
-           ======================================= */
+        /* GAME CONTROL & ENGINE LOGIC */
         function triggerPlayConfiguration() {
             isOnlineGame = false;
+            gameMode = document.getElementById('gameModeSelect').value;
             playerColor = document.getElementById('playerColorSelect').value === 'random' ? (Math.random()>0.5?'w':'b') : document.getElementById('playerColorSelect').value;
             if(gameMode === 'local') playerColor = 'w';
             
@@ -769,7 +752,7 @@
         }
 
         function makeBotMove() {
-            if (!gameActive) return;
+            if (!gameActive || gameMode !== 'bot') return; // Strictly ignore bot if online
             const moves = game.moves({ verbose: true });
             if (moves.length === 0) return;
             const selectedMove = moves[Math.floor(Math.random() * moves.length)];
@@ -778,14 +761,13 @@
             finishMoveLogic(selectedMove);
         }
 
-        /* =======================================
-           6. ONLINE MATCHMAKING & CHALLENGES
-           ======================================= */
+        /* ONLINE MATCHMAKING & CHALLENGES */
         function findOnlineMatch() {
             const timeSettings = getMatchTimeSettings();
             whiteTime = timeSettings.base; blackTime = timeSettings.base; increment = timeSettings.inc;
             document.getElementById('gameStatus').innerText = "Connecting to Matchmaking...";
             isOnlineGame = true;
+            gameMode = 'online'; // Ensure bot engine is completely off
             
             db.ref('rooms').orderByChild('status').equalTo('waiting').once('value').then(snapshot => {
                 const rooms = snapshot.val();
@@ -794,7 +776,6 @@
                 if (rooms) {
                     for (let k in rooms) {
                         let r = rooms[k];
-                        // Match if exact format and creator is actually online to avoid ghost rooms
                         if (r.format === timeFormatStr && r.whitePlayer !== currentUser && users[r.whitePlayer] && users[r.whitePlayer].online) {
                             exactRoomId = k;
                             break;
@@ -811,10 +792,9 @@
         }
 
         function joinRoom(roomId) {
-            onlineRoomId = roomId; playerColor = 'b';
+            onlineRoomId = roomId; playerColor = 'b'; gameMode = 'online';
             db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing', drawOffer: null, drawDeclined: null });
             
-            // Delete room completely if you disconnect while playing
             db.ref('rooms/' + roomId).onDisconnect().remove(); 
             
             listenToOnlineRoom(); startGameInternal('b');
@@ -822,13 +802,12 @@
         }
 
         function createRoom() {
-            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w';
+            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w'; gameMode = 'online';
             db.ref('rooms/' + onlineRoomId).set({
                 fen: game.fen(), whitePlayer: currentUser, blackPlayer: null,
                 status: 'waiting', whiteTime: whiteTime, blackTime: blackTime, format: timeFormatStr,
                 lastMoveTime: firebase.database.ServerValue.TIMESTAMP, drawOffer: null, drawDeclined: null
             });
-            // Automatically remove ghost room when creator disconnects
             db.ref('rooms/' + onlineRoomId).onDisconnect().remove();
             
             listenToOnlineRoom(); startGameInternal('w');
@@ -836,7 +815,6 @@
             activateGameChat();
         }
 
-        // New Feature: Send a direct challenge to a user
         function challengeUser(targetUser) {
             if (targetUser === currentUser) return alert("Can't challenge yourself.");
             if (!users[targetUser] || !users[targetUser].online) return alert("User is not online.");
@@ -844,7 +822,7 @@
             const timeSettings = getMatchTimeSettings();
             whiteTime = timeSettings.base; blackTime = timeSettings.base; increment = timeSettings.inc;
 
-            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w';
+            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w'; gameMode = 'online';
             db.ref('rooms/' + onlineRoomId).set({
                 fen: game.fen(), whitePlayer: currentUser, blackPlayer: targetUser,
                 status: 'challenge', format: timeFormatStr,
@@ -867,7 +845,6 @@
             alert(`Challenge sent to ${targetUser}! Wait for them to accept.`);
         }
 
-        // Listener for incoming challenges
         function listenForChallenges() {
             db.ref(`users/${currentUser}/challenges`).on('child_added', snap => {
                 let challenger = snap.key;
@@ -878,7 +855,7 @@
                 } else {
                     db.ref(`users/${challenger}/pings`).push({ from: currentUser, msg: "Declined your challenge.", time: firebase.database.ServerValue.TIMESTAMP });
                 }
-                snap.ref.remove(); // clear challenge
+                snap.ref.remove();
             });
         }
 
@@ -895,6 +872,7 @@
 
                 onlineRoomId = roomId;
                 playerColor = 'b';
+                gameMode = 'online';
                 db.ref('rooms/' + roomId).update({ status: 'playing' });
                 db.ref('rooms/' + roomId).onDisconnect().remove();
 
@@ -912,7 +890,6 @@
             onlineRef.on('value', snapshot => {
                 const data = snapshot.val(); 
                 
-                // If room was deleted (graceful cleanup on disconnect preventing ghost matches)
                 if (!data) {
                     if (gameActive) endGame(playerColor === 'w' ? 'Black' : 'White', 'Opponent Disconnected');
                     return;
@@ -960,9 +937,7 @@
             });
         }
 
-        /* =======================================
-           7. POSITIONAL ENGINE
-           ======================================= */
+        /* POSITIONAL ENGINE */
         function evaluateBoardPositional(gameObj) {
             const weights = { p: 10, n: 32, b: 33, r: 50, q: 90, k: 20000 };
             const center = ['d4','e4','d5','e5'];
@@ -1069,7 +1044,6 @@
                 outcome = 'white'; resultText = 'White won on time';
             }
 
-            // ADD TO MATCH HISTORY
             let wName = playerColor === 'w' ? currentUser : currentOpponentName;
             let bName = playerColor === 'b' ? currentUser : currentOpponentName;
 
@@ -1084,7 +1058,6 @@
                 });
             }
 
-            // CALCULATE ELO
             if (gameMode !== 'local' && users[currentUser]) {
                 let user = users[currentUser];
                 let format = (timeFormatStr === 'rapid' || timeFormatStr === 'none') ? 'rapid' : 'blitz';
@@ -1160,10 +1133,7 @@
             });
         }
 
-        /* =======================================
-           8. PROFILE CONTROLS & DRAW/RESIGN LOGIC
-           ======================================= */
-        
+        /* PROFILE CONTROLS & DRAW/RESIGN LOGIC */
         function resignAs(panel) { 
             if(!gameActive || !confirm("Are you sure you want to resign?")) return;
             let winner = 'White';
@@ -1330,9 +1300,7 @@
         }
         function logout() { db.ref(`users/${currentUser}/online`).set(false); currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
 
-        /* =======================================
-           SOCIAL & MULTI-TAB CHAT SYSTEM
-           ======================================= */
+        /* SOCIAL & MULTI-TAB CHAT SYSTEM */
         function updateUI() { 
             const u = users[currentUser]; if(!u) return;
             document.getElementById('userDisplay').innerHTML = `<img src="${u.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;border:none;"> ${currentUser} ${(u.badges||[]).map(b=>`<span class="badge ${b}">${b}</span>`).join('')}`;
@@ -1587,9 +1555,7 @@
             if(dmListenerRef) dmListenerRef.off();
         }
 
-        /* =======================================
-           ADMIN CONTROLS
-           ======================================= */
+        /* ADMIN CONTROLS */
         function giveBadge() {
             const target = document.getElementById('verifyUsername').value.trim(), badge = document.getElementById('badgeSelect').value;
             if (target && badge && users[target]) {
