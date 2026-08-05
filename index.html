@@ -74,9 +74,9 @@
         .highlight-lastmove { background-color: rgba(245, 230, 83, 0.55) !important; }
         .highlight-premove { background-color: rgba(186, 85, 211, 0.6) !important; }
         
-        /* Fixed Dots / Capture Indicators */
-        .highlight-dot::after { content: ''; width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
-        .highlight-capture::after { content: ''; width: 85%; height: 85%; border: 6px solid rgba(0, 0, 0, 0.4); border-radius: 50%; background-color: transparent; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
+        /* Fixed Safe Overlay Dots */
+        .move-dot { width: 30%; height: 30%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
+        .capture-ring { width: 85%; height: 85%; background: transparent; border: 6px solid rgba(0, 0, 0, 0.4); }
 
         /* PLAYER BARS */
         .player-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #2c3e50; padding: 8px 12px; border-radius: 6px; border: 1px solid #34495e; }
@@ -421,7 +421,6 @@
         const db = firebase.database();
         
         const DEFAULT_AVATAR = "https://i.imgur.com/8Q5g16S.png";
-        // Simple built-in SVG Bot Avatar
         const BOT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2334495e'/%3E%3Ctext x='50' y='60' font-size='50' text-anchor='middle' dominant-baseline='middle'%3E🤖%3C/text%3E%3C/svg%3E";
 
         /* =======================================
@@ -449,8 +448,7 @@
         let premove = null;
         let pendingPromotionMove = null;
 
-        // Chat Context State
-        let currentChatContext = 'global'; // 'global', 'game', 'dm'
+        let currentChatContext = 'global';
         let activeDMUser = null;
         let dmListenerRef = null;
 
@@ -539,9 +537,9 @@
             board = ChessBoard('board', config); 
             $(window).resize(() => board.resize());
 
-            $('#board').off('click pointerdown', '.square-55d63, .square-b58863')
-                       .on('click pointerdown', '.square-55d63, .square-b58863', function(e) {
-                if (e.type === 'pointerdown' && e.pointerType === 'mouse') return;
+            // FIX: Removed pointerdown to fix mobile double-tap ghost bugs
+            $('#board').off('click', '.square-55d63, .square-b58863')
+                       .on('click', '.square-55d63, .square-b58863', function(e) {
                 const square = $(this).attr('data-square');
                 if (square) { e.preventDefault(); handleSquareTap(square); }
             });
@@ -562,11 +560,11 @@
                 if (selectedPiece === null) {
                     const piece = game.get(square);
                     if (piece && piece.color === playerColor) {
-                        selectedPiece = square; highlightSquare(square, '#baca44');
+                        selectedPiece = square; clearHighlights(); highlightSquare(square, '#baca44'); showLegalMoves(square);
                     }
                 } else {
                     if (square === selectedPiece) {
-                        clearHighlights(); premove = null;
+                        selectedPiece = null; clearHighlights(); premove = null; return; // FIX: Ensure selection completely resets
                     } else {
                         premove = { from: selectedPiece, to: square };
                         highlightPremove(selectedPiece, square);
@@ -582,7 +580,9 @@
                     selectedPiece = square; clearHighlights(); highlightSquare(square, '#baca44'); showLegalMoves(square);
                 }
             } else {
-                if (square === selectedPiece) { clearHighlights(); return; }
+                if (square === selectedPiece) { 
+                    selectedPiece = null; clearHighlights(); return; // FIX: Drop piece perfectly if clicking it again
+                }
 
                 const piece = game.get(square);
                 if (piece && piece.color === turnColor) {
@@ -603,8 +603,11 @@
                     }
                 }
 
+                // FIX: Ensure if the move is null (illegal), it clears the selection so it doesn't get stuck!
                 const move = game.move({ from: selectedPiece, to: square, promotion: 'q' });
-                if (move === null) { clearHighlights(); return; }
+                if (move === null) { 
+                    selectedPiece = null; clearHighlights(); return; 
+                }
                 
                 lastMove = { from: selectedPiece, to: square };
                 selectedPiece = null; clearHighlights(); finishMoveLogic(move);
@@ -645,7 +648,7 @@
         }
 
         /* =======================================
-           4. VISUAL HIGHLIGHTS (Fixed CSS Pseudo-Elements)
+           4. VISUAL HIGHLIGHTS (Fixed Dots using Appending)
            ======================================= */
         function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function highlightLastMove() {
@@ -658,16 +661,18 @@
             $(`#board .square-${from}`).addClass('highlight-premove'); $(`#board .square-${to}`).addClass('highlight-premove');
         }
         function showLegalMoves(square) {
+            // FIX: Append robust div elements instead of using temperamental CSS psuedo-selectors that get wiped
             game.moves({ square: square, verbose: true }).forEach(m => {
-                const dest = document.querySelector(`#board [data-square="${m.to}"]`);
+                const dest = document.querySelector(`#board .square-${m.to}`);
                 if (dest) { 
-                    if (m.captured) $(dest).addClass('highlight-capture');
-                    else $(dest).addClass('highlight-dot'); 
+                    if (m.captured) $(dest).append("<div class='move-dot capture-ring'></div>");
+                    else $(dest).append("<div class='move-dot'></div>");
                 }
             });
         }
         function clearHighlights() { 
-            $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove highlight-dot highlight-capture').css('background-color', '');
+            $('.move-dot').remove(); // Wipe appended dots cleanly
+            $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', '');
             if (selectedPiece) highlightSquare(selectedPiece, '#baca44');
             highlightLastMove();
         } 
@@ -693,7 +698,6 @@
             isWhiteTurn = true;
             clearHighlights(); updateButtonVisibility();
             
-            // Hide Game chat on new local game
             document.getElementById('btnChatGame').style.display = 'none';
             if (currentChatContext === 'game') switchSubChat('global');
             
@@ -841,23 +845,22 @@
         }
 
         /* =======================================
-           7. REAL POSITIONAL ENGINE & FEEDBACK
+           7. REAL POSITIONAL ENGINE (Fixed Crash Risk)
            ======================================= */
         function evaluateBoardPositional(gameObj) {
-            // Material weights
             const weights = { p: 10, n: 32, b: 33, r: 50, q: 90, k: 20000 };
-            // Center control
             const center = ['d4','e4','d5','e5'];
             const mid = ['c3','d3','e3','f3','c4','f4','c5','f5','c6','d6','e6','f6'];
             
             let score = 0;
-            const b = gameObj.board();
-            for (let r=0; r<8; r++) {
+            // FIX: Extremely safe traversal over exactly 64 squares to bypass board array variation between chess.js versions
+            const files = ['a','b','c','d','e','f','g','h'];
+            for (let r=1; r<=8; r++) {
                 for (let c=0; c<8; c++) {
-                    let p = b[r][c];
+                    let sq = files[c] + r;
+                    let p = gameObj.get(sq);
                     if(p) {
-                        let val = weights[p.type];
-                        let sq = String.fromCharCode(97+c) + (8-r);
+                        let val = weights[p.type] || 0;
                         if (center.includes(sq)) val += 2;
                         else if (mid.includes(sq)) val += 1;
                         
@@ -871,39 +874,41 @@
 
         function calculateEngineFeedback(move) {
             if(!move) return;
-            
-            if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
+            // FIX: Added Try/Catch so a math bug here will NEVER freeze game logic
+            try {
+                if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
 
-            let isCheckmate = game.in_checkmate();
-            
-            // Undo move to see previous score
-            game.undo();
-            let myColor = game.turn();
-            let rawScoreBefore = evaluateBoardPositional(game);
-            let myScoreBefore = myColor === 'w' ? rawScoreBefore : -rawScoreBefore;
-            
-            // Re-apply move
-            game.move(move.san);
-            let rawScoreAfter = evaluateBoardPositional(game);
-            let myScoreAfter = myColor === 'w' ? rawScoreAfter : -rawScoreAfter;
-            
-            let diff = myScoreAfter - myScoreBefore;
-            
-            let label = "Good", cssClass = "good";
-            if (isCheckmate) {
-                label = "Best ★"; cssClass = "best";
-                // If the checkmate was a material sacrifice, it's brilliant
-                if(move.captured && { p:10,n:32,b:33,r:50,q:90,k:0 }[move.captured] < { p:10,n:32,b:33,r:50,q:90,k:0 }[move.piece]) {
-                    label = "Brilliant !!"; cssClass = "brilliant";
-                }
-            } else if (diff <= -30) { label = "Blunder ??"; cssClass = "blunder"; }
-            else if (diff <= -10) { label = "Mistake ?"; cssClass = "mistake"; }
-            else if (diff < 0) { label = "Inaccuracy ?!"; cssClass = "inaccuracy"; }
-            else if (diff > 25) { label = "Great !"; cssClass = "great"; }
-            else if (diff >= 5) { label = "Excellent"; cssClass = "excellent"; }
-            else { label = "Best ★"; cssClass = "best"; }
-            
-            moveEvaluations.push({ label: label, class: cssClass });
+                let isCheckmate = game.in_checkmate();
+                
+                game.undo();
+                let myColor = game.turn();
+                let rawScoreBefore = evaluateBoardPositional(game);
+                let myScoreBefore = myColor === 'w' ? rawScoreBefore : -rawScoreBefore;
+                
+                game.move({ from: move.from, to: move.to, promotion: move.promotion || 'q' });
+                let rawScoreAfter = evaluateBoardPositional(game);
+                let myScoreAfter = myColor === 'w' ? rawScoreAfter : -rawScoreAfter;
+                
+                let diff = myScoreAfter - myScoreBefore;
+                
+                let label = "Good", cssClass = "good";
+                if (isCheckmate) {
+                    label = "Best ★"; cssClass = "best";
+                    if(move.captured && { p:10,n:32,b:33,r:50,q:90,k:0 }[move.captured] < { p:10,n:32,b:33,r:50,q:90,k:0 }[move.piece]) {
+                        label = "Brilliant !!"; cssClass = "brilliant";
+                    }
+                } else if (diff <= -30) { label = "Blunder ??"; cssClass = "blunder"; }
+                else if (diff <= -10) { label = "Mistake ?"; cssClass = "mistake"; }
+                else if (diff < 0) { label = "Inaccuracy ?!"; cssClass = "inaccuracy"; }
+                else if (diff > 25) { label = "Great !"; cssClass = "great"; }
+                else if (diff >= 5) { label = "Excellent"; cssClass = "excellent"; }
+                else { label = "Best ★"; cssClass = "best"; }
+                
+                moveEvaluations.push({ label: label, class: cssClass });
+            } catch (e) {
+                console.error("Evaluation skipped to prevent freeze:", e);
+                moveEvaluations.push({ label: "Good", class: "good" });
+            }
         }
 
         function startClock() {
@@ -988,7 +993,6 @@
             
             if (isOnlineGame && onlineRef) {
                 if(!forcedWinner) db.ref('rooms/' + onlineRoomId).update({ status: 'finished' });
-                // Game chat disappears shortly after game ends
                 setTimeout(() => {
                     document.getElementById('btnChatGame').style.display = 'none';
                     if(currentChatContext === 'game') switchSubChat('global');
@@ -1282,7 +1286,6 @@
                 let cb = document.getElementById('chatMessagesGame'); cb.scrollTop = cb.scrollHeight;
             } else if(context === 'dm') {
                 $('#chatMessagesDM').removeClass('hidden');
-                // Hide main input if no active DM is open
                 document.getElementById('mainChatInputArea').style.display = activeDMUser ? 'flex' : 'none';
                 if(activeDMUser) {
                     let cb = document.getElementById('dmMessageHistory'); cb.scrollTop = cb.scrollHeight;
@@ -1306,7 +1309,6 @@
                 let dmId = [currentUser, activeDMUser].sort().join('_');
                 db.ref(`dms/${dmId}`).push({ user: currentUser, text: formattedMsg, time: firebase.database.ServerValue.TIMESTAMP });
                 
-                // Track active DMs for list
                 db.ref(`users/${currentUser}/dmList/${activeDMUser}`).set(Date.now());
                 db.ref(`users/${activeDMUser}/dmList/${currentUser}`).set(Date.now());
             }
@@ -1370,8 +1372,7 @@
         function openDM(targetUser) {
             if (targetUser === currentUser) return alert("You cannot DM yourself.");
             
-            // Switch tabs
-            switchMainTab('chat', {target: $('.tab-btn')[0]}); // Move to Chat tab window
+            switchMainTab('chat', {target: $('.tab-btn')[0]});
             switchSubChat('dm');
             
             document.getElementById('dmUserList').classList.add('hidden');
