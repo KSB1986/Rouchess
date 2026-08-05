@@ -59,22 +59,25 @@
         .card { background: #2c3e50; padding: 14px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #34495e; }
         .card h3 { margin-bottom: 10px; color: #3498db; font-size: 16px; display: flex; justify-content: space-between;}
         
-        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; }
-        .avatar-lg { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3498db; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; background: #2c3e50; }
+        .avatar-lg { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3498db; background: #2c3e50; }
         
         /* CHESSBOARD */
         .board-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
         .board-container { width: 100%; aspect-ratio: 1 / 1; position: relative; margin: 8px 0; }
         #board { width: 100% !important; height: 100% !important; border: 4px solid #ffffff; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
         
-        .white-1e1d7, .square-55d63 { background-color: #ffffff !important; }
-        .black-3c85d, .square-b58863 { background-color: #262626 !important; }
+        .white-1e1d7, .square-55d63 { background-color: #ffffff !important; position: relative !important; }
+        .black-3c85d, .square-b58863 { background-color: #262626 !important; position: relative !important; }
         
         .highlight-selected { background-color: #baca44 !important; }
         .highlight-lastmove { background-color: rgba(245, 230, 83, 0.55) !important; }
         .highlight-premove { background-color: rgba(186, 85, 211, 0.6) !important; }
-        .move-dot { width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
         
+        /* Fixed Dots / Capture Indicators */
+        .highlight-dot::after { content: ''; width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
+        .highlight-capture::after { content: ''; width: 85%; height: 85%; border: 6px solid rgba(0, 0, 0, 0.4); border-radius: 50%; background-color: transparent; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; pointer-events: none; }
+
         /* PLAYER BARS */
         .player-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #2c3e50; padding: 8px 12px; border-radius: 6px; border: 1px solid #34495e; }
         .player-info { font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
@@ -93,8 +96,12 @@
 
         .game-info { background: #34495e; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 13px; border-left: 4px solid #3498db; text-align: center; font-weight: bold; }
         
-        /* CHAT SYSTEM */
+        /* CHAT SYSTEM & TABS */
         .chat-box { flex: 1; display: flex; flex-direction: column; background: #2c3e50; border-radius: 10px; border: 1px solid #34495e; overflow: hidden; height: 350px; }
+        .chat-nav { display: flex; background: #1a252f; border-bottom: 1px solid #34495e; }
+        .chat-nav-btn { flex: 1; padding: 8px; font-size: 12px; background: transparent; border: none; color: #7f8c8d; cursor: pointer; font-weight: bold; }
+        .chat-nav-btn.active { color: #3498db; border-bottom: 2px solid #3498db; background: rgba(52, 152, 219, 0.1); }
+        
         .chat-messages { flex: 1; overflow-y: auto; padding: 10px; background: #1a252f; }
         .chat-msg { margin: 6px 0; padding: 8px; background: #34495e; border-radius: 4px; font-size: 13px; border-left: 3px solid #3498db; display: flex; flex-direction: column;}
         .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 11px; color: #bdc3c7;}
@@ -138,6 +145,9 @@
         /* File Input Styling */
         input[type="file"]::file-selector-button { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 10px; }
         input[type="file"]::file-selector-button:hover { background: #2980b9; }
+
+        /* Direct Message Screen */
+        .dm-header { display: flex; align-items: center; gap: 10px; background: #2c3e50; padding: 8px; border-bottom: 1px solid #34495e; }
     </style>
 </head>
 <body>
@@ -295,17 +305,40 @@
             
             <div class="right-panel">
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="switchTab('chat', event)">💬 Chat</button>
-                    <button class="tab-btn" onclick="switchTab('social', event)">👥 Social</button>
-                    <button class="tab-btn" onclick="switchTab('online', event)">🟢 Online</button>
-                    <button class="tab-btn hidden" id="adminTabBtn" onclick="switchTab('admin', event)">⚙️ Admin</button>
+                    <button class="tab-btn active" onclick="switchMainTab('chat', event)">💬 Chat</button>
+                    <button class="tab-btn" onclick="switchMainTab('social', event)">👥 Social</button>
+                    <button class="tab-btn" onclick="switchMainTab('online', event)">🟢 Online</button>
+                    <button class="tab-btn hidden" id="adminTabBtn" onclick="switchMainTab('admin', event)">⚙️ Admin</button>
                 </div>
 
                 <div class="tab-content active" id="chat-tab">
                     <div class="chat-box">
-                        <div class="chat-messages" id="chatMessages">Loading chat...</div>
-                        <div class="chat-input-area">
-                            <input class="input" id="chatInput" placeholder="Message or @username..." style="margin: 0;">
+                        <div class="chat-nav">
+                            <button class="chat-nav-btn active" id="btnChatGlobal" onclick="switchSubChat('global')">Global</button>
+                            <button class="chat-nav-btn" id="btnChatGame" onclick="switchSubChat('game')" style="display: none;">Game</button>
+                            <button class="chat-nav-btn" id="btnChatDM" onclick="switchSubChat('dm')">DMs</button>
+                        </div>
+                        
+                        <!-- Global Chat -->
+                        <div class="chat-messages" id="chatMessagesGlobal">Loading chat...</div>
+                        
+                        <!-- Game Chat -->
+                        <div class="chat-messages hidden" id="chatMessagesGame" style="background:#1c2833;"></div>
+                        
+                        <!-- DM Area (List & Active Chat) -->
+                        <div class="chat-messages hidden" id="chatMessagesDM" style="padding:0;">
+                            <div id="dmUserList" style="padding:10px;">Select a user from Social to message them.</div>
+                            <div id="dmActiveChat" class="hidden" style="display:flex; flex-direction:column; height:100%;">
+                                <div class="dm-header">
+                                    <button onclick="closeDM()" style="padding:4px 8px; font-size:11px; background:#7f8c8d;">🔙 Back</button>
+                                    <strong id="dmChatUsername">User</strong>
+                                </div>
+                                <div id="dmMessageHistory" style="flex:1; overflow-y:auto; padding:10px;"></div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-area" id="mainChatInputArea">
+                            <input class="input" id="chatInput" placeholder="Message..." style="margin: 0;">
                             <button onclick="sendMessage()" style="padding: 8px 12px;">Send</button>
                         </div>
                     </div>
@@ -386,7 +419,10 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        
         const DEFAULT_AVATAR = "https://i.imgur.com/8Q5g16S.png";
+        // Simple built-in SVG Bot Avatar
+        const BOT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2334495e'/%3E%3Ctext x='50' y='60' font-size='50' text-anchor='middle' dominant-baseline='middle'%3E🤖%3C/text%3E%3C/svg%3E";
 
         /* =======================================
            2. BASE VARIABLES
@@ -413,16 +449,14 @@
         let premove = null;
         let pendingPromotionMove = null;
 
+        // Chat Context State
+        let currentChatContext = 'global'; // 'global', 'game', 'dm'
+        let activeDMUser = null;
+        let dmListenerRef = null;
+
         if (Notification && Notification.permission !== "granted") {
             Notification.requestPermission();
         }
-
-        // Auto-seed default testing account
-        db.ref('users/Rounakgod_65').once('value').then(s => {
-            if(!s.exists()) {
-                db.ref('users/Rounakgod_65').set({ password: 'Jiko@123', realname: 'Rounak Bera', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, avatar: DEFAULT_AVATAR, wins: 3200, losses: 1800, banned: false });
-            }
-        });
 
         function initApp() {
             if (!currentUser) {
@@ -440,10 +474,10 @@
                         alert(`You have been banned!\nReason: ${users[currentUser].banReason || 'Administrative Action'}`);
                         logout(); return;
                     }
-                    updateUI(); displayProfile(); displayStats(); renderFriends(); renderFriendRequests(); renderOnlinePlayers();
+                    updateUI(); displayProfile(); displayStats(); renderFriends(); renderFriendRequests(); renderOnlinePlayers(); loadDMList();
                 });
 
-                listenToChat(); listenForPings(); toggleSetupFields();
+                listenToChatGlobal(); listenForPings(); toggleSetupFields();
                 initializeBoard('white');
                 processStreak();
             }
@@ -479,27 +513,18 @@
                     streak++; 
                     db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
                 } else if (diffDays === 2) {
-                    // Grace period - Missed 1 day, streak remains
                     db.ref('users/' + currentUser).update({ lastLogin: now });
                 } else if (diffDays > 2) {
-                    streak = 1; // Reset
-                    db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
-                } else if (diffDays === 0) {
-                    // Already logged in today
-                } else {
-                    streak = 1; // First ever login
-                    db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
+                    streak = 1; db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
+                } else if (diffDays !== 0) {
+                    streak = 1; db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
                 }
                 document.getElementById('streakDisplay').innerText = `🔥 ${streak}`;
-                
-                if(Notification && Notification.permission === "granted" && diffDays > 0) {
-                    new Notification("Rouchess Online", { body: `Welcome back! Your streak is at 🔥 ${streak} days!` });
-                }
             });
         }
 
         /* =======================================
-           3. STRICT TAP-TO-MOVE ENGINE (NO DRAG)
+           3. STRICT TAP-TO-MOVE ENGINE
            ======================================= */
         function initializeBoard(orientation) { 
             if(board) board.destroy(); 
@@ -565,7 +590,6 @@
                     return;
                 }
 
-                // Check Promotion
                 const movingPiece = game.get(selectedPiece);
                 const isPawn = movingPiece && movingPiece.type === 'p';
                 const isPromoting = isPawn && ((movingPiece.color === 'w' && square.charAt(1) === '8') || (movingPiece.color === 'b' && square.charAt(1) === '1'));
@@ -621,7 +645,7 @@
         }
 
         /* =======================================
-           4. VISUAL HIGHLIGHTS (Fixed Dots Issue)
+           4. VISUAL HIGHLIGHTS (Fixed CSS Pseudo-Elements)
            ======================================= */
         function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function highlightLastMove() {
@@ -634,18 +658,16 @@
             $(`#board .square-${from}`).addClass('highlight-premove'); $(`#board .square-${to}`).addClass('highlight-premove');
         }
         function showLegalMoves(square) {
-            // Updated to ensure dot works cross-device without z-index clipping
             game.moves({ square: square, verbose: true }).forEach(m => {
                 const dest = document.querySelector(`#board [data-square="${m.to}"]`);
                 if (dest) { 
-                    dest.style.position = 'relative'; 
-                    $(dest).append("<div class='move-dot'></div>"); 
+                    if (m.captured) $(dest).addClass('highlight-capture');
+                    else $(dest).addClass('highlight-dot'); 
                 }
             });
         }
         function clearHighlights() { 
-            $('.move-dot').remove();
-            $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', '');
+            $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove highlight-dot highlight-capture').css('background-color', '');
             if (selectedPiece) highlightSquare(selectedPiece, '#baca44');
             highlightLastMove();
         } 
@@ -671,13 +693,16 @@
             isWhiteTurn = true;
             clearHighlights(); updateButtonVisibility();
             
+            // Hide Game chat on new local game
+            document.getElementById('btnChatGame').style.display = 'none';
+            if (currentChatContext === 'game') switchSubChat('global');
+            
             if(!isOnlineGame) {
-                // BUG FIX: Show Fish Bot Avatar when playing the computer
-                let topName = playerColor === 'w' ? 'Bot' : currentUser;
-                let botName = playerColor === 'w' ? currentUser : 'Bot';
-                const botAvatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Stockfish_icon.svg/200px-Stockfish_icon.svg.png';
-                let topAvatar = playerColor === 'w' ? botAvatarUrl : (users[currentUser]?.avatar || DEFAULT_AVATAR);
-                let botAvatar = playerColor === 'w' ? (users[currentUser]?.avatar || DEFAULT_AVATAR) : botAvatarUrl;
+                let topName = playerColor === 'w' ? 'Computer' : currentUser;
+                let botName = playerColor === 'w' ? currentUser : 'Computer';
+                
+                let topAvatar = playerColor === 'w' ? BOT_AVATAR : (users[currentUser]?.avatar || DEFAULT_AVATAR);
+                let botAvatar = playerColor === 'w' ? (users[currentUser]?.avatar || DEFAULT_AVATAR) : BOT_AVATAR;
                 
                 if(gameMode === 'local') { 
                     topName = 'Player 2'; botName = 'Player 1'; 
@@ -742,7 +767,6 @@
                 const rooms = snapshot.val();
                 if (rooms) {
                     let exactRoomId = Object.keys(rooms).find(k => rooms[k].format === timeFormatStr && rooms[k].whitePlayer !== currentUser);
-                    
                     if (exactRoomId) {
                         joinRoom(exactRoomId);
                     } else {
@@ -766,6 +790,7 @@
             onlineRoomId = roomId; playerColor = 'b';
             db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing' });
             listenToOnlineRoom(); startGameInternal('b');
+            activateGameChat();
         }
 
         function createRoom() {
@@ -777,6 +802,7 @@
             });
             listenToOnlineRoom(); startGameInternal('w');
             document.getElementById('gameStatus').innerText = "Waiting for an opponent...";
+            activateGameChat();
         }
 
         function listenToOnlineRoom() {
@@ -815,70 +841,69 @@
         }
 
         /* =======================================
-           7. CHESS.COM MOVE EVALUATIONS & RATING (FIXED)
+           7. REAL POSITIONAL ENGINE & FEEDBACK
            ======================================= */
+        function evaluateBoardPositional(gameObj) {
+            // Material weights
+            const weights = { p: 10, n: 32, b: 33, r: 50, q: 90, k: 20000 };
+            // Center control
+            const center = ['d4','e4','d5','e5'];
+            const mid = ['c3','d3','e3','f3','c4','f4','c5','f5','c6','d6','e6','f6'];
+            
+            let score = 0;
+            const b = gameObj.board();
+            for (let r=0; r<8; r++) {
+                for (let c=0; c<8; c++) {
+                    let p = b[r][c];
+                    if(p) {
+                        let val = weights[p.type];
+                        let sq = String.fromCharCode(97+c) + (8-r);
+                        if (center.includes(sq)) val += 2;
+                        else if (mid.includes(sq)) val += 1;
+                        
+                        if(p.color === 'w') score += val;
+                        else score -= val;
+                    }
+                }
+            }
+            return score;
+        }
+
         function calculateEngineFeedback(move) {
             if(!move) return;
-            let label = "Excellent", cssClass = "excellent";
             
-            // Basic check for early game book moves
             if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
 
-            const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-            let valueCaptured = move.captured ? pieceValues[move.captured] : 0;
-            let movingPieceValue = pieceValues[move.piece];
-
-            let isCheckmate = move.san.includes('#');
-            let isCheck = move.san.includes('+');
-            let opponentMoves = game.moves().length;
-            let isForcedReply = opponentMoves === 1;
-            let isMaterialSacrifice = (valueCaptured > 0 && valueCaptured < movingPieceValue);
-
-            // Temporarily undo the move to see what our options were
+            let isCheckmate = game.in_checkmate();
+            
+            // Undo move to see previous score
             game.undo();
-            const myLegalMoves = game.moves().length;
+            let myColor = game.turn();
+            let rawScoreBefore = evaluateBoardPositional(game);
+            let myScoreBefore = myColor === 'w' ? rawScoreBefore : -rawScoreBefore;
+            
+            // Re-apply move
             game.move(move.san);
-
-            // FIX: Checkmate logic properly sets Best Move, unless it was a sacrificial mate.
+            let rawScoreAfter = evaluateBoardPositional(game);
+            let myScoreAfter = myColor === 'w' ? rawScoreAfter : -rawScoreAfter;
+            
+            let diff = myScoreAfter - myScoreBefore;
+            
+            let label = "Good", cssClass = "good";
             if (isCheckmate) {
-                if (isMaterialSacrifice || (myLegalMoves > 1 && isForcedReply)) {
-                    moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" });
-                } else {
-                    moveEvaluations.push({ label: "Best ★", class: "best" });
+                label = "Best ★"; cssClass = "best";
+                // If the checkmate was a material sacrifice, it's brilliant
+                if(move.captured && { p:10,n:32,b:33,r:50,q:90,k:0 }[move.captured] < { p:10,n:32,b:33,r:50,q:90,k:0 }[move.piece]) {
+                    label = "Brilliant !!"; cssClass = "brilliant";
                 }
-                return;
-            }
-
-            // Forced check (Only 1 legal move existed before this)
-            if (myLegalMoves === 1) { moveEvaluations.push({ label: "Forced", class: "forced" }); return; }
-
-            // FIX: Blunders removed on Sacrifices that force opponent
-            if (isMaterialSacrifice && isForcedReply) {
-                moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" });
-                return;
-            }
-
-            // Basic capture evaluations
-            if (valueCaptured > 0) {
-                if (valueCaptured > movingPieceValue) { label = "Great !"; cssClass = "great"; }
-                else if (valueCaptured === movingPieceValue) { label = "Best ★"; cssClass = "best"; }
-                else { label = "Good"; cssClass = "good"; }
-                moveEvaluations.push({ label: label, class: cssClass });
-                return;
-            }
+            } else if (diff <= -30) { label = "Blunder ??"; cssClass = "blunder"; }
+            else if (diff <= -10) { label = "Mistake ?"; cssClass = "mistake"; }
+            else if (diff < 0) { label = "Inaccuracy ?!"; cssClass = "inaccuracy"; }
+            else if (diff > 25) { label = "Great !"; cssClass = "great"; }
+            else if (diff >= 5) { label = "Excellent"; cssClass = "excellent"; }
+            else { label = "Best ★"; cssClass = "best"; }
             
-            // Random pseudo-engine for regular moves
-            let safeMoves = [
-                {l:"Best ★", c:"best"}, {l:"Excellent", c:"excellent"}, {l:"Good", c:"good"},
-                {l:"Inaccuracy ?!", c:"inaccuracy"}, {l:"Mistake ?", c:"mistake"}, {l:"Blunder ??", c:"blunder"}
-            ];
-            // Bias checks against being blunders
-            if (isCheck) safeMoves = [{l:"Great !", c:"great"}, {l:"Best ★", c:"best"}, {l:"Excellent", c:"excellent"}];
-
-            let hash = 0; for (let i = 0; i < move.san.length; i++) hash = move.san.charCodeAt(i) + ((hash << 5) - hash);
-            let res = safeMoves[Math.abs(hash) % safeMoves.length];
-            
-            moveEvaluations.push({ label: res.l, class: res.c });
+            moveEvaluations.push({ label: label, class: cssClass });
         }
 
         function startClock() {
@@ -930,7 +955,6 @@
                 let user = users[currentUser];
                 let format = (timeFormatStr === 'rapid' || timeFormatStr === 'none') ? 'rapid' : 'blitz';
                 
-                // FIX: Ensure Ratings are parsed as Integers to avoid "150010" concatenation string bug
                 let currentRating = parseInt(format === 'rapid' ? (user.rapidRating || 1500) : (user.blitzRating || 1500));
                 let oppRating = 1500;
 
@@ -962,11 +986,18 @@
             document.getElementById('gameStatus').innerHTML = `<strong>${resultText}</strong>`;
             showGameAlert(forcedWinner ? `${forcedWinner} Won!` : resultText.split('<br>')[0], 'draw');
             
-            if (isOnlineGame && onlineRef && !forcedWinner) db.ref('rooms/' + onlineRoomId).update({ status: 'finished' });
+            if (isOnlineGame && onlineRef) {
+                if(!forcedWinner) db.ref('rooms/' + onlineRoomId).update({ status: 'finished' });
+                // Game chat disappears shortly after game ends
+                setTimeout(() => {
+                    document.getElementById('btnChatGame').style.display = 'none';
+                    if(currentChatContext === 'game') switchSubChat('global');
+                }, 15000);
+            }
         }
 
         /* =======================================
-           8. HELPERS & EDIT PROFILE CONTROLS
+           8. PROFILE CONTROLS
            ======================================= */
         function toggleEditProfile() {
             const section = document.getElementById('editProfileSection');
@@ -987,62 +1018,44 @@
             const saveBtn = document.getElementById('saveProfileBtn');
             
             if (!newUsername) return alert("Username cannot be empty");
-            
-            saveBtn.innerText = "Saving...";
-            saveBtn.disabled = true;
+            saveBtn.innerText = "Saving..."; saveBtn.disabled = true;
 
             const completeSave = (finalAvatarUrl) => {
                 if (newUsername !== currentUser) {
                     db.ref('users/' + newUsername).once('value').then(snap => {
                         if (snap.exists()) {
                             alert("✗ Username already taken!");
-                            saveBtn.innerText = "Save Profile";
-                            saveBtn.disabled = false;
+                            saveBtn.innerText = "Save Profile"; saveBtn.disabled = false;
                         } else {
                             let userData = users[currentUser];
                             userData.avatar = finalAvatarUrl;
-                            
-                            // Migrate friends list references
                             if (userData.friends) {
                                 Object.keys(userData.friends).forEach(friend => {
                                     db.ref(`users/${friend}/friends/${currentUser}`).remove();
                                     db.ref(`users/${friend}/friends/${newUsername}`).set(true);
                                 });
                             }
-                            
                             db.ref('users/' + newUsername).set(userData).then(() => {
                                 db.ref('users/' + currentUser).remove();
-                                currentUser = newUsername;
-                                localStorage.setItem('currentUser', currentUser);
-                                alert("Profile updated successfully!");
-                                window.location.reload();
+                                currentUser = newUsername; localStorage.setItem('currentUser', currentUser);
+                                alert("Profile updated successfully!"); window.location.reload();
                             });
                         }
                     });
                 } else {
                     db.ref('users/' + currentUser).update({ avatar: finalAvatarUrl }).then(() => {
-                        alert("Profile updated!");
-                        toggleEditProfile();
-                        saveBtn.innerText = "Save Profile";
-                        saveBtn.disabled = false;
+                        alert("Profile updated!"); toggleEditProfile();
+                        saveBtn.innerText = "Save Profile"; saveBtn.disabled = false;
                     });
                 }
             };
 
-            // FIX: Convert File to Base64 String to bypass Firebase Storage Permission Rules completely
             if (file) {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    completeSave(e.target.result); // Base64 string encoded image
-                };
-                reader.onerror = function(e) {
-                    alert("Error reading file.");
-                    saveBtn.innerText = "Save Profile";
-                    saveBtn.disabled = false;
-                };
+                reader.onload = function(e) { completeSave(e.target.result); };
+                reader.onerror = function(e) { alert("Error reading file."); saveBtn.innerText = "Save Profile"; saveBtn.disabled = false; };
                 reader.readAsDataURL(file);
             } else {
-                // If no new file selected, retain the old avatar URL
                 completeSave(users[currentUser]?.avatar || DEFAULT_AVATAR);
             }
         }
@@ -1109,7 +1122,7 @@
         function offerDrawAs(panel) { if(gameActive) showGameAlert("Draw offer sent", "draw"); }
 
         function switchAuthTab(t, e) { $('.auth-form, .auth-tab').removeClass('active'); $(`#${t}Form`).addClass('active'); $(e.target).addClass('active'); }
-        function switchTab(t, e) { $('.tab-content, .tab-btn').removeClass('active'); $(`#${t}-tab`).addClass('active'); $(e.target).addClass('active'); }
+        function switchMainTab(t, e) { $('.tab-content, .tab-btn').removeClass('active'); $(`#${t}-tab`).addClass('active'); $(e.target).addClass('active'); }
 
         function login(e) {
             e.preventDefault();
@@ -1137,7 +1150,7 @@
         function logout() { db.ref(`users/${currentUser}/online`).set(false); currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
 
         /* =======================================
-           SOCIAL & CHAT SYSTEM
+           SOCIAL & MULTI-TAB CHAT SYSTEM
            ======================================= */
         function updateUI() { 
             const u = users[currentUser]; if(!u) return;
@@ -1173,7 +1186,10 @@
                 <div class="profile-card" style="border-left-color: #27ae60;">
                     <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar">
                     <div style="flex:1;"><strong>${u.realname} (${q})</strong> ${bHtml}<br>Blitz: ${u.blitzRating || 1500}</div>
-                    <button onclick="sendFriendRequest('${q}')" style="background:#27ae60;">➕ Add</button>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <button onclick="sendFriendRequest('${q}')" style="background:#27ae60; font-size:11px;">➕ Add</button>
+                        <button onclick="openDM('${q}')" style="background:#8e44ad; font-size:11px;">💬 Msg</button>
+                    </div>
                 </div>
             `;
         }
@@ -1199,7 +1215,7 @@
         function acceptFriend(name) {
             db.ref(`users/${currentUser}/friends/${name}`).set(true);
             db.ref(`users/${name}/friends/${currentUser}`).set(true);
-            declineFriend(name); // removes request
+            declineFriend(name);
         }
         function declineFriend(name) { db.ref(`users/${currentUser}/friendRequests/${name}`).remove(); }
 
@@ -1211,7 +1227,10 @@
                 let u = users[f]; let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
                 html += `<div class="social-item" style="border-left: 3px solid ${u?.online ? '#27ae60' : '#7f8c8d'}">
                     <div style="display:flex;align-items:center;gap:6px;"><img src="${u?.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;"> <strong>${f}</strong> ${bHtml}</div>
-                    <button onclick="pingFriend('${f}')" style="font-size:10px;">🔔 Ping</button></div>`;
+                    <div style="display:flex;gap:4px;">
+                        <button onclick="pingFriend('${f}')" style="font-size:10px;">🔔</button>
+                        <button onclick="openDM('${f}')" style="font-size:10px;background:#8e44ad;">💬 Msg</button>
+                    </div></div>`;
             });
             list.innerHTML = html;
         }
@@ -1222,7 +1241,10 @@
                 if(users[k].online && k !== currentUser) {
                     html += `<div class="social-item" style="border-left: 3px solid #27ae60">
                         <div style="display:flex;align-items:center;gap:6px;"><img src="${users[k].avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;"> <strong>${k}</strong></div>
-                        <button onclick="sendFriendRequest('${k}')" style="font-size:10px;">➕ Add</button></div>`;
+                        <div style="display:flex;gap:4px;">
+                            <button onclick="sendFriendRequest('${k}')" style="font-size:10px;">➕ Add</button>
+                            <button onclick="openDM('${k}')" style="font-size:10px;background:#8e44ad;">💬 Msg</button>
+                        </div></div>`;
                 }
             });
             list.innerHTML = html || "No one else is online.";
@@ -1242,31 +1264,142 @@
 
         function formatTime(ts) { return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }
 
+        /* MULTI-TAB CHAT ROUTING */
+        function switchSubChat(context) {
+            currentChatContext = context;
+            $('.chat-nav-btn').removeClass('active');
+            $('#btnChat' + context.charAt(0).toUpperCase() + context.slice(1)).addClass('active');
+            
+            $('#chatMessagesGlobal, #chatMessagesGame, #chatMessagesDM').addClass('hidden');
+            
+            if(context === 'global') {
+                $('#chatMessagesGlobal').removeClass('hidden');
+                document.getElementById('mainChatInputArea').style.display = 'flex';
+                let cb = document.getElementById('chatMessagesGlobal'); cb.scrollTop = cb.scrollHeight;
+            } else if(context === 'game') {
+                $('#chatMessagesGame').removeClass('hidden');
+                document.getElementById('mainChatInputArea').style.display = 'flex';
+                let cb = document.getElementById('chatMessagesGame'); cb.scrollTop = cb.scrollHeight;
+            } else if(context === 'dm') {
+                $('#chatMessagesDM').removeClass('hidden');
+                // Hide main input if no active DM is open
+                document.getElementById('mainChatInputArea').style.display = activeDMUser ? 'flex' : 'none';
+                if(activeDMUser) {
+                    let cb = document.getElementById('dmMessageHistory'); cb.scrollTop = cb.scrollHeight;
+                }
+            }
+        }
+
         function sendMessage() {
             const rawMsg = document.getElementById('chatInput').value.trim(); if (!rawMsg) return;
-            // Parse @mentions
+            
             let formattedMsg = rawMsg.replace(/@(\w+)/g, (match, username) => {
                 if (users[username]) { pingFriend(username, `Mentioned you in chat!`); return `<span class="mention">@${username}</span>`; }
                 return match;
             });
 
-            db.ref('globalChat').push({ user: currentUser, text: formattedMsg, time: firebase.database.ServerValue.TIMESTAMP });
+            if (currentChatContext === 'global') {
+                db.ref('globalChat').push({ user: currentUser, text: formattedMsg, time: firebase.database.ServerValue.TIMESTAMP });
+            } else if (currentChatContext === 'game' && onlineRoomId) {
+                db.ref(`rooms/${onlineRoomId}/chat`).push({ user: currentUser, text: formattedMsg, time: firebase.database.ServerValue.TIMESTAMP });
+            } else if (currentChatContext === 'dm' && activeDMUser) {
+                let dmId = [currentUser, activeDMUser].sort().join('_');
+                db.ref(`dms/${dmId}`).push({ user: currentUser, text: formattedMsg, time: firebase.database.ServerValue.TIMESTAMP });
+                
+                // Track active DMs for list
+                db.ref(`users/${currentUser}/dmList/${activeDMUser}`).set(Date.now());
+                db.ref(`users/${activeDMUser}/dmList/${currentUser}`).set(Date.now());
+            }
+
             document.getElementById('chatInput').value = '';
         }
 
-        function listenToChat() {
+        function formatChatMessage(m) {
+            let u = users[m.user]; let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+            return `<div class="chat-msg">
+                <div class="chat-header"><span><img src="${u?.avatar || DEFAULT_AVATAR}" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;"> <strong>${m.user}</strong> ${bHtml}</span> <span>${formatTime(m.time)}</span></div>
+                <div>${m.text}</div>
+            </div>`;
+        }
+
+        function listenToChatGlobal() {
             db.ref('globalChat').limitToLast(40).on('value', snap => {
                 let html = '';
-                snap.forEach(c => { 
-                    let m = c.val(); let u = users[m.user]; 
-                    let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
-                    html += `<div class="chat-msg">
-                        <div class="chat-header"><span><img src="${u?.avatar || DEFAULT_AVATAR}" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;"> <strong>${m.user}</strong> ${bHtml}</span> <span>${formatTime(m.time)}</span></div>
-                        <div>${m.text}</div>
-                    </div>`; 
-                });
-                const cb = document.getElementById('chatMessages'); cb.innerHTML = html; cb.scrollTop = cb.scrollHeight;
+                snap.forEach(c => { html += formatChatMessage(c.val()); });
+                const cb = document.getElementById('chatMessagesGlobal'); cb.innerHTML = html; 
+                if(currentChatContext === 'global') cb.scrollTop = cb.scrollHeight;
             });
+        }
+
+        // GAME CHAT
+        let gameChatRef = null;
+        function activateGameChat() {
+            document.getElementById('btnChatGame').style.display = 'block';
+            switchSubChat('game');
+            if(gameChatRef) gameChatRef.off();
+            gameChatRef = db.ref(`rooms/${onlineRoomId}/chat`);
+            gameChatRef.on('value', snap => {
+                let html = '';
+                snap.forEach(c => { html += formatChatMessage(c.val()); });
+                const cb = document.getElementById('chatMessagesGame'); cb.innerHTML = html || '<div style="text-align:center; margin-top:20px; color:#7f8c8d;">Say hi to your opponent!</div>';
+                if(currentChatContext === 'game') cb.scrollTop = cb.scrollHeight;
+            });
+        }
+
+        // DIRECT MESSAGES (DMs)
+        function loadDMList() {
+            let list = users[currentUser]?.dmList;
+            let html = '';
+            if (list) {
+                Object.keys(list).sort((a,b)=>list[b]-list[a]).forEach(user => {
+                    let u = users[user];
+                    html += `<div class="social-item" style="cursor:pointer; background:#2c3e50; border: 1px solid #34495e;" onclick="openDM('${user}')">
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <img src="${u?.avatar || DEFAULT_AVATAR}" class="avatar" style="width:24px;height:24px;"> 
+                            <strong>${user}</strong>
+                        </div>
+                        <span style="font-size:10px; color:#3498db;">Open 💬</span>
+                    </div>`;
+                });
+            } else {
+                html = '<div style="color:#7f8c8d; text-align:center;">No direct messages yet. Go to Social to message someone.</div>';
+            }
+            document.getElementById('dmUserList').innerHTML = html;
+        }
+
+        function openDM(targetUser) {
+            if (targetUser === currentUser) return alert("You cannot DM yourself.");
+            
+            // Switch tabs
+            switchMainTab('chat', {target: $('.tab-btn')[0]}); // Move to Chat tab window
+            switchSubChat('dm');
+            
+            document.getElementById('dmUserList').classList.add('hidden');
+            document.getElementById('dmActiveChat').classList.remove('hidden');
+            document.getElementById('mainChatInputArea').style.display = 'flex';
+            
+            activeDMUser = targetUser;
+            document.getElementById('dmChatUsername').innerText = `Chatting with: ${targetUser}`;
+            
+            let dmId = [currentUser, targetUser].sort().join('_');
+            if(dmListenerRef) dmListenerRef.off();
+            
+            dmListenerRef = db.ref(`dms/${dmId}`);
+            dmListenerRef.limitToLast(50).on('value', snap => {
+                let html = '';
+                snap.forEach(c => { html += formatChatMessage(c.val()); });
+                const cb = document.getElementById('dmMessageHistory');
+                cb.innerHTML = html || '<div style="text-align:center; margin-top:20px; color:#7f8c8d;">No messages yet. Say hi!</div>';
+                cb.scrollTop = cb.scrollHeight;
+            });
+        }
+
+        function closeDM() {
+            document.getElementById('dmActiveChat').classList.add('hidden');
+            document.getElementById('dmUserList').classList.remove('hidden');
+            document.getElementById('mainChatInputArea').style.display = 'none';
+            activeDMUser = null;
+            if(dmListenerRef) dmListenerRef.off();
         }
 
         /* =======================================
