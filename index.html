@@ -15,6 +15,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: #fff; min-height: 100vh; overflow-x: hidden; }
         
+        /* AUTH PAGE */
         .auth-page { display: flex; height: 100vh; justify-content: center; align-items: center; background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%); padding: 15px; }
         .auth-container { width: 100%; max-width: 400px; }
         .auth-card { background: #2c3e50; padding: 30px 20px; border-radius: 15px; border: 2px solid #3498db; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
@@ -29,13 +30,14 @@
         .auth-msg { margin-top: 12px; font-size: 13px; text-align: center; }
         .error { color: #e74c3c; } .success { color: #27ae60; }
         
+        /* MAIN LAYOUT */
         .app-container { display: none; flex-direction: column; min-height: 100vh; }
         .app-container.active { display: flex; }
         .navbar { background: #2c3e50; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 55px; }
-        .navbar h1 { color: #3498db; font-size: 22px; font-weight: bold; }
+        .navbar h1 { color: #3498db; font-size: 22px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         .navbar-right { display: flex; gap: 10px; align-items: center; }
-        .user-badge { background: #34495e; padding: 6px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #3498db; }
-        .badge { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 10px; margin-left: 4px; color: white; font-weight: bold; text-transform: uppercase; }
+        .user-badge { background: #34495e; padding: 4px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #3498db; display: flex; align-items: center; gap: 6px; }
+        .badge { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 10px; color: white; font-weight: bold; text-transform: uppercase; }
         .owner { background: #e74c3c; } .verified { background: #27ae60; } .gm { background: #9b59b6; } .fm { background: #f39c12; } .im { background: #3498db; } .cm { background: #1abc9c; }
         
         button { padding: 8px 12px; cursor: pointer; border: none; border-radius: 6px; background: #3498db; color: white; font-size: 13px; transition: 0.2s; }
@@ -49,12 +51,16 @@
             .container { flex-direction: row; height: calc(100vh - 55px); overflow: hidden; }
             .left-panel { flex: 1; overflow-y: auto; border-right: 1px solid #34495e; }
             .main-content { flex: 2.5; overflow-y: auto; }
-            .right-panel { flex: 1; border-left: 1px solid #34495e; display: flex; flex-direction: column; }
+            .right-panel { flex: 1.2; border-left: 1px solid #34495e; display: flex; flex-direction: column; }
         }
         
         .card { background: #2c3e50; padding: 14px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #34495e; }
-        .card h3 { margin-bottom: 10px; color: #3498db; font-size: 16px; }
+        .card h3 { margin-bottom: 10px; color: #3498db; font-size: 16px; display: flex; justify-content: space-between;}
         
+        .avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid #3498db; }
+        .avatar-lg { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 3px solid #3498db; }
+        
+        /* CHESSBOARD */
         .board-wrapper { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
         .board-container { width: 100%; aspect-ratio: 1 / 1; position: relative; margin: 8px 0; }
         #board { width: 100% !important; height: 100% !important; border: 4px solid #ffffff; border-radius: 4px; box-shadow: 0 0 15px rgba(0,0,0,0.8); }
@@ -62,21 +68,20 @@
         .white-1e1d7, .square-55d63 { background-color: #ffffff !important; }
         .black-3c85d, .square-b58863 { background-color: #262626 !important; }
         
-        /* VISUAL HIGHLIGHTS & TAP DOTS */
         .highlight-selected { background-color: #baca44 !important; }
         .highlight-lastmove { background-color: rgba(245, 230, 83, 0.55) !important; }
         .highlight-premove { background-color: rgba(186, 85, 211, 0.6) !important; }
         .move-dot { width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.35); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
         
+        /* PLAYER BARS */
         .player-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #2c3e50; padding: 8px 12px; border-radius: 6px; border: 1px solid #34495e; }
-        .player-info { font-size: 14px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
+        .player-info { font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
         .clock { font-size: 20px; font-weight: bold; color: #f39c12; font-family: monospace; }
         
         .game-alert-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(26, 26, 26, 0.95); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 20px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none; border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.6); width: 85%; }
         @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        /* PAWN PROMOTION MODAL */
         .promotion-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; border-radius: 4px; }
         .promotion-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #3498db; }
         .promotion-options { display: flex; gap: 12px; }
@@ -84,33 +89,49 @@
         .promotion-btn:hover { background: #3498db; }
         .promotion-btn img { width: 100%; height: 100%; object-fit: contain; }
 
-        .game-info { background: #34495e; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 13px; border-left: 4px solid #3498db; text-align: center; }
-        .chat-box { flex: 1; display: flex; flex-direction: column; background: #2c3e50; border-radius: 10px; border: 1px solid #34495e; overflow: hidden; height: 300px; }
+        .game-info { background: #34495e; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 13px; border-left: 4px solid #3498db; text-align: center; font-weight: bold; }
+        
+        /* CHAT SYSTEM */
+        .chat-box { flex: 1; display: flex; flex-direction: column; background: #2c3e50; border-radius: 10px; border: 1px solid #34495e; overflow: hidden; height: 350px; }
         .chat-messages { flex: 1; overflow-y: auto; padding: 10px; background: #1a252f; }
-        .chat-msg { margin: 6px 0; padding: 6px; background: #34495e; border-radius: 4px; font-size: 12px; border-left: 3px solid #3498db; }
+        .chat-msg { margin: 6px 0; padding: 8px; background: #34495e; border-radius: 4px; font-size: 13px; border-left: 3px solid #3498db; display: flex; flex-direction: column;}
+        .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 11px; color: #bdc3c7;}
         .chat-input-area { padding: 8px; display: flex; gap: 6px; }
+        .mention { color: #f1c40f; font-weight: bold; }
         
         .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
         .tab-btn { background: #34495e; padding: 6px 12px; border-radius: 4px; cursor: pointer; border: 1px solid transparent; color: white; font-size: 12px; }
         .tab-btn.active { background: #3498db; border-color: #3498db; }
         .tab-content { display: none; } .tab-content.active { display: block; }
         
-        .moves-list { background: #34495e; padding: 10px; border-radius: 6px; font-size: 12px; max-height: 120px; overflow-y: auto; word-wrap: break-word; line-height: 1.5; margin-top: 10px; }
-        .move-item { display: inline-block; margin-right: 6px; margin-bottom: 4px; padding: 2px 6px; background: #2c3e50; border-radius: 3px; }
-        .move-annotation { font-size: 10px; font-weight: bold; margin-left: 4px; padding: 1px 4px; border-radius: 3px; text-transform: uppercase; }
-        .move-annotation.brilliant { background: #1abc9c; } .move-annotation.great { background: #4a90e2; } .move-annotation.best { background: #2b733c; } .move-annotation.excellent { background: #81b64c; } .move-annotation.good { background: #a3a3a3; } .move-annotation.forced { background: #607d8b; } .move-annotation.book { background: #d5a04a; } .move-annotation.inaccuracy { background: #f5b041; } .move-annotation.mistake { background: #e67e22; } .move-annotation.blunder { background: #df4745; } 
+        /* CHESS.COM ANNOTATIONS */
+        .moves-list { background: #34495e; padding: 10px; border-radius: 6px; font-size: 13px; max-height: 120px; overflow-y: auto; line-height: 1.6; margin-top: 10px; }
+        .move-item { display: inline-block; margin-right: 8px; margin-bottom: 4px; background: #2c3e50; border-radius: 4px; padding: 2px 6px;}
+        .move-annotation { font-size: 11px; font-weight: bold; margin-left: 4px; padding: 2px 4px; border-radius: 3px; color: #fff;}
+        .brilliant { background: #1baca6; } /* !! */
+        .great { background: #5c8bb0; } /* ! */
+        .best { background: #81b64c; } /* ★ */
+        .excellent { background: #96bc4b; }
+        .good { background: #96bf6b; }
+        .book { background: #a88865; } /* 📖 */
+        .inaccuracy { background: #f0c15c; } /* ?! */
+        .mistake { background: #e58f39; } /* ? */
+        .blunder { background: #b33430; } /* ?? */
+        .miss { background: #ff7769; }
+        .forced { background: #7f8b95; } 
         
         .game-setup-panel { background: #34495e; padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
         .setup-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
         .start-match-btn { background: #27ae60 !important; font-weight: bold; font-size: 14px; width: 100%; padding: 10px; }
         
-        .profile-card { background: #34495e; padding: 10px; margin: 8px 0; border-radius: 6px; border-left: 4px solid #3498db; font-size: 13px; }
+        .profile-card { background: #34495e; padding: 14px; margin: 8px 0; border-radius: 6px; border-left: 4px solid #3498db; font-size: 13px; display: flex; align-items: center; gap: 12px;}
         .rating-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
         .rating-box { background: #34495e; padding: 8px; border-radius: 4px; text-align: center; }
         .rating-box .value { font-size: 16px; font-weight: bold; color: #3498db; } .rating-box .label { font-size: 11px; color: #bdc3c7; }
         .hidden { display: none !important; }
         .side-action-btn { font-size: 11px; padding: 4px 8px; }
-        .friend-item { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 13px; }
+        .social-item { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 13px; }
+        .streak-fire { color: #e67e22; font-weight: bold; font-size: 16px; margin-left: 5px; }
     </style>
 </head>
 <body>
@@ -145,15 +166,19 @@
             <h1>♟ Rouchess</h1>
             <div class="navbar-right">
                 <div class="user-badge" id="userDisplay">...</div>
-                <button onclick="logout()" style="padding: 4px 8px; font-size: 12px;">Logout</button>
+                <button onclick="logout()" style="padding: 4px 8px; font-size: 12px; background: #e74c3c;">Logout</button>
             </div>
         </div>
 
         <div class="container">
             <div class="left-panel">
                 <div class="card">
-                    <h3>👤 My Profile</h3>
-                    <div class="profile-card" id="myProfile">Loading...</div>
+                    <h3>👤 My Profile <span id="streakDisplay" class="streak-fire" title="Daily Streak">🔥 0</span></h3>
+                    <div id="myProfile">Loading...</div>
+                    <div style="margin-top: 10px; display:flex; gap:5px;">
+                        <input type="text" id="avatarInput" class="input" placeholder="Avatar URL..." style="margin:0; padding:6px; font-size:11px;">
+                        <button onclick="updateAvatar()" style="font-size:11px;">Save</button>
+                    </div>
                 </div>
                 <div class="card">
                     <h3>📊 My Stats</h3>
@@ -164,7 +189,6 @@
             <div class="main-content">
                 <div class="card">
                     <h3>♟ Play Chess</h3>
-                    
                     <div class="game-setup-panel">
                         <div class="setup-row">
                             <label><strong>Mode:</strong></label>
@@ -191,6 +215,7 @@
                             <select id="matchTimeFormat" class="input" style="margin:0; width:65%;" onchange="toggleTimeFields()">
                                 <option value="blitz" selected>⚡ Blitz (5+3)</option>
                                 <option value="rapid">🔥 Rapid (10+5)</option>
+                                <option value="none">⏳ No Time Limit</option>
                                 <option value="custom">⚙️ Custom</option>
                             </select>
                         </div>
@@ -198,7 +223,7 @@
                             <label><strong>Set Time:</strong></label>
                             <div style="display:flex; width: 65%; gap: 5px;">
                                 <input type="number" id="customMins" class="input" placeholder="Min" style="margin:0; width:50%;" value="15">
-                                <input type="number" id="customInc" class="input" placeholder="Inc(s)" style="margin:0; width:50%;" value="10">
+                                <input type="number" id="customInc" class="input" placeholder="Inc" style="margin:0; width:50%;" value="10">
                             </div>
                         </div>
                         <button class="start-match-btn" id="mainPlayBtn" onclick="triggerPlayConfiguration()">▶️ Start Game</button>
@@ -209,10 +234,14 @@
                     <div class="board-wrapper">
                         <!-- TOP PLAYER -->
                         <div class="player-bar">
-                            <div class="player-info" id="topPlayer">Black: Opponent</div>
+                            <div class="player-info" id="topPlayer">
+                                <img src="https://i.imgur.com/8Q5g16S.png" class="avatar" id="topAvatar">
+                                <span>Black: Opponent</span>
+                            </div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <div id="topSideBtns" class="hidden">
-                                    <button onclick="resignAs()" class="side-action-btn" style="background:#e74c3c;">Resign</button>
+                                    <button onclick="resignAs('t')" class="side-action-btn" style="background:#e74c3c;">Resign</button>
+                                    <button onclick="offerDrawAs('t')" class="side-action-btn" style="background:#f39c12;">Draw</button>
                                 </div>
                                 <div class="clock" id="topClock">5:00</div>
                             </div>
@@ -220,8 +249,7 @@
 
                         <div class="board-container">
                             <div id="board"></div>
-
-                            <!-- PROMOTION MODAL OVERLAY -->
+                            <!-- PROMOTION MODAL -->
                             <div id="promotionOverlay" class="promotion-overlay hidden">
                                 <div class="promotion-title">Promote Pawn To:</div>
                                 <div class="promotion-options">
@@ -235,11 +263,14 @@
 
                         <!-- BOTTOM PLAYER -->
                         <div class="player-bar">
-                            <div class="player-info" id="bottomPlayer">White: You</div>
+                            <div class="player-info" id="bottomPlayer">
+                                <img src="https://i.imgur.com/8Q5g16S.png" class="avatar" id="bottomAvatar">
+                                <span>White: You</span>
+                            </div>
                             <div style="display:flex; align-items:center; gap:8px;">
                                 <div id="bottomSideBtns" class="hidden">
-                                    <button onclick="resignAs()" class="side-action-btn" style="background:#e74c3c;">Resign</button>
-                                    <button onclick="offerDrawAs()" class="side-action-btn" style="background:#f39c12;">Draw</button>
+                                    <button onclick="resignAs('b')" class="side-action-btn" style="background:#e74c3c;">Resign</button>
+                                    <button onclick="offerDrawAs('b')" class="side-action-btn" style="background:#f39c12;">Draw</button>
                                 </div>
                                 <div class="clock" id="bottomClock">5:00</div>
                             </div>
@@ -254,6 +285,7 @@
                 <div class="tabs">
                     <button class="tab-btn active" onclick="switchTab('chat', event)">💬 Chat</button>
                     <button class="tab-btn" onclick="switchTab('social', event)">👥 Social</button>
+                    <button class="tab-btn" onclick="switchTab('online', event)">🟢 Online</button>
                     <button class="tab-btn hidden" id="adminTabBtn" onclick="switchTab('admin', event)">⚙️ Admin</button>
                 </div>
 
@@ -261,7 +293,7 @@
                     <div class="chat-box">
                         <div class="chat-messages" id="chatMessages">Loading chat...</div>
                         <div class="chat-input-area">
-                            <input class="input" id="chatInput" placeholder="Message..." style="margin: 0;">
+                            <input class="input" id="chatInput" placeholder="Message or @username..." style="margin: 0;">
                             <button onclick="sendMessage()" style="padding: 8px 12px;">Send</button>
                         </div>
                     </div>
@@ -276,9 +308,22 @@
                         </div>
                         <div id="searchResultArea" style="margin-top: 8px;"></div>
                     </div>
+                    
+                    <div class="card">
+                        <h3>📬 Friend Requests</h3>
+                        <div id="friendRequestsArea">No pending requests.</div>
+                    </div>
+
                     <div class="card">
                         <h3>🤝 My Friends</h3>
                         <div id="friendsListArea">No friends yet.</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="online-tab">
+                    <div class="card">
+                        <h3>🟢 Online Players</h3>
+                        <div id="onlinePlayersArea">Loading...</div>
                     </div>
                 </div>
 
@@ -329,6 +374,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const DEFAULT_AVATAR = "https://i.imgur.com/8Q5g16S.png";
 
         /* =======================================
            2. BASE VARIABLES
@@ -347,16 +393,22 @@
         let isOnlineGame = false;
         let onlineRoomId = null;
         let onlineRef = null;
+        let timeFormatStr = "blitz"; 
+        let isUnlimitedTime = false;
         
         let moveEvaluations = [];
         let lastMove = null;
         let premove = null;
         let pendingPromotionMove = null;
 
+        if (Notification && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
         // Auto-seed default testing account
         db.ref('users/Rounakgod_65').once('value').then(s => {
             if(!s.exists()) {
-                db.ref('users/Rounakgod_65').set({ password: 'Jiko@123', realname: 'Rounak Bera', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, classicalRating: 2700, wins: 3200, losses: 1800, banned: false, banReason: '' });
+                db.ref('users/Rounakgod_65').set({ password: 'Jiko@123', realname: 'Rounak Bera', badges: ['owner'], blitzRating: 2800, rapidRating: 2750, avatar: DEFAULT_AVATAR, wins: 3200, losses: 1800, banned: false });
             }
         });
 
@@ -368,18 +420,71 @@
                 document.getElementById('authPage').style.display = 'none';
                 document.getElementById('appContainer').classList.add('active');
                 
+                setupPresence();
+
                 db.ref('users').on('value', snap => {
                     users = snap.val() || {};
                     if (currentUser && users[currentUser] && users[currentUser].banned) {
                         alert(`You have been banned!\nReason: ${users[currentUser].banReason || 'Administrative Action'}`);
                         logout(); return;
                     }
-                    updateUI(); displayProfile(); displayStats(); renderFriends();
+                    updateUI(); displayProfile(); displayStats(); renderFriends(); renderFriendRequests(); renderOnlinePlayers();
                 });
 
                 listenToChat(); listenForPings(); toggleSetupFields();
                 initializeBoard('white');
+                processStreak();
             }
+        }
+
+        /* =======================================
+           PRESENCE & STREAK SYSTEM
+           ======================================= */
+        function setupPresence() {
+            var myConnectionsRef = db.ref(`users/${currentUser}/online`);
+            var connectedRef = db.ref('.info/connected');
+            connectedRef.on('value', snap => {
+                if (snap.val() === true) {
+                    myConnectionsRef.set(true);
+                    myConnectionsRef.onDisconnect().set(false);
+                    db.ref(`users/${currentUser}/lastSeen`).onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+                }
+            });
+        }
+
+        function processStreak() {
+            db.ref('users/' + currentUser).once('value').then(snap => {
+                let user = snap.val(); if(!user) return;
+                
+                let now = Date.now();
+                let todayStart = new Date().setHours(0,0,0,0);
+                let lastStart = user.lastLogin ? new Date(user.lastLogin).setHours(0,0,0,0) : 0;
+                let diffDays = Math.floor((todayStart - lastStart) / (24 * 60 * 60 * 1000));
+                
+                let streak = user.streak || 0;
+                
+                if (diffDays === 1) {
+                    streak++; 
+                    db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
+                } else if (diffDays === 2) {
+                    // Grace period - Missed 1 day, streak remains
+                    db.ref('users/' + currentUser).update({ lastLogin: now });
+                } else if (diffDays > 2) {
+                    streak = 1; // Reset
+                    db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
+                } else if (diffDays === 0) {
+                    // Already logged in today
+                } else {
+                    streak = 1; // First ever login
+                    db.ref('users/' + currentUser).update({ streak: streak, lastLogin: now });
+                }
+                document.getElementById('streakDisplay').innerText = `🔥 ${streak}`;
+                
+                // Fire notification if streak is active
+                if(Notification && Notification.permission === "granted" && diffDays > 0) {
+                    new Notification("Rouchess Online", { body: `Welcome back! Your streak is at 🔥 ${streak} days!` });
+                }
+            });
         }
 
         /* =======================================
@@ -391,22 +496,18 @@
             const config = {
                 position: 'start',
                 orientation: orientation,
-                draggable: false, // DRAG AND DROP DISABLED EXPLICITLY
+                draggable: false, 
                 pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
             };
             
             board = ChessBoard('board', config); 
             $(window).resize(() => board.resize());
 
-            // Listen directly for clean taps on squares
             $('#board').off('click pointerdown', '.square-55d63, .square-b58863')
                        .on('click pointerdown', '.square-55d63, .square-b58863', function(e) {
                 if (e.type === 'pointerdown' && e.pointerType === 'mouse') return;
                 const square = $(this).attr('data-square');
-                if (square) {
-                    e.preventDefault();
-                    handleSquareTap(square);
-                }
+                if (square) { e.preventDefault(); handleSquareTap(square); }
             });
         }
 
@@ -416,22 +517,20 @@
             return (isWhiteTurn && playerColor === 'w') || (!isWhiteTurn && playerColor === 'b');
         }
 
-        /* HARDENED TAP ENGINE */
         function handleSquareTap(square) {
             if (!gameActive || pendingPromotionMove) return;
 
-            // 1. PREMOVE TAP LOGIC (Opponent's turn)
+            let turnColor = isWhiteTurn ? 'w' : 'b';
+
             if (!isMyTurn()) {
                 if (selectedPiece === null) {
                     const piece = game.get(square);
                     if (piece && piece.color === playerColor) {
-                        selectedPiece = square;
-                        highlightSquare(square, '#baca44');
+                        selectedPiece = square; highlightSquare(square, '#baca44');
                     }
                 } else {
                     if (square === selectedPiece) {
-                        clearHighlights();
-                        premove = null;
+                        clearHighlights(); premove = null;
                     } else {
                         premove = { from: selectedPiece, to: square };
                         highlightPremove(selectedPiece, square);
@@ -441,62 +540,42 @@
                 return;
             }
 
-            // 2. REGULAR TURN TAP LOGIC
             if (selectedPiece === null) {
                 const piece = game.get(square);
-                if (piece && piece.color === (isWhiteTurn ? 'w' : 'b')) {
-                    selectedPiece = square;
-                    clearHighlights();
-                    highlightSquare(square, '#baca44');
-                    showLegalMoves(square);
+                if (piece && piece.color === turnColor) {
+                    selectedPiece = square; clearHighlights(); highlightSquare(square, '#baca44'); showLegalMoves(square);
                 }
             } else {
-                if (square === selectedPiece) { 
-                    clearHighlights(); 
-                    return; 
-                }
+                if (square === selectedPiece) { clearHighlights(); return; }
 
                 const piece = game.get(square);
-                if (piece && piece.color === (isWhiteTurn ? 'w' : 'b')) {
-                    clearHighlights(); 
-                    selectedPiece = square;
-                    highlightSquare(square, '#baca44'); 
-                    showLegalMoves(square);
+                if (piece && piece.color === turnColor) {
+                    clearHighlights(); selectedPiece = square; highlightSquare(square, '#baca44'); showLegalMoves(square);
                     return;
                 }
 
-                // Check for Pawn Promotion Eligibility
+                // Check Promotion
                 const movingPiece = game.get(selectedPiece);
                 const isPawn = movingPiece && movingPiece.type === 'p';
-                const targetRank = square.charAt(1);
-                const isPromoting = isPawn && ((movingPiece.color === 'w' && targetRank === '8') || (movingPiece.color === 'b' && targetRank === '1'));
+                const isPromoting = isPawn && ((movingPiece.color === 'w' && square.charAt(1) === '8') || (movingPiece.color === 'b' && square.charAt(1) === '1'));
 
                 if (isPromoting) {
-                    // Check if move is legal before opening modal
                     const testMoves = game.moves({ square: selectedPiece, verbose: true });
-                    const isLegal = testMoves.some(m => m.to === square);
-                    if (isLegal) {
+                    if (testMoves.some(m => m.to === square)) {
                         pendingPromotionMove = { from: selectedPiece, to: square };
                         showPromotionOverlay(movingPiece.color);
                         return;
                     }
                 }
 
-                // Execute Standard Move
                 const move = game.move({ from: selectedPiece, to: square, promotion: 'q' });
-                if (move === null) { 
-                    clearHighlights(); 
-                    return; 
-                }
+                if (move === null) { clearHighlights(); return; }
                 
                 lastMove = { from: selectedPiece, to: square };
-                selectedPiece = null;
-                clearHighlights();
-                finishMoveLogic(move);
+                selectedPiece = null; clearHighlights(); finishMoveLogic(move);
             }
         }
 
-        /* PROMOTION SELECTION MODAL LOGIC */
         function showPromotionOverlay(color) {
             const baseUrl = 'https://chessboardjs.com/img/chesspieces/wikipedia/';
             document.getElementById('promQ').src = `${baseUrl}${color}Q.png`;
@@ -508,91 +587,51 @@
 
         function selectPromotionPiece(pieceType) {
             if (!pendingPromotionMove) return;
-            
-            const move = game.move({
-                from: pendingPromotionMove.from,
-                to: pendingPromotionMove.to,
-                promotion: pieceType
-            });
-
+            const move = game.move({ from: pendingPromotionMove.from, to: pendingPromotionMove.to, promotion: pieceType });
             document.getElementById('promotionOverlay').classList.add('hidden');
             lastMove = { from: pendingPromotionMove.from, to: pendingPromotionMove.to };
-            pendingPromotionMove = null;
-            selectedPiece = null;
-            clearHighlights();
-
-            if (move !== null) {
-                finishMoveLogic(move);
-            }
+            pendingPromotionMove = null; selectedPiece = null; clearHighlights();
+            if (move !== null) finishMoveLogic(move);
         }
 
         function executePremove() {
             if (!premove || !isMyTurn()) return;
-
-            // Check if premove triggers promotion
             const movingPiece = game.get(premove.from);
-            const isPawn = movingPiece && movingPiece.type === 'p';
-            const targetRank = premove.to.charAt(1);
-            const isPromoting = isPawn && ((movingPiece.color === 'w' && targetRank === '8') || (movingPiece.color === 'b' && targetRank === '1'));
-
-            let promotionPiece = 'q';
-            if (isPromoting) {
-                pendingPromotionMove = { from: premove.from, to: premove.to };
-                premove = null;
-                showPromotionOverlay(movingPiece.color);
-                return;
+            if(movingPiece) {
+                const isPromoting = (movingPiece.type === 'p') && ((movingPiece.color === 'w' && premove.to.charAt(1) === '8') || (movingPiece.color === 'b' && premove.to.charAt(1) === '1'));
+                if (isPromoting) {
+                    pendingPromotionMove = { from: premove.from, to: premove.to }; premove = null;
+                    showPromotionOverlay(movingPiece.color); return;
+                }
             }
-
-            const move = game.move({ from: premove.from, to: premove.to, promotion: promotionPiece });
-            const pm = premove;
-            premove = null;
-            clearHighlights();
-
-            if (move !== null) {
-                lastMove = { from: pm.from, to: pm.to };
-                finishMoveLogic(move);
-            }
+            const move = game.move({ from: premove.from, to: premove.to, promotion: 'q' });
+            const pm = premove; premove = null; clearHighlights();
+            if (move !== null) { lastMove = { from: pm.from, to: pm.to }; finishMoveLogic(move); }
         }
 
         /* =======================================
            4. VISUAL HIGHLIGHTS
            ======================================= */
-        function highlightSquare(s, c) { 
-            const el = document.querySelector(`#board .square-${s}`);
-            if(el) el.style.backgroundColor = c; 
-        }
-
+        function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function highlightLastMove() {
             if (!lastMove) return;
             $(`#board .square-${lastMove.from}`).addClass('highlight-lastmove');
             $(`#board .square-${lastMove.to}`).addClass('highlight-lastmove');
         }
-
         function highlightPremove(from, to) {
             $('.square-55d63, .square-b58863').removeClass('highlight-premove');
-            $(`#board .square-${from}`).addClass('highlight-premove');
-            $(`#board .square-${to}`).addClass('highlight-premove');
+            $(`#board .square-${from}`).addClass('highlight-premove'); $(`#board .square-${to}`).addClass('highlight-premove');
         }
-
         function showLegalMoves(square) {
-            const moves = game.moves({ square: square, verbose: true });
-            moves.forEach(m => {
-                const destSquareEl = document.querySelector(`#board .square-${m.to}`);
-                if (destSquareEl) {
-                    destSquareEl.style.position = 'relative';
-                    const dot = document.createElement('div');
-                    dot.className = 'move-dot';
-                    destSquareEl.appendChild(dot);
-                }
+            game.moves({ square: square, verbose: true }).forEach(m => {
+                const dest = document.querySelector(`#board .square-${m.to}`);
+                if (dest) { dest.style.position = 'relative'; $(dest).append("<div class='move-dot'></div>"); }
             });
         }
-
         function clearHighlights() { 
-            document.querySelectorAll('.move-dot').forEach(d => d.remove());
+            $('.move-dot').remove();
             $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', '');
-            if (selectedPiece) {
-                highlightSquare(selectedPiece, '#baca44');
-            }
+            if (selectedPiece) highlightSquare(selectedPiece, '#baca44');
             highlightLastMove();
         } 
 
@@ -620,10 +659,16 @@
             if(!isOnlineGame) {
                 let topName = playerColor === 'w' ? 'Bot' : currentUser;
                 let botName = playerColor === 'w' ? currentUser : 'Bot';
-                if(gameMode === 'local') { topName = 'Player 2'; botName = 'Player 1'; }
+                let topAvatar = playerColor === 'w' ? 'https://upload.wikimedia.org/wikipedia/commons/2/21/Solid_black.svg' : (users[currentUser]?.avatar || DEFAULT_AVATAR);
+                let botAvatar = playerColor === 'w' ? (users[currentUser]?.avatar || DEFAULT_AVATAR) : 'https://upload.wikimedia.org/wikipedia/commons/2/21/Solid_black.svg';
                 
-                document.getElementById('topPlayer').textContent = `Black: ${topName}`;
-                document.getElementById('bottomPlayer').textContent = `White: ${botName}`;
+                if(gameMode === 'local') { 
+                    topName = 'Player 2'; botName = 'Player 1'; 
+                    topAvatar = DEFAULT_AVATAR; botAvatar = DEFAULT_AVATAR;
+                }
+                
+                document.getElementById('topPlayer').innerHTML = `<img src="${topAvatar}" class="avatar"> <span>Black: ${topName}</span>`;
+                document.getElementById('bottomPlayer').innerHTML = `<img src="${botAvatar}" class="avatar"> <span>White: ${botName}</span>`;
                 updateGameStatus();
             }
             
@@ -634,13 +679,13 @@
         function finishMoveLogic(move) {
             calculateEngineFeedback(move);
 
-            if (isWhiteTurn) whiteTime += increment; else blackTime += increment;
+            if (!isUnlimitedTime) {
+                if (isWhiteTurn) whiteTime += increment; else blackTime += increment;
+            }
             isWhiteTurn = !isWhiteTurn;
             
             board.position(game.fen());
-            clearHighlights();
-            updateMovesList();
-            updateGameStatus();
+            clearHighlights(); updateMovesList(); updateGameStatus();
 
             if (isOnlineGame) {
                 db.ref('rooms/' + onlineRoomId).update({
@@ -652,12 +697,8 @@
             if (game.game_over()) endGame();
             else {
                 if (game.in_check()) showGameAlert('💥 CHECK!', 'check');
-                
-                if (isMyTurn()) {
-                    executePremove();
-                } else if (gameMode === 'bot') {
-                    setTimeout(makeBotMove, 600);
-                }
+                if (isMyTurn()) executePremove();
+                else if (gameMode === 'bot') setTimeout(makeBotMove, 600);
             }
         }
 
@@ -672,7 +713,7 @@
         }
 
         /* =======================================
-           6. ONLINE MATCHMAKING & FIREBASE SYNC
+           6. ONLINE MATCHMAKING & CROSS-PROMPTING
            ======================================= */
         function findOnlineMatch() {
             const timeSettings = getMatchTimeSettings();
@@ -683,24 +724,45 @@
             db.ref('rooms').orderByChild('status').equalTo('waiting').once('value').then(snapshot => {
                 const rooms = snapshot.val();
                 if (rooms) {
-                    const roomId = Object.keys(rooms)[0]; 
-                    if (rooms[roomId].whitePlayer === currentUser) {
-                        document.getElementById('gameStatus').innerText = "Already in queue..."; return;
+                    // Try to find exact format match
+                    let exactRoomId = Object.keys(rooms).find(k => rooms[k].format === timeFormatStr && rooms[k].whitePlayer !== currentUser);
+                    
+                    if (exactRoomId) {
+                        joinRoom(exactRoomId);
+                    } else {
+                        // Check if any other room exists
+                        let otherRoomId = Object.keys(rooms).find(k => rooms[k].whitePlayer !== currentUser);
+                        if (otherRoomId && confirm(`No match found for ${timeFormatStr}. Someone is waiting in ${rooms[otherRoomId].format}. Join them?`)) {
+                            // Adopt their time
+                            whiteTime = rooms[otherRoomId].whiteTime; blackTime = rooms[otherRoomId].blackTime;
+                            timeFormatStr = rooms[otherRoomId].format;
+                            isUnlimitedTime = (timeFormatStr === 'none');
+                            joinRoom(otherRoomId);
+                        } else {
+                            createRoom();
+                        }
                     }
-                    onlineRoomId = roomId; playerColor = 'b';
-                    db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing' });
-                    listenToOnlineRoom(); startGameInternal('b');
                 } else {
-                    onlineRoomId = db.ref('rooms').push().key; playerColor = 'w';
-                    db.ref('rooms/' + onlineRoomId).set({
-                        fen: game.fen(), whitePlayer: currentUser, blackPlayer: null,
-                        status: 'waiting', whiteTime: whiteTime, blackTime: blackTime,
-                        lastMoveTime: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    listenToOnlineRoom(); startGameInternal('w');
-                    document.getElementById('gameStatus').innerText = "Waiting for an opponent...";
+                    createRoom();
                 }
             });
+        }
+
+        function joinRoom(roomId) {
+            onlineRoomId = roomId; playerColor = 'b';
+            db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing' });
+            listenToOnlineRoom(); startGameInternal('b');
+        }
+
+        function createRoom() {
+            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w';
+            db.ref('rooms/' + onlineRoomId).set({
+                fen: game.fen(), whitePlayer: currentUser, blackPlayer: null,
+                status: 'waiting', whiteTime: whiteTime, blackTime: blackTime, format: timeFormatStr,
+                lastMoveTime: firebase.database.ServerValue.TIMESTAMP
+            });
+            listenToOnlineRoom(); startGameInternal('w');
+            document.getElementById('gameStatus').innerText = "Waiting for an opponent...";
         }
 
         function listenToOnlineRoom() {
@@ -714,8 +776,12 @@
 
                 if (data.status === 'playing') {
                     let isWhiteSelf = playerColor === 'w';
-                    document.getElementById('bottomPlayer').textContent = isWhiteSelf ? `White: ${data.whitePlayer}` : `Black: ${data.blackPlayer}`;
-                    document.getElementById('topPlayer').textContent = isWhiteSelf ? `Black: ${data.blackPlayer || 'Waiting...'}` : `White: ${data.whitePlayer}`;
+                    let oppUser = isWhiteSelf ? data.blackPlayer : data.whitePlayer;
+                    let oppAvatar = users[oppUser]?.avatar || DEFAULT_AVATAR;
+                    let myAvatar = users[currentUser]?.avatar || DEFAULT_AVATAR;
+                    
+                    document.getElementById('bottomPlayer').innerHTML = `<img src="${myAvatar}" class="avatar"> <span>${isWhiteSelf?'White':'Black'}: You</span>`;
+                    document.getElementById('topPlayer').innerHTML = `<img src="${oppAvatar}" class="avatar"> <span>${isWhiteSelf?'Black':'White'}: ${oppUser || 'Waiting...'}</span>`;
                     updateGameStatus();
                 }
 
@@ -726,44 +792,42 @@
                     isWhiteTurn = game.turn() === 'w';
                     whiteTime = data.whiteTime; blackTime = data.blackTime;
                     
-                    clearHighlights();
-                    calculateEngineFeedback(data.lastMoveData); 
-                    updateMovesList();
-                    
+                    clearHighlights(); calculateEngineFeedback(data.lastMoveData); updateMovesList();
                     if(game.in_check()) showGameAlert('💥 CHECK!', 'check');
                     if(game.game_over()) endGame();
-                    else {
-                        updateGameStatus();
-                        executePremove();
-                    }
+                    else { updateGameStatus(); executePremove(); }
                 }
             });
         }
 
         /* =======================================
-           7. MOVE EVALUATIONS, CLOCKS & RATINGS
+           7. CHESS.COM MOVE EVALUATIONS & RATING
            ======================================= */
         function calculateEngineFeedback(move) {
             if(!move) return;
             let label = "Excellent", cssClass = "excellent";
+            let symbol = "";
             
-            if (game.history().length <= 6) { moveEvaluations.push({ label: "Book", class: "book" }); return; }
-            if (move.san.includes('#')) { moveEvaluations.push({ label: "Brilliant", class: "brilliant" }); return; }
+            if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
+            if (move.san.includes('#')) { moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" }); return; }
+
+            // Forced check (Only 1 legal move existed before this)
+            game.undo(); const numMoves = game.moves().length; game.move(move.san);
+            if (numMoves === 1) { moveEvaluations.push({ label: "Forced", class: "forced" }); return; }
 
             const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
             let valueCaptured = move.captured ? pieceValues[move.captured] : 0;
             let movingPieceValue = pieceValues[move.piece];
 
             if (valueCaptured > 0) {
-                if (valueCaptured > movingPieceValue) { label = "Great"; cssClass = "great"; }
-                else if (valueCaptured === movingPieceValue) { label = "Best"; cssClass = "best"; }
+                if (valueCaptured > movingPieceValue) { label = "Great !"; cssClass = "great"; }
+                else if (valueCaptured === movingPieceValue) { label = "Best ★"; cssClass = "best"; }
                 else { label = "Good"; cssClass = "good"; }
             } else {
-                let safeMoves = ["Best", "Excellent", "Good"];
-                let hash = 0;
-                for (let i = 0; i < move.san.length; i++) hash = move.san.charCodeAt(i) + ((hash << 5) - hash);
-                label = safeMoves[Math.abs(hash) % safeMoves.length];
-                cssClass = label.toLowerCase();
+                let safeMoves = [{l:"Best ★", c:"best"}, {l:"Excellent", c:"excellent"}, {l:"Good", c:"good"}, {l:"Inaccuracy ?!", c:"inaccuracy"}];
+                let hash = 0; for (let i = 0; i < move.san.length; i++) hash = move.san.charCodeAt(i) + ((hash << 5) - hash);
+                let res = safeMoves[Math.abs(hash) % safeMoves.length];
+                label = res.l; cssClass = res.c;
             }
             moveEvaluations.push({ label: label, class: cssClass });
         }
@@ -771,6 +835,11 @@
         function startClock() {
             if (gameTimer) clearInterval(gameTimer);
             updateClocks();
+            if (isUnlimitedTime) {
+                document.getElementById('topClock').innerText = "∞";
+                document.getElementById('bottomClock').innerText = "∞";
+                return;
+            }
             gameTimer = setInterval(() => {
                 if (!gameActive) return;
                 if (isWhiteTurn) whiteTime = Math.max(0, whiteTime - 1);
@@ -781,63 +850,47 @@
         }
 
         function updateClocks() {
+            if(isUnlimitedTime) return;
             const f = s => `${Math.floor(s/60)}:${s%60<10?'0':''}${s%60}`;
             if (playerColor === 'w') {
-                document.getElementById('bottomClock').textContent = f(whiteTime);
-                document.getElementById('topClock').textContent = f(blackTime);
+                document.getElementById('bottomClock').textContent = f(whiteTime); document.getElementById('topClock').textContent = f(blackTime);
             } else {
-                document.getElementById('bottomClock').textContent = f(blackTime);
-                document.getElementById('topClock').textContent = f(whiteTime);
+                document.getElementById('bottomClock').textContent = f(blackTime); document.getElementById('topClock').textContent = f(whiteTime);
             }
         }
 
         function endGame(forcedWinner = null, reason = null) {
             if (!gameActive) return;
-            gameActive = false; 
-            clearInterval(gameTimer);
+            gameActive = false; clearInterval(gameTimer);
             
-            let resultText = 'Game Over';
-            let outcome = null; 
+            let resultText = 'Game Over'; let outcome = null; 
 
             if (forcedWinner) {
-                outcome = forcedWinner.toLowerCase();
-                resultText = `${forcedWinner} won by ${reason}`;
+                outcome = forcedWinner.toLowerCase(); resultText = `${forcedWinner} won by ${reason}`;
             } else if (game.in_checkmate()) {
-                outcome = (game.turn() === 'w') ? 'black' : 'white';
-                resultText = `${outcome === 'white' ? 'White' : 'Black'} won by Checkmate`;
+                outcome = (game.turn() === 'w') ? 'black' : 'white'; resultText = `${outcome === 'white' ? 'White' : 'Black'} won by Checkmate`;
             } else if (game.in_stalemate() || game.in_draw() || game.in_threefold_repetition()) {
-                outcome = 'draw';
-                resultText = 'Draw';
+                outcome = 'draw'; resultText = 'Draw';
             } else if (whiteTime <= 0) {
-                outcome = 'black';
-                resultText = 'Black won on time';
+                outcome = 'black'; resultText = 'Black won on time';
             } else if (blackTime <= 0) {
-                outcome = 'white';
-                resultText = 'White won on time';
+                outcome = 'white'; resultText = 'White won on time';
             }
 
-            // RATING ENGINE SYNC
             if (gameMode !== 'local' && users[currentUser]) {
                 let user = users[currentUser];
-                let format = document.getElementById('matchTimeFormat').value;
+                let format = (timeFormatStr === 'rapid' || timeFormatStr === 'none') ? 'rapid' : 'blitz';
                 let currentRating = format === 'rapid' ? (user.rapidRating || 1500) : (user.blitzRating || 1500);
                 let oppRating = 1500;
 
                 if (gameMode === 'bot') {
-                    let level = parseInt(document.getElementById('botLevelSlider').value);
-                    oppRating = 400 + ((level - 1) * 100);
+                    oppRating = 400 + ((parseInt(document.getElementById('botLevelSlider').value) - 1) * 100);
                 } else if (gameMode === 'online') {
-                    let oppName = playerColor === 'w' ? document.getElementById('topPlayer').textContent.replace('Black: ', '') : document.getElementById('topPlayer').textContent.replace('White: ', '');
-                    if (users[oppName]) {
-                        oppRating = format === 'rapid' ? (users[oppName].rapidRating || 1500) : (users[oppName].blitzRating || 1500);
-                    }
+                    let oppName = playerColor === 'w' ? document.getElementById('topPlayer').innerText.split(':')[1].trim() : document.getElementById('topPlayer').innerText.split(':')[1].trim();
+                    if (users[oppName]) oppRating = format === 'rapid' ? (users[oppName].rapidRating || 1500) : (users[oppName].blitzRating || 1500);
                 }
 
-                let actualScore = 0.5;
-                if (outcome === (playerColor === 'w' ? 'white' : 'black')) actualScore = 1;
-                else if (outcome === 'draw') actualScore = 0.5;
-                else actualScore = 0;
-
+                let actualScore = (outcome === (playerColor === 'w' ? 'white' : 'black')) ? 1 : (outcome === 'draw' ? 0.5 : 0);
                 let expectedScore = 1 / (1 + Math.pow(10, (oppRating - currentRating) / 400));
                 let kFactor = currentRating < 2100 ? 32 : (currentRating < 2400 ? 24 : 16);
                 let ratingChange = Math.round(kFactor * (actualScore - expectedScore));
@@ -848,48 +901,36 @@
                 if (actualScore === 1) user.wins = (user.wins || 0) + 1;
                 else if (actualScore === 0) user.losses = (user.losses || 0) + 1;
 
-                db.ref('users/' + currentUser).update({
-                    blitzRating: user.blitzRating || 1500,
-                    rapidRating: user.rapidRating || 1500,
-                    wins: user.wins || 0,
-                    losses: user.losses || 0
-                });
-
-                let ratingSign = ratingChange >= 0 ? '+' : '';
-                let ratingColor = ratingChange >= 0 ? '#27ae60' : '#e74c3c';
-                resultText += `<br><span style="font-size: 14px; color: ${ratingColor}; display: block; margin-top: 6px;">📊 Rating: ${currentRating} (${ratingSign}${ratingChange}) ➝ ${currentRating + ratingChange}</span>`;
+                db.ref('users/' + currentUser).update({ blitzRating: user.blitzRating || 1500, rapidRating: user.rapidRating || 1500, wins: user.wins || 0, losses: user.losses || 0 });
+                resultText += `<br><span style="font-size: 14px; color: ${ratingChange>=0?'#27ae60':'#e74c3c'}; display: block; margin-top: 6px;">📊 Rating: ${currentRating} (${ratingChange>=0?'+':''}${ratingChange}) ➝ ${currentRating + ratingChange}</span>`;
             }
 
             document.getElementById('gameStatus').innerHTML = `<strong>${resultText}</strong>`;
             showGameAlert(forcedWinner ? `${forcedWinner} Won!` : resultText.split('<br>')[0], 'draw');
             
-            if (isOnlineGame && onlineRef && !forcedWinner) {
-                db.ref('rooms/' + onlineRoomId).update({ status: 'finished' });
-            }
+            if (isOnlineGame && onlineRef && !forcedWinner) db.ref('rooms/' + onlineRoomId).update({ status: 'finished' });
         }
 
         /* =======================================
            8. HELPERS & UI CONTROLS
            ======================================= */
         function toggleTimeFields() {
-            document.getElementById('customTimeWrapper').classList.toggle('hidden', document.getElementById('matchTimeFormat').value !== 'custom');
+            timeFormatStr = document.getElementById('matchTimeFormat').value;
+            isUnlimitedTime = (timeFormatStr === 'none');
+            document.getElementById('customTimeWrapper').classList.toggle('hidden', timeFormatStr !== 'custom');
         }
         function getMatchTimeSettings() {
-            const format = document.getElementById('matchTimeFormat').value;
-            if (format === 'rapid') return { base: 600, inc: 5 };
-            if (format === 'blitz') return { base: 300, inc: 3 };
-            return {
-                base: (parseInt(document.getElementById('customMins').value) || 10) * 60,
-                inc: parseInt(document.getElementById('customInc').value) || 0
-            };
+            if (timeFormatStr === 'rapid') return { base: 600, inc: 5 };
+            if (timeFormatStr === 'blitz') return { base: 300, inc: 3 };
+            if (timeFormatStr === 'none') return { base: 9999, inc: 0 };
+            return { base: (parseInt(document.getElementById('customMins').value) || 10) * 60, inc: parseInt(document.getElementById('customInc').value) || 0 };
         }
         function toggleSetupFields() {
-            const mode = document.getElementById('gameModeSelect').value;
-            gameMode = mode;
-            document.getElementById('botDifficultyWrapper').style.display = mode === 'bot' ? 'flex' : 'none';
-            document.getElementById('playerColorWrapper').style.display = mode === 'bot' ? 'flex' : 'none';
+            gameMode = document.getElementById('gameModeSelect').value;
+            document.getElementById('botDifficultyWrapper').style.display = gameMode === 'bot' ? 'flex' : 'none';
+            document.getElementById('playerColorWrapper').style.display = gameMode === 'bot' ? 'flex' : 'none';
             const playBtn = document.getElementById('mainPlayBtn');
-            if (mode === 'online') {
+            if (gameMode === 'online') {
                 playBtn.innerHTML = "🔍 Find Online Match"; playBtn.style.background = "#8e44ad"; playBtn.onclick = findOnlineMatch;
             } else {
                 playBtn.innerHTML = "▶️ Start Game"; playBtn.style.background = "#27ae60"; playBtn.onclick = triggerPlayConfiguration;
@@ -897,13 +938,13 @@
         }
         function updateButtonVisibility() {
             document.getElementById('bottomSideBtns').classList.remove('hidden');
+            if(gameMode === 'local') document.getElementById('topSideBtns').classList.remove('hidden');
+            else document.getElementById('topSideBtns').classList.add('hidden');
         }
-        function updateGameStatus() { 
-            document.getElementById('gameStatus').textContent = gameActive ? `Active • ${isWhiteTurn ? "White" : "Black"}'s turn` : 'Game Finished'; 
-        }
+        function updateGameStatus() { document.getElementById('gameStatus').textContent = gameActive ? `Active • ${isWhiteTurn ? "White" : "Black"}'s turn` : 'Game Finished'; }
+        
         function updateMovesList() {
-            const history = game.history({ verbose: true });
-            let html = '';
+            const history = game.history({ verbose: true }); let html = '';
             for (let i = 0; i < history.length; i += 2) {
                 let wEval = moveEvaluations[i] || { label: "Book", class: "book" };
                 let item = `<span class="move-item">${(i/2)+1}. ${history[i].san}<span class="move-annotation ${wEval.class}">${wEval.label}</span>`;
@@ -913,66 +954,77 @@
                 }
                 html += item + '</span>';
             }
-            const ml = document.getElementById('movesList');
-            ml.innerHTML = html || 'No moves yet'; ml.scrollTop = ml.scrollHeight;
+            const ml = document.getElementById('movesList'); ml.innerHTML = html || 'No moves yet'; ml.scrollTop = ml.scrollHeight;
         }
+
         function showGameAlert(text, type) {
-            const old = document.getElementById('gameAlert'); if (old) old.remove();
-            const alertEl = document.createElement('div');
-            alertEl.id = 'gameAlert'; alertEl.className = 'game-alert-overlay animate-pop'; alertEl.innerText = text;
+            $('#gameAlert').remove();
+            const alertEl = $(`<div id="gameAlert" class="game-alert-overlay animate-pop">${text}</div>`);
+            $('.board-container').append(alertEl);
             setTimeout(() => alertEl.remove(), 2200);
-            document.querySelector('.board-container').appendChild(alertEl);
         }
 
-        function resignAs() { 
-            if(gameActive && confirm("Are you sure you want to resign?")) {
-                let winner = playerColor === 'w' ? 'Black' : 'White';
-                endGame(winner, 'Resignation');
-                if (isOnlineGame && onlineRoomId) {
-                    db.ref('rooms/' + onlineRoomId).update({ forcedWinner: winner, reason: 'Resignation' });
-                }
-            } 
+        function resignAs(panel) { 
+            if(!gameActive || !confirm("Are you sure you want to resign?")) return;
+            let winner = 'White';
+            if (gameMode === 'local') winner = (panel === 't') ? 'White' : 'Black';
+            else winner = playerColor === 'w' ? 'Black' : 'White';
+            
+            endGame(winner, 'Resignation');
+            if (isOnlineGame && onlineRoomId) db.ref('rooms/' + onlineRoomId).update({ forcedWinner: winner, reason: 'Resignation' });
         }
-        function offerDrawAs() { if(gameActive) showGameAlert("Draw offer sent", "draw"); }
+        function offerDrawAs(panel) { if(gameActive) showGameAlert("Draw offer sent", "draw"); }
 
-        function switchAuthTab(t, e) { document.querySelectorAll('.auth-form, .auth-tab').forEach(el => el.classList.remove('active')); document.getElementById(t+'Form').classList.add('active'); if(e) e.target.classList.add('active'); }
-        function switchTab(t, e) { document.querySelectorAll('.tab-content, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t+'-tab').classList.add('active'); if(e) e.target.classList.add('active'); }
+        function switchAuthTab(t, e) { $('.auth-form, .auth-tab').removeClass('active'); $(`#${t}Form`).addClass('active'); $(e.target).addClass('active'); }
+        function switchTab(t, e) { $('.tab-content, .tab-btn').removeClass('active'); $(`#${t}-tab`).addClass('active'); $(e.target).addClass('active'); }
 
         function login(e) {
             e.preventDefault();
-            const username = document.getElementById('loginUsername').value, password = document.getElementById('loginPassword').value, msg = document.getElementById('loginMsg');
-            db.ref('users/' + username).once('value').then(snap => {
+            const user = $('#loginUsername').val(), pass = $('#loginPassword').val(), msg = $('#loginMsg');
+            db.ref('users/' + user).once('value').then(snap => {
                 let u = snap.val();
-                if (u && u.password === password) {
-                    if (u.banned) { msg.textContent = `✗ Banned: ${u.banReason || 'Banned'}`; msg.className = 'auth-msg error'; return; }
-                    currentUser = username; localStorage.setItem('currentUser', currentUser);
-                    msg.textContent = '✓ Success!'; msg.className = 'auth-msg success';
-                    setTimeout(() => initApp(), 500);
-                } else { msg.textContent = '✗ Invalid details'; msg.className = 'auth-msg error'; }
+                if (u && u.password === pass) {
+                    if (u.banned) { msg.text(`✗ Banned: ${u.banReason || 'Banned'}`).addClass('error'); return; }
+                    currentUser = user; localStorage.setItem('currentUser', currentUser);
+                    msg.text('✓ Success!').addClass('success').removeClass('error'); setTimeout(() => initApp(), 500);
+                } else { msg.text('✗ Invalid details').addClass('error').removeClass('success'); }
             });
         }
         function signup(e) {
             e.preventDefault();
-            const username = document.getElementById('signupUsername').value, realname = document.getElementById('signupRealname').value, password = document.getElementById('signupPassword').value, msg = document.getElementById('signupMsg');
-            db.ref('users/' + username).once('value').then(snap => {
-                if (snap.exists()) { msg.textContent = '✗ Taken'; msg.className = 'auth-msg error'; }
+            const user = $('#signupUsername').val(), real = $('#signupRealname').val(), pass = $('#signupPassword').val(), msg = $('#signupMsg');
+            db.ref('users/' + user).once('value').then(snap => {
+                if (snap.exists()) { msg.text('✗ Taken').addClass('error'); }
                 else {
-                    db.ref('users/' + username).set({ password, realname, badges: [], blitzRating: 1500, rapidRating: 1500, wins: 0, losses: 0, banned: false });
-                    msg.textContent = '✓ Account Created!'; msg.className = 'auth-msg success';
-                    setTimeout(() => switchAuthTab('login'), 800);
+                    db.ref('users/' + user).set({ password:pass, realname:real, badges:[], blitzRating:1500, rapidRating:1500, wins:0, losses:0, banned:false, avatar: DEFAULT_AVATAR });
+                    msg.text('✓ Account Created!').addClass('success').removeClass('error'); setTimeout(() => switchAuthTab('login', {target: $('.auth-tab')[0]}), 800);
                 }
             });
         }
-        function logout() { currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
+        function logout() { db.ref(`users/${currentUser}/online`).set(false); currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
 
+        /* =======================================
+           SOCIAL & CHAT SYSTEM
+           ======================================= */
         function updateUI() { 
             const u = users[currentUser]; if(!u) return;
-            document.getElementById('userDisplay').innerHTML = `${currentUser} ${(u.badges||[]).map(b=>`<span class="badge ${b}">${b}</span>`).join('')}`;
+            document.getElementById('userDisplay').innerHTML = `<img src="${u.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;border:none;"> ${currentUser} ${(u.badges||[]).map(b=>`<span class="badge ${b}">${b}</span>`).join('')}`;
             if ((u.badges||[]).includes('owner')) document.getElementById('adminTabBtn').classList.remove('hidden');
         }
+        
+        function updateAvatar() {
+            let url = document.getElementById('avatarInput').value.trim();
+            if(url) { db.ref('users/' + currentUser).update({ avatar: url }); document.getElementById('avatarInput').value = ''; alert("Avatar updated!"); }
+        }
+
         function displayProfile() { 
             const u = users[currentUser]; if(!u) return;
-            document.getElementById('myProfile').innerHTML = `<strong>${u.realname}</strong><br>User: ${currentUser}<br>Rating: ${u.blitzRating || 1500}`;
+            document.getElementById('myProfile').innerHTML = `
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar-lg">
+                    <div><strong>${u.realname}</strong><br>@${currentUser}</div>
+                </div>
+            `;
         }
         function displayStats() { 
             const u = users[currentUser]; if(!u) return;
@@ -986,64 +1038,122 @@
         }
 
         function searchProfile() {
-            let q = document.getElementById('searchUserInput').value.trim();
-            let resArea = document.getElementById('searchResultArea');
-            if(!q) return;
-            if (users[q]) {
-                let u = users[q];
-                let bHtml = (u.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
-                resArea.innerHTML = `
-                    <div class="profile-card" style="border-left-color: #27ae60;">
-                        <strong>${u.realname} (${q})</strong> ${bHtml}<br>
-                        Blitz: ${u.blitzRating || 1500} | Rapid: ${u.rapidRating || 1500}<br>
-                        <button onclick="addFriend('${q}')" style="margin-top:6px; width:100%; background:#27ae60;">➕ Add Friend</button>
-                    </div>
-                `;
-            } else { resArea.innerHTML = `<span class="error">User not found.</span>`; }
+            let q = document.getElementById('searchUserInput').value.trim(); let resArea = document.getElementById('searchResultArea');
+            if(!q || !users[q]) { resArea.innerHTML = `<span class="error">User not found.</span>`; return; }
+            let u = users[q]; let bHtml = (u.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+            resArea.innerHTML = `
+                <div class="profile-card" style="border-left-color: #27ae60;">
+                    <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar">
+                    <div style="flex:1;"><strong>${u.realname} (${q})</strong> ${bHtml}<br>Blitz: ${u.blitzRating || 1500}</div>
+                    <button onclick="sendFriendRequest('${q}')" style="background:#27ae60;">➕ Add</button>
+                </div>
+            `;
         }
 
-        function addFriend(name) {
-            if (name === currentUser) return alert("You can't add yourself!");
-            db.ref(`users/${currentUser}/friends/${name}`).set(true);
-            alert(`Added ${name}!`);
+        function sendFriendRequest(name) {
+            if (name === currentUser) return alert("Can't add yourself!");
+            db.ref(`users/${name}/friendRequests/${currentUser}`).set(true);
+            alert(`Friend request sent to ${name}!`);
         }
+
+        function renderFriendRequests() {
+            let list = document.getElementById('friendRequestsArea');
+            let reqs = users[currentUser]?.friendRequests;
+            if(!reqs) { list.innerHTML = "No pending requests."; return; }
+            let html = '';
+            Object.keys(reqs).forEach(r => {
+                html += `<div class="social-item"><span><strong>${r}</strong> wants to be friends!</span>
+                <div><button onclick="acceptFriend('${r}')" style="background:#27ae60;font-size:10px;">✓</button> <button onclick="declineFriend('${r}')" style="background:#e74c3c;font-size:10px;">✗</button></div></div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        function acceptFriend(name) {
+            db.ref(`users/${currentUser}/friends/${name}`).set(true);
+            db.ref(`users/${name}/friends/${currentUser}`).set(true);
+            declineFriend(name); // removes request
+        }
+        function declineFriend(name) { db.ref(`users/${currentUser}/friendRequests/${name}`).remove(); }
 
         function renderFriends() {
             let list = document.getElementById('friendsListArea');
             if(!users[currentUser]?.friends) { list.innerHTML = "No friends yet."; return; }
             let html = '';
             Object.keys(users[currentUser].friends).forEach(f => {
-                html += `<div class="friend-item"><span><strong>${f}</strong></span><button onclick="pingFriend('${f}')" style="font-size:10px;">🔔 Ping</button></div>`;
+                let u = users[f]; let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+                html += `<div class="social-item" style="border-left: 3px solid ${u?.online ? '#27ae60' : '#7f8c8d'}">
+                    <div style="display:flex;align-items:center;gap:6px;"><img src="${u?.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;"> <strong>${f}</strong> ${bHtml}</div>
+                    <button onclick="pingFriend('${f}')" style="font-size:10px;">🔔 Ping</button></div>`;
             });
             list.innerHTML = html;
         }
-        function pingFriend(name) { db.ref(`users/${name}/pings`).push({ from: currentUser }); alert(`Ping sent to ${name}!`); }
-        function listenForPings() { db.ref(`users/${currentUser}/pings`).on('child_added', snap => { showGameAlert(`🔔 PING from ${snap.val().from}!`, 'draw'); snap.ref.remove(); }); }
+        
+        function renderOnlinePlayers() {
+            let list = document.getElementById('onlinePlayersArea'); let html = '';
+            Object.keys(users).forEach(k => {
+                if(users[k].online && k !== currentUser) {
+                    html += `<div class="social-item" style="border-left: 3px solid #27ae60">
+                        <div style="display:flex;align-items:center;gap:6px;"><img src="${users[k].avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;"> <strong>${k}</strong></div>
+                        <button onclick="sendFriendRequest('${k}')" style="font-size:10px;">➕ Add</button></div>`;
+                }
+            });
+            list.innerHTML = html || "No one else is online.";
+        }
+
+        function pingFriend(name, text="Ping!") { db.ref(`users/${name}/pings`).push({ from: currentUser, msg: text, time: firebase.database.ServerValue.TIMESTAMP }); }
+        
+        function listenForPings() { 
+            db.ref(`users/${currentUser}/pings`).on('child_added', snap => { 
+                let data = snap.val();
+                let timeStr = new Date(data.time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                showGameAlert(`🔔 ${data.from}: ${data.msg} (${timeStr})`, 'draw'); 
+                if(Notification && Notification.permission === "granted") new Notification("Rouchess Ping", { body: `${data.from} mentioned you!` });
+                snap.ref.remove(); 
+            }); 
+        }
+
+        function formatTime(ts) { return new Date(ts).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); }
+
         function sendMessage() {
-            const msg = document.getElementById('chatInput').value.trim(); if (!msg) return;
-            db.ref('globalChat').push({ user: currentUser, text: msg });
+            const rawMsg = document.getElementById('chatInput').value.trim(); if (!rawMsg) return;
+            // Parse @mentions
+            let formattedMsg = rawMsg.replace(/@(\w+)/g, (match, username) => {
+                if (users[username]) { pingFriend(username, `Mentioned you in chat!`); return `<span class="mention">@${username}</span>`; }
+                return match;
+            });
+
+            db.ref('globalChat').push({ user: currentUser, text: formattedMsg, time: firebase.database.ServerValue.TIMESTAMP });
             document.getElementById('chatInput').value = '';
         }
+
         function listenToChat() {
-            db.ref('globalChat').limitToLast(30).on('value', snap => {
+            db.ref('globalChat').limitToLast(40).on('value', snap => {
                 let html = '';
-                snap.forEach(c => { let m = c.val(); html += `<div class="chat-msg"><strong>${m.user}</strong>: ${m.text}</div>`; });
+                snap.forEach(c => { 
+                    let m = c.val(); let u = users[m.user]; 
+                    let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+                    html += `<div class="chat-msg">
+                        <div class="chat-header"><span><img src="${u?.avatar || DEFAULT_AVATAR}" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;"> <strong>${m.user}</strong> ${bHtml}</span> <span>${formatTime(m.time)}</span></div>
+                        <div>${m.text}</div>
+                    </div>`; 
+                });
                 const cb = document.getElementById('chatMessages'); cb.innerHTML = html; cb.scrollTop = cb.scrollHeight;
             });
         }
 
+        /* =======================================
+           ADMIN CONTROLS
+           ======================================= */
         function giveBadge() {
             const target = document.getElementById('verifyUsername').value.trim(), badge = document.getElementById('badgeSelect').value;
             if (target && badge && users[target]) {
-                let b = users[target].badges || []; if (!b.includes(badge)) b.push(badge);
-                db.ref('users/' + target + '/badges').set(b);
+                let b = users[target].badges || []; if (!b.includes(badge)) b.push(badge); db.ref('users/' + target + '/badges').set(b);
             }
         }
         function takeBadge() {
             const target = document.getElementById('verifyUsername').value.trim(), badge = document.getElementById('badgeSelect').value;
             if (target && badge && users[target]) {
-                let b = (users[target].badges || []).filter(x => x !== badge);
-                db.ref('users/' + target + '/badges').set(b);
+                let b = (users[target].badges || []).filter(x => x !== badge); db.ref('users/' + target + '/badges').set(b);
             }
         }
         function adminBanPlayer() {
