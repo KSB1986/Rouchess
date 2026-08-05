@@ -1081,9 +1081,22 @@
         }
 
         /* =======================================
-           8. PROFILE CONTROLS & DRAW OFFERS
+           8. PROFILE CONTROLS & DRAW/RESIGN LOGIC
            ======================================= */
         
+        function resignAs(panel) { 
+            if(!gameActive || !confirm("Are you sure you want to resign?")) return;
+            let winner = 'White';
+            if (gameMode === 'local') winner = (panel === 't') ? 'White' : 'Black';
+            else winner = playerColor === 'w' ? 'Black' : 'White';
+            
+            endGame(winner, 'Resignation');
+            
+            if (isOnlineGame && onlineRoomId) {
+                db.ref('rooms/' + onlineRoomId).update({ forcedWinner: winner, reason: 'Resignation' });
+            }
+        }
+
         function offerDrawAs(panel) { 
             if(!gameActive) return;
             if(gameMode === 'bot') {
