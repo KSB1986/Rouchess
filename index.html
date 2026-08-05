@@ -74,7 +74,6 @@
         .highlight-lastmove { background-color: rgba(245, 230, 83, 0.55) !important; }
         .highlight-premove { background-color: rgba(186, 85, 211, 0.6) !important; }
         
-        /* Fixed Safe Overlay Dots */
         .move-dot { width: 30%; height: 30%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
         .capture-ring { width: 85%; height: 85%; background: transparent; border: 6px solid rgba(0, 0, 0, 0.4); }
 
@@ -142,12 +141,20 @@
         .social-item { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 13px; }
         .streak-fire { color: #e67e22; font-weight: bold; font-size: 16px; margin-left: 5px; }
         
-        /* File Input Styling */
+        /* File Input */
         input[type="file"]::file-selector-button { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 10px; }
         input[type="file"]::file-selector-button:hover { background: #2980b9; }
 
         /* Direct Message Screen */
         .dm-header { display: flex; align-items: center; gap: 10px; background: #2c3e50; padding: 8px; border-bottom: 1px solid #34495e; }
+
+        /* Match History Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: #2c3e50; width: 100%; max-width: 500px; height: 85vh; border-radius: 10px; border: 2px solid #3498db; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 12px 15px; background: #1a252f; border-bottom: 1px solid #34495e; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { color: #3498db; font-size: 18px; margin: 0; }
+        .modal-body { padding: 15px; overflow-y: auto; flex: 1; background: #1a1a1a; }
+        .close-btn { background: transparent; border: none; color: #e74c3c; font-size: 20px; cursor: pointer; padding: 0; line-height: 1; }
     </style>
 </head>
 <body>
@@ -325,7 +332,7 @@
                         <!-- Game Chat -->
                         <div class="chat-messages hidden" id="chatMessagesGame" style="background:#1c2833;"></div>
                         
-                        <!-- DM Area (List & Active Chat) -->
+                        <!-- DM Area -->
                         <div class="chat-messages hidden" id="chatMessagesDM" style="padding:0;">
                             <div id="dmUserList" style="padding:10px;">Select a user from Social to message them.</div>
                             <div id="dmActiveChat" class="hidden" style="display:flex; flex-direction:column; height:100%;">
@@ -397,6 +404,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- History Modal -->
+        <div id="historyModal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="historyTitle">Match History</h3>
+                    <button class="close-btn" onclick="document.getElementById('historyModal').classList.add('hidden')">✖</button>
+                </div>
+                <div class="modal-body" id="historyList">
+                    <!-- History gets loaded here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -442,6 +462,7 @@
         let onlineRef = null;
         let timeFormatStr = "blitz"; 
         let isUnlimitedTime = false;
+        let currentOpponentName = "Opponent";
         
         let moveEvaluations = [];
         let lastMove = null;
@@ -537,7 +558,6 @@
             board = ChessBoard('board', config); 
             $(window).resize(() => board.resize());
 
-            // FIX: Removed pointerdown to fix mobile double-tap ghost bugs
             $('#board').off('click', '.square-55d63, .square-b58863')
                        .on('click', '.square-55d63, .square-b58863', function(e) {
                 const square = $(this).attr('data-square');
@@ -564,7 +584,7 @@
                     }
                 } else {
                     if (square === selectedPiece) {
-                        selectedPiece = null; clearHighlights(); premove = null; return; // FIX: Ensure selection completely resets
+                        selectedPiece = null; clearHighlights(); premove = null; return;
                     } else {
                         premove = { from: selectedPiece, to: square };
                         highlightPremove(selectedPiece, square);
@@ -581,7 +601,7 @@
                 }
             } else {
                 if (square === selectedPiece) { 
-                    selectedPiece = null; clearHighlights(); return; // FIX: Drop piece perfectly if clicking it again
+                    selectedPiece = null; clearHighlights(); return; 
                 }
 
                 const piece = game.get(square);
@@ -603,7 +623,6 @@
                     }
                 }
 
-                // FIX: Ensure if the move is null (illegal), it clears the selection so it doesn't get stuck!
                 const move = game.move({ from: selectedPiece, to: square, promotion: 'q' });
                 if (move === null) { 
                     selectedPiece = null; clearHighlights(); return; 
@@ -648,7 +667,7 @@
         }
 
         /* =======================================
-           4. VISUAL HIGHLIGHTS (Fixed Dots using Appending)
+           4. VISUAL HIGHLIGHTS
            ======================================= */
         function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function highlightLastMove() {
@@ -661,7 +680,6 @@
             $(`#board .square-${from}`).addClass('highlight-premove'); $(`#board .square-${to}`).addClass('highlight-premove');
         }
         function showLegalMoves(square) {
-            // FIX: Append robust div elements instead of using temperamental CSS psuedo-selectors that get wiped
             game.moves({ square: square, verbose: true }).forEach(m => {
                 const dest = document.querySelector(`#board .square-${m.to}`);
                 if (dest) { 
@@ -671,7 +689,7 @@
             });
         }
         function clearHighlights() { 
-            $('.move-dot').remove(); // Wipe appended dots cleanly
+            $('.move-dot').remove();
             $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', '');
             if (selectedPiece) highlightSquare(selectedPiece, '#baca44');
             highlightLastMove();
@@ -702,14 +720,16 @@
             if (currentChatContext === 'game') switchSubChat('global');
             
             if(!isOnlineGame) {
-                let topName = playerColor === 'w' ? 'Computer' : currentUser;
-                let botName = playerColor === 'w' ? currentUser : 'Computer';
+                let topName = playerColor === 'w' ? 'Computer Bot' : currentUser;
+                let botName = playerColor === 'w' ? currentUser : 'Computer Bot';
+                currentOpponentName = "Computer Bot";
                 
                 let topAvatar = playerColor === 'w' ? BOT_AVATAR : (users[currentUser]?.avatar || DEFAULT_AVATAR);
                 let botAvatar = playerColor === 'w' ? (users[currentUser]?.avatar || DEFAULT_AVATAR) : BOT_AVATAR;
                 
                 if(gameMode === 'local') { 
                     topName = 'Player 2'; botName = 'Player 1'; 
+                    currentOpponentName = "Player 2";
                     topAvatar = DEFAULT_AVATAR; botAvatar = DEFAULT_AVATAR;
                 }
                 
@@ -792,7 +812,7 @@
 
         function joinRoom(roomId) {
             onlineRoomId = roomId; playerColor = 'b';
-            db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing' });
+            db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing', drawOffer: null, drawDeclined: null });
             listenToOnlineRoom(); startGameInternal('b');
             activateGameChat();
         }
@@ -802,7 +822,7 @@
             db.ref('rooms/' + onlineRoomId).set({
                 fen: game.fen(), whitePlayer: currentUser, blackPlayer: null,
                 status: 'waiting', whiteTime: whiteTime, blackTime: blackTime, format: timeFormatStr,
-                lastMoveTime: firebase.database.ServerValue.TIMESTAMP
+                lastMoveTime: firebase.database.ServerValue.TIMESTAMP, drawOffer: null, drawDeclined: null
             });
             listenToOnlineRoom(); startGameInternal('w');
             document.getElementById('gameStatus').innerText = "Waiting for an opponent...";
@@ -818,9 +838,24 @@
 
                 if (gameActive && data.forcedWinner) endGame(data.forcedWinner, data.reason);
 
+                // DRAW OFFER LISTENER FIX
+                if (gameActive && data.drawOffer && data.drawOffer !== currentUser) {
+                    if (confirm(`${data.drawOffer} offered a draw. Accept?`)) {
+                        db.ref('rooms/' + onlineRoomId).update({ drawOffer: null, forcedWinner: 'Draw', reason: 'Mutual Agreement' });
+                    } else {
+                        db.ref('rooms/' + onlineRoomId).update({ drawOffer: null, drawDeclined: currentUser });
+                    }
+                }
+                if (gameActive && data.drawDeclined && data.drawDeclined !== currentUser) {
+                    showGameAlert("Draw offer declined", "draw");
+                    db.ref('rooms/' + onlineRoomId).update({ drawDeclined: null });
+                }
+
                 if (data.status === 'playing') {
                     let isWhiteSelf = playerColor === 'w';
                     let oppUser = isWhiteSelf ? data.blackPlayer : data.whitePlayer;
+                    currentOpponentName = oppUser || "Opponent";
+
                     let oppAvatar = users[oppUser]?.avatar || DEFAULT_AVATAR;
                     let myAvatar = users[currentUser]?.avatar || DEFAULT_AVATAR;
                     
@@ -845,7 +880,7 @@
         }
 
         /* =======================================
-           7. REAL POSITIONAL ENGINE (Fixed Crash Risk)
+           7. POSITIONAL ENGINE
            ======================================= */
         function evaluateBoardPositional(gameObj) {
             const weights = { p: 10, n: 32, b: 33, r: 50, q: 90, k: 20000 };
@@ -853,7 +888,6 @@
             const mid = ['c3','d3','e3','f3','c4','f4','c5','f5','c6','d6','e6','f6'];
             
             let score = 0;
-            // FIX: Extremely safe traversal over exactly 64 squares to bypass board array variation between chess.js versions
             const files = ['a','b','c','d','e','f','g','h'];
             for (let r=1; r<=8; r++) {
                 for (let c=0; c<8; c++) {
@@ -874,7 +908,6 @@
 
         function calculateEngineFeedback(move) {
             if(!move) return;
-            // FIX: Added Try/Catch so a math bug here will NEVER freeze game logic
             try {
                 if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
 
@@ -906,7 +939,6 @@
                 
                 moveEvaluations.push({ label: label, class: cssClass });
             } catch (e) {
-                console.error("Evaluation skipped to prevent freeze:", e);
                 moveEvaluations.push({ label: "Good", class: "good" });
             }
         }
@@ -956,6 +988,22 @@
                 outcome = 'white'; resultText = 'White won on time';
             }
 
+            // ADD TO MATCH HISTORY
+            let wName = playerColor === 'w' ? currentUser : currentOpponentName;
+            let bName = playerColor === 'b' ? currentUser : currentOpponentName;
+
+            if (currentUser && outcome) { 
+                db.ref(`users/${currentUser}/history`).push({
+                    white: wName,
+                    black: bName,
+                    result: outcome,
+                    resultText: resultText.split('<br>')[0],
+                    pgn: game.pgn() || "No moves",
+                    time: firebase.database.ServerValue.TIMESTAMP
+                });
+            }
+
+            // CALCULATE ELO
             if (gameMode !== 'local' && users[currentUser]) {
                 let user = users[currentUser];
                 let format = (timeFormatStr === 'rapid' || timeFormatStr === 'none') ? 'rapid' : 'blitz';
@@ -966,11 +1014,7 @@
                 if (gameMode === 'bot') {
                     oppRating = 400 + ((parseInt(document.getElementById('botLevelSlider').value) - 1) * 100);
                 } else if (gameMode === 'online') {
-                    let oppNameStr = document.getElementById('topPlayer').innerText.split(':')[1];
-                    if (oppNameStr) {
-                        let oppName = oppNameStr.trim();
-                        if (users[oppName]) oppRating = parseInt(format === 'rapid' ? (users[oppName].rapidRating || 1500) : (users[oppName].blitzRating || 1500));
-                    }
+                    if (users[currentOpponentName]) oppRating = parseInt(format === 'rapid' ? (users[currentOpponentName].rapidRating || 1500) : (users[currentOpponentName].blitzRating || 1500));
                 }
 
                 let actualScore = (outcome === (playerColor === 'w' ? 'white' : 'black')) ? 1 : (outcome === 'draw' ? 0.5 : 0);
@@ -1000,9 +1044,60 @@
             }
         }
 
+        // MATCH HISTORY VIEWING LOGIC
+        function viewHistory(username) {
+            document.getElementById('historyModal').classList.remove('hidden');
+            document.getElementById('historyTitle').innerText = `${username}'s Games`;
+            document.getElementById('historyList').innerHTML = '<div style="color:#7f8c8d; text-align:center;">Loading games...</div>';
+            
+            db.ref(`users/${username}/history`).limitToLast(20).once('value', snap => {
+                let html = '';
+                let games = [];
+                snap.forEach(child => { games.unshift(child.val()); }); 
+                
+                if(games.length === 0) {
+                    html = '<div style="color:#7f8c8d; text-align:center;">No past games found.</div>';
+                } else {
+                    games.forEach(g => {
+                        let date = new Date(g.time).toLocaleDateString();
+                        let resultColor = '#f39c12'; // Draw yellow
+                        if (g.result === 'white' && g.white === username) resultColor = '#27ae60'; // Win green
+                        if (g.result === 'black' && g.black === username) resultColor = '#27ae60';
+                        if (g.result === 'white' && g.black === username) resultColor = '#e74c3c'; // Loss red
+                        if (g.result === 'black' && g.white === username) resultColor = '#e74c3c';
+
+                        html += `<div style="background:#34495e; padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <strong>♔ ${g.white} vs ♚ ${g.black}</strong>
+                                <span style="color:#bdc3c7;">${date}</span>
+                            </div>
+                            <div style="color:${resultColor}; font-weight:bold; margin-bottom: 6px;">Result: ${g.resultText}</div>
+                            <div style="font-family:monospace; background:#1a252f; padding:8px; border-radius:4px; max-height:80px; overflow-y:auto; color:#bdc3c7;">${g.pgn}</div>
+                        </div>`;
+                    });
+                }
+                document.getElementById('historyList').innerHTML = html;
+            });
+        }
+
         /* =======================================
-           8. PROFILE CONTROLS
+           8. PROFILE CONTROLS & DRAW OFFERS
            ======================================= */
+        
+        function offerDrawAs(panel) { 
+            if(!gameActive) return;
+            if(gameMode === 'bot') {
+                showGameAlert("Bot declines draw", "draw");
+            } else if (gameMode === 'local') {
+                if(confirm("Opponent offers a draw. Accept?")) {
+                    endGame('Draw', 'Mutual Agreement');
+                }
+            } else if (gameMode === 'online' && onlineRoomId) {
+                showGameAlert("Draw offer sent", "draw");
+                db.ref('rooms/' + onlineRoomId).update({ drawOffer: currentUser });
+            }
+        }
+
         function toggleEditProfile() {
             const section = document.getElementById('editProfileSection');
             const btn = document.getElementById('editProfileBtn');
@@ -1114,17 +1209,6 @@
             setTimeout(() => alertEl.remove(), 2200);
         }
 
-        function resignAs(panel) { 
-            if(!gameActive || !confirm("Are you sure you want to resign?")) return;
-            let winner = 'White';
-            if (gameMode === 'local') winner = (panel === 't') ? 'White' : 'Black';
-            else winner = playerColor === 'w' ? 'Black' : 'White';
-            
-            endGame(winner, 'Resignation');
-            if (isOnlineGame && onlineRoomId) db.ref('rooms/' + onlineRoomId).update({ forcedWinner: winner, reason: 'Resignation' });
-        }
-        function offerDrawAs(panel) { if(gameActive) showGameAlert("Draw offer sent", "draw"); }
-
         function switchAuthTab(t, e) { $('.auth-form, .auth-tab').removeClass('active'); $(`#${t}Form`).addClass('active'); $(e.target).addClass('active'); }
         function switchMainTab(t, e) { $('.tab-content, .tab-btn').removeClass('active'); $(`#${t}-tab`).addClass('active'); $(e.target).addClass('active'); }
 
@@ -1169,6 +1253,7 @@
                     <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar-lg">
                     <div><strong>${u.realname}</strong><br>@${currentUser}</div>
                 </div>
+                <button onclick="viewHistory('${currentUser}')" style="width:100%; margin-top:10px; background:#8e44ad; font-size:12px;">📜 View Match History</button>
             `;
         }
         function displayStats() { 
@@ -1191,8 +1276,11 @@
                     <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar">
                     <div style="flex:1;"><strong>${u.realname} (${q})</strong> ${bHtml}<br>Blitz: ${u.blitzRating || 1500}</div>
                     <div style="display:flex; flex-direction:column; gap:5px;">
-                        <button onclick="sendFriendRequest('${q}')" style="background:#27ae60; font-size:11px;">➕ Add</button>
-                        <button onclick="openDM('${q}')" style="background:#8e44ad; font-size:11px;">💬 Msg</button>
+                        <div style="display:flex; gap:5px;">
+                            <button onclick="sendFriendRequest('${q}')" style="flex:1; background:#27ae60; font-size:11px;">➕ Add</button>
+                            <button onclick="openDM('${q}')" style="flex:1; background:#8e44ad; font-size:11px;">💬 Msg</button>
+                        </div>
+                        <button onclick="viewHistory('${q}')" style="width:100%; background:#f39c12; font-size:11px;">📜 View Games</button>
                     </div>
                 </div>
             `;
