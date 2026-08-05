@@ -10,6 +10,7 @@
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: manipulation; }
@@ -42,6 +43,7 @@
         
         button { padding: 8px 12px; cursor: pointer; border: none; border-radius: 6px; background: #3498db; color: white; font-size: 13px; transition: 0.2s; }
         button:hover { background: #2980b9; }
+        button:disabled { background: #7f8c8d; cursor: not-allowed; }
         
         .container { display: flex; flex-direction: column; margin-top: 55px; width: 100%; min-height: calc(100vh - 55px); }
         .left-panel, .right-panel { padding: 12px; background: #1a1a1a; }
@@ -108,15 +110,15 @@
         .moves-list { background: #34495e; padding: 10px; border-radius: 6px; font-size: 13px; max-height: 120px; overflow-y: auto; line-height: 1.6; margin-top: 10px; }
         .move-item { display: inline-block; margin-right: 8px; margin-bottom: 4px; background: #2c3e50; border-radius: 4px; padding: 2px 6px;}
         .move-annotation { font-size: 11px; font-weight: bold; margin-left: 4px; padding: 2px 4px; border-radius: 3px; color: #fff;}
-        .brilliant { background: #1baca6; } /* !! */
-        .great { background: #5c8bb0; } /* ! */
-        .best { background: #81b64c; } /* ★ */
+        .brilliant { background: #1baca6; } 
+        .great { background: #5c8bb0; } 
+        .best { background: #81b64c; } 
         .excellent { background: #96bc4b; }
         .good { background: #96bf6b; }
-        .book { background: #a88865; } /* 📖 */
-        .inaccuracy { background: #f0c15c; } /* ?! */
-        .mistake { background: #e58f39; } /* ? */
-        .blunder { background: #b33430; } /* ?? */
+        .book { background: #a88865; } 
+        .inaccuracy { background: #f0c15c; } 
+        .mistake { background: #e58f39; } 
+        .blunder { background: #b33430; } 
         .miss { background: #ff7769; }
         .forced { background: #7f8b95; } 
         
@@ -132,6 +134,10 @@
         .side-action-btn { font-size: 11px; padding: 4px 8px; }
         .social-item { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 13px; }
         .streak-fire { color: #e67e22; font-weight: bold; font-size: 16px; margin-left: 5px; }
+        
+        /* File Input Styling */
+        input[type="file"]::file-selector-button { background: #3498db; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 10px; }
+        input[type="file"]::file-selector-button:hover { background: #2980b9; }
     </style>
 </head>
 <body>
@@ -178,10 +184,10 @@
                     
                     <div id="editProfileSection" class="hidden" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
                         <input type="text" id="editUsername" class="input" placeholder="New Username" style="margin:0; padding:8px; font-size:12px;">
-                        <input type="text" id="editAvatar" class="input" placeholder="Avatar Image URL..." style="margin:0; padding:8px; font-size:12px;">
+                        <input type="file" id="editAvatar" accept="image/*" class="input" style="margin:0; padding:8px; font-size:12px;">
                         <div style="display: flex; gap: 5px;">
-                            <button onclick="saveProfile()" style="flex: 1; background: #27ae60;">Save Profile</button>
-                            <button onclick="toggleEditProfile()" style="flex: 1; background: #e74c3c;">Cancel</button>
+                            <button id="saveProfileBtn" onclick="saveProfile()" style="flex: 1; background: #27ae60;">Save Profile</button>
+                            <button id="cancelProfileBtn" onclick="toggleEditProfile()" style="flex: 1; background: #e74c3c;">Cancel</button>
                         </div>
                     </div>
                     <button id="editProfileBtn" onclick="toggleEditProfile()" style="width: 100%; margin-top: 10px; font-size: 11px;">✏️ Edit Profile</button>
@@ -925,7 +931,7 @@
             if (section.classList.contains('hidden')) {
                 section.classList.remove('hidden'); btn.classList.add('hidden');
                 document.getElementById('editUsername').value = currentUser;
-                document.getElementById('editAvatar').value = users[currentUser]?.avatar || '';
+                document.getElementById('editAvatar').value = ''; 
             } else {
                 section.classList.add('hidden'); btn.classList.remove('hidden');
             }
@@ -933,41 +939,68 @@
 
         function saveProfile() {
             const newUsername = document.getElementById('editUsername').value.trim();
-            const newAvatar = document.getElementById('editAvatar').value.trim() || DEFAULT_AVATAR;
+            const fileInput = document.getElementById('editAvatar');
+            const file = fileInput.files[0];
+            const saveBtn = document.getElementById('saveProfileBtn');
             
             if (!newUsername) return alert("Username cannot be empty");
             
-            if (newUsername !== currentUser) {
-                db.ref('users/' + newUsername).once('value').then(snap => {
-                    if (snap.exists()) {
-                        alert("✗ Username already taken!");
-                    } else {
-                        let userData = users[currentUser];
-                        userData.avatar = newAvatar;
-                        
-                        // Fix friends lists reference for old username (Optional deep clean)
-                        if (userData.friends) {
-                            Object.keys(userData.friends).forEach(friend => {
-                                db.ref(`users/${friend}/friends/${currentUser}`).remove();
-                                db.ref(`users/${friend}/friends/${newUsername}`).set(true);
+            saveBtn.innerText = "Saving...";
+            saveBtn.disabled = true;
+
+            const completeSave = (finalAvatarUrl) => {
+                if (newUsername !== currentUser) {
+                    db.ref('users/' + newUsername).once('value').then(snap => {
+                        if (snap.exists()) {
+                            alert("✗ Username already taken!");
+                            saveBtn.innerText = "Save Profile";
+                            saveBtn.disabled = false;
+                        } else {
+                            let userData = users[currentUser];
+                            userData.avatar = finalAvatarUrl;
+                            
+                            // Migrate friends list references
+                            if (userData.friends) {
+                                Object.keys(userData.friends).forEach(friend => {
+                                    db.ref(`users/${friend}/friends/${currentUser}`).remove();
+                                    db.ref(`users/${friend}/friends/${newUsername}`).set(true);
+                                });
+                            }
+                            
+                            db.ref('users/' + newUsername).set(userData).then(() => {
+                                db.ref('users/' + currentUser).remove();
+                                currentUser = newUsername;
+                                localStorage.setItem('currentUser', currentUser);
+                                alert("Profile updated successfully!");
+                                window.location.reload();
                             });
                         }
-                        
-                        // Migrate
-                        db.ref('users/' + newUsername).set(userData).then(() => {
-                            db.ref('users/' + currentUser).remove();
-                            currentUser = newUsername;
-                            localStorage.setItem('currentUser', currentUser);
-                            alert("Profile updated successfully!");
-                            window.location.reload();
-                        });
-                    }
+                    });
+                } else {
+                    db.ref('users/' + currentUser).update({ avatar: finalAvatarUrl }).then(() => {
+                        alert("Profile updated!");
+                        toggleEditProfile();
+                        saveBtn.innerText = "Save Profile";
+                        saveBtn.disabled = false;
+                    });
+                }
+            };
+
+            // If a file was selected, upload it to Firebase Storage first
+            if (file) {
+                const storageRef = firebase.storage().ref('avatars/' + currentUser + '_' + Date.now());
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(downloadURL => {
+                        completeSave(downloadURL);
+                    });
+                }).catch(error => {
+                    alert("Image upload failed. Check Firebase Storage rules.\nError: " + error.message);
+                    saveBtn.innerText = "Save Profile";
+                    saveBtn.disabled = false;
                 });
             } else {
-                // Just update avatar
-                db.ref('users/' + currentUser).update({ avatar: newAvatar });
-                alert("Profile updated!");
-                toggleEditProfile();
+                // If no new file selected, retain the old avatar URL
+                completeSave(users[currentUser]?.avatar || DEFAULT_AVATAR);
             }
         }
 
