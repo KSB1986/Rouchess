@@ -175,10 +175,16 @@
                 <div class="card">
                     <h3>👤 My Profile <span id="streakDisplay" class="streak-fire" title="Daily Streak">🔥 0</span></h3>
                     <div id="myProfile">Loading...</div>
-                    <div style="margin-top: 10px; display:flex; gap:5px;">
-                        <input type="text" id="avatarInput" class="input" placeholder="Avatar URL..." style="margin:0; padding:6px; font-size:11px;">
-                        <button onclick="updateAvatar()" style="font-size:11px;">Save</button>
+                    
+                    <div id="editProfileSection" class="hidden" style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                        <input type="text" id="editUsername" class="input" placeholder="New Username" style="margin:0; padding:8px; font-size:12px;">
+                        <input type="text" id="editAvatar" class="input" placeholder="Avatar Image URL..." style="margin:0; padding:8px; font-size:12px;">
+                        <div style="display: flex; gap: 5px;">
+                            <button onclick="saveProfile()" style="flex: 1; background: #27ae60;">Save Profile</button>
+                            <button onclick="toggleEditProfile()" style="flex: 1; background: #e74c3c;">Cancel</button>
+                        </div>
                     </div>
+                    <button id="editProfileBtn" onclick="toggleEditProfile()" style="width: 100%; margin-top: 10px; font-size: 11px;">✏️ Edit Profile</button>
                 </div>
                 <div class="card">
                     <h3>📊 My Stats</h3>
@@ -806,7 +812,6 @@
         function calculateEngineFeedback(move) {
             if(!move) return;
             let label = "Excellent", cssClass = "excellent";
-            let symbol = "";
             
             if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
             if (move.san.includes('#')) { moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" }); return; }
@@ -912,8 +917,60 @@
         }
 
         /* =======================================
-           8. HELPERS & UI CONTROLS
+           8. HELPERS & EDIT PROFILE CONTROLS
            ======================================= */
+        function toggleEditProfile() {
+            const section = document.getElementById('editProfileSection');
+            const btn = document.getElementById('editProfileBtn');
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden'); btn.classList.add('hidden');
+                document.getElementById('editUsername').value = currentUser;
+                document.getElementById('editAvatar').value = users[currentUser]?.avatar || '';
+            } else {
+                section.classList.add('hidden'); btn.classList.remove('hidden');
+            }
+        }
+
+        function saveProfile() {
+            const newUsername = document.getElementById('editUsername').value.trim();
+            const newAvatar = document.getElementById('editAvatar').value.trim() || DEFAULT_AVATAR;
+            
+            if (!newUsername) return alert("Username cannot be empty");
+            
+            if (newUsername !== currentUser) {
+                db.ref('users/' + newUsername).once('value').then(snap => {
+                    if (snap.exists()) {
+                        alert("✗ Username already taken!");
+                    } else {
+                        let userData = users[currentUser];
+                        userData.avatar = newAvatar;
+                        
+                        // Fix friends lists reference for old username (Optional deep clean)
+                        if (userData.friends) {
+                            Object.keys(userData.friends).forEach(friend => {
+                                db.ref(`users/${friend}/friends/${currentUser}`).remove();
+                                db.ref(`users/${friend}/friends/${newUsername}`).set(true);
+                            });
+                        }
+                        
+                        // Migrate
+                        db.ref('users/' + newUsername).set(userData).then(() => {
+                            db.ref('users/' + currentUser).remove();
+                            currentUser = newUsername;
+                            localStorage.setItem('currentUser', currentUser);
+                            alert("Profile updated successfully!");
+                            window.location.reload();
+                        });
+                    }
+                });
+            } else {
+                // Just update avatar
+                db.ref('users/' + currentUser).update({ avatar: newAvatar });
+                alert("Profile updated!");
+                toggleEditProfile();
+            }
+        }
+
         function toggleTimeFields() {
             timeFormatStr = document.getElementById('matchTimeFormat').value;
             isUnlimitedTime = (timeFormatStr === 'none');
@@ -1010,11 +1067,6 @@
             const u = users[currentUser]; if(!u) return;
             document.getElementById('userDisplay').innerHTML = `<img src="${u.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;border:none;"> ${currentUser} ${(u.badges||[]).map(b=>`<span class="badge ${b}">${b}</span>`).join('')}`;
             if ((u.badges||[]).includes('owner')) document.getElementById('adminTabBtn').classList.remove('hidden');
-        }
-        
-        function updateAvatar() {
-            let url = document.getElementById('avatarInput').value.trim();
-            if(url) { db.ref('users/' + currentUser).update({ avatar: url }); document.getElementById('avatarInput').value = ''; alert("Avatar updated!"); }
         }
 
         function displayProfile() { 
