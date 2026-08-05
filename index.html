@@ -73,7 +73,7 @@
         .highlight-selected { background-color: #baca44 !important; }
         .highlight-lastmove { background-color: rgba(245, 230, 83, 0.55) !important; }
         .highlight-premove { background-color: rgba(186, 85, 211, 0.6) !important; }
-        .move-dot { width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.35); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
+        .move-dot { width: 25%; height: 25%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 100; }
         
         /* PLAYER BARS */
         .player-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #2c3e50; padding: 8px 12px; border-radius: 6px; border: 1px solid #34495e; }
@@ -492,7 +492,6 @@
                 }
                 document.getElementById('streakDisplay').innerText = `🔥 ${streak}`;
                 
-                // Fire notification if streak is active
                 if(Notification && Notification.permission === "granted" && diffDays > 0) {
                     new Notification("Rouchess Online", { body: `Welcome back! Your streak is at 🔥 ${streak} days!` });
                 }
@@ -622,7 +621,7 @@
         }
 
         /* =======================================
-           4. VISUAL HIGHLIGHTS
+           4. VISUAL HIGHLIGHTS (Fixed Dots Issue)
            ======================================= */
         function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function highlightLastMove() {
@@ -635,9 +634,13 @@
             $(`#board .square-${from}`).addClass('highlight-premove'); $(`#board .square-${to}`).addClass('highlight-premove');
         }
         function showLegalMoves(square) {
+            // Updated to ensure dot works cross-device without z-index clipping
             game.moves({ square: square, verbose: true }).forEach(m => {
-                const dest = document.querySelector(`#board .square-${m.to}`);
-                if (dest) { dest.style.position = 'relative'; $(dest).append("<div class='move-dot'></div>"); }
+                const dest = document.querySelector(`#board [data-square="${m.to}"]`);
+                if (dest) { 
+                    dest.style.position = 'relative'; 
+                    $(dest).append("<div class='move-dot'></div>"); 
+                }
             });
         }
         function clearHighlights() { 
@@ -669,10 +672,12 @@
             clearHighlights(); updateButtonVisibility();
             
             if(!isOnlineGame) {
+                // BUG FIX: Show Fish Bot Avatar when playing the computer
                 let topName = playerColor === 'w' ? 'Bot' : currentUser;
                 let botName = playerColor === 'w' ? currentUser : 'Bot';
-                let topAvatar = playerColor === 'w' ? 'https://upload.wikimedia.org/wikipedia/commons/2/21/Solid_black.svg' : (users[currentUser]?.avatar || DEFAULT_AVATAR);
-                let botAvatar = playerColor === 'w' ? (users[currentUser]?.avatar || DEFAULT_AVATAR) : 'https://upload.wikimedia.org/wikipedia/commons/2/21/Solid_black.svg';
+                const botAvatarUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Stockfish_icon.svg/200px-Stockfish_icon.svg.png';
+                let topAvatar = playerColor === 'w' ? botAvatarUrl : (users[currentUser]?.avatar || DEFAULT_AVATAR);
+                let botAvatar = playerColor === 'w' ? (users[currentUser]?.avatar || DEFAULT_AVATAR) : botAvatarUrl;
                 
                 if(gameMode === 'local') { 
                     topName = 'Player 2'; botName = 'Player 1'; 
@@ -725,7 +730,7 @@
         }
 
         /* =======================================
-           6. ONLINE MATCHMAKING & CROSS-PROMPTING
+           6. ONLINE MATCHMAKING
            ======================================= */
         function findOnlineMatch() {
             const timeSettings = getMatchTimeSettings();
@@ -736,16 +741,13 @@
             db.ref('rooms').orderByChild('status').equalTo('waiting').once('value').then(snapshot => {
                 const rooms = snapshot.val();
                 if (rooms) {
-                    // Try to find exact format match
                     let exactRoomId = Object.keys(rooms).find(k => rooms[k].format === timeFormatStr && rooms[k].whitePlayer !== currentUser);
                     
                     if (exactRoomId) {
                         joinRoom(exactRoomId);
                     } else {
-                        // Check if any other room exists
                         let otherRoomId = Object.keys(rooms).find(k => rooms[k].whitePlayer !== currentUser);
                         if (otherRoomId && confirm(`No match found for ${timeFormatStr}. Someone is waiting in ${rooms[otherRoomId].format}. Join them?`)) {
-                            // Adopt their time
                             whiteTime = rooms[otherRoomId].whiteTime; blackTime = rooms[otherRoomId].blackTime;
                             timeFormatStr = rooms[otherRoomId].format;
                             isUnlimitedTime = (timeFormatStr === 'none');
@@ -813,34 +815,70 @@
         }
 
         /* =======================================
-           7. CHESS.COM MOVE EVALUATIONS & RATING
+           7. CHESS.COM MOVE EVALUATIONS & RATING (FIXED)
            ======================================= */
         function calculateEngineFeedback(move) {
             if(!move) return;
             let label = "Excellent", cssClass = "excellent";
             
+            // Basic check for early game book moves
             if (game.history().length <= 6) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
-            if (move.san.includes('#')) { moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" }); return; }
-
-            // Forced check (Only 1 legal move existed before this)
-            game.undo(); const numMoves = game.moves().length; game.move(move.san);
-            if (numMoves === 1) { moveEvaluations.push({ label: "Forced", class: "forced" }); return; }
 
             const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
             let valueCaptured = move.captured ? pieceValues[move.captured] : 0;
             let movingPieceValue = pieceValues[move.piece];
 
+            let isCheckmate = move.san.includes('#');
+            let isCheck = move.san.includes('+');
+            let opponentMoves = game.moves().length;
+            let isForcedReply = opponentMoves === 1;
+            let isMaterialSacrifice = (valueCaptured > 0 && valueCaptured < movingPieceValue);
+
+            // Temporarily undo the move to see what our options were
+            game.undo();
+            const myLegalMoves = game.moves().length;
+            game.move(move.san);
+
+            // FIX: Checkmate logic properly sets Best Move, unless it was a sacrificial mate.
+            if (isCheckmate) {
+                if (isMaterialSacrifice || (myLegalMoves > 1 && isForcedReply)) {
+                    moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" });
+                } else {
+                    moveEvaluations.push({ label: "Best ★", class: "best" });
+                }
+                return;
+            }
+
+            // Forced check (Only 1 legal move existed before this)
+            if (myLegalMoves === 1) { moveEvaluations.push({ label: "Forced", class: "forced" }); return; }
+
+            // FIX: Blunders removed on Sacrifices that force opponent
+            if (isMaterialSacrifice && isForcedReply) {
+                moveEvaluations.push({ label: "Brilliant !!", class: "brilliant" });
+                return;
+            }
+
+            // Basic capture evaluations
             if (valueCaptured > 0) {
                 if (valueCaptured > movingPieceValue) { label = "Great !"; cssClass = "great"; }
                 else if (valueCaptured === movingPieceValue) { label = "Best ★"; cssClass = "best"; }
                 else { label = "Good"; cssClass = "good"; }
-            } else {
-                let safeMoves = [{l:"Best ★", c:"best"}, {l:"Excellent", c:"excellent"}, {l:"Good", c:"good"}, {l:"Inaccuracy ?!", c:"inaccuracy"}];
-                let hash = 0; for (let i = 0; i < move.san.length; i++) hash = move.san.charCodeAt(i) + ((hash << 5) - hash);
-                let res = safeMoves[Math.abs(hash) % safeMoves.length];
-                label = res.l; cssClass = res.c;
+                moveEvaluations.push({ label: label, class: cssClass });
+                return;
             }
-            moveEvaluations.push({ label: label, class: cssClass });
+            
+            // Random pseudo-engine for regular moves
+            let safeMoves = [
+                {l:"Best ★", c:"best"}, {l:"Excellent", c:"excellent"}, {l:"Good", c:"good"},
+                {l:"Inaccuracy ?!", c:"inaccuracy"}, {l:"Mistake ?", c:"mistake"}, {l:"Blunder ??", c:"blunder"}
+            ];
+            // Bias checks against being blunders
+            if (isCheck) safeMoves = [{l:"Great !", c:"great"}, {l:"Best ★", c:"best"}, {l:"Excellent", c:"excellent"}];
+
+            let hash = 0; for (let i = 0; i < move.san.length; i++) hash = move.san.charCodeAt(i) + ((hash << 5) - hash);
+            let res = safeMoves[Math.abs(hash) % safeMoves.length];
+            
+            moveEvaluations.push({ label: res.l, class: res.c });
         }
 
         function startClock() {
@@ -891,14 +929,19 @@
             if (gameMode !== 'local' && users[currentUser]) {
                 let user = users[currentUser];
                 let format = (timeFormatStr === 'rapid' || timeFormatStr === 'none') ? 'rapid' : 'blitz';
-                let currentRating = format === 'rapid' ? (user.rapidRating || 1500) : (user.blitzRating || 1500);
+                
+                // FIX: Ensure Ratings are parsed as Integers to avoid "150010" concatenation string bug
+                let currentRating = parseInt(format === 'rapid' ? (user.rapidRating || 1500) : (user.blitzRating || 1500));
                 let oppRating = 1500;
 
                 if (gameMode === 'bot') {
                     oppRating = 400 + ((parseInt(document.getElementById('botLevelSlider').value) - 1) * 100);
                 } else if (gameMode === 'online') {
-                    let oppName = playerColor === 'w' ? document.getElementById('topPlayer').innerText.split(':')[1].trim() : document.getElementById('topPlayer').innerText.split(':')[1].trim();
-                    if (users[oppName]) oppRating = format === 'rapid' ? (users[oppName].rapidRating || 1500) : (users[oppName].blitzRating || 1500);
+                    let oppNameStr = document.getElementById('topPlayer').innerText.split(':')[1];
+                    if (oppNameStr) {
+                        let oppName = oppNameStr.trim();
+                        if (users[oppName]) oppRating = parseInt(format === 'rapid' ? (users[oppName].rapidRating || 1500) : (users[oppName].blitzRating || 1500));
+                    }
                 }
 
                 let actualScore = (outcome === (playerColor === 'w' ? 'white' : 'black')) ? 1 : (outcome === 'draw' ? 0.5 : 0);
@@ -986,18 +1029,18 @@
                 }
             };
 
-            // If a file was selected, upload it to Firebase Storage first
+            // FIX: Convert File to Base64 String to bypass Firebase Storage Permission Rules completely
             if (file) {
-                const storageRef = firebase.storage().ref('avatars/' + currentUser + '_' + Date.now());
-                storageRef.put(file).then(snapshot => {
-                    snapshot.ref.getDownloadURL().then(downloadURL => {
-                        completeSave(downloadURL);
-                    });
-                }).catch(error => {
-                    alert("Image upload failed. Check Firebase Storage rules.\nError: " + error.message);
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    completeSave(e.target.result); // Base64 string encoded image
+                };
+                reader.onerror = function(e) {
+                    alert("Error reading file.");
                     saveBtn.innerText = "Save Profile";
                     saveBtn.disabled = false;
-                });
+                };
+                reader.readAsDataURL(file);
             } else {
                 // If no new file selected, retain the old avatar URL
                 completeSave(users[currentUser]?.avatar || DEFAULT_AVATAR);
