@@ -496,7 +496,7 @@
                     updateUI(); displayProfile(); displayStats(); renderFriends(); renderFriendRequests(); renderOnlinePlayers(); loadDMList();
                 });
 
-                listenToChatGlobal(); listenForPings(); toggleSetupFields();
+                listenToChatGlobal(); listenForPings(); listenForChallenges(); toggleSetupFields();
                 initializeBoard('white');
                 processStreak();
             }
@@ -779,7 +779,7 @@
         }
 
         /* =======================================
-           6. ONLINE MATCHMAKING
+           6. ONLINE MATCHMAKING & CHALLENGES
            ======================================= */
         function findOnlineMatch() {
             const timeSettings = getMatchTimeSettings();
@@ -789,21 +789,21 @@
             
             db.ref('rooms').orderByChild('status').equalTo('waiting').once('value').then(snapshot => {
                 const rooms = snapshot.val();
+                let exactRoomId = null;
+
                 if (rooms) {
-                    let exactRoomId = Object.keys(rooms).find(k => rooms[k].format === timeFormatStr && rooms[k].whitePlayer !== currentUser);
-                    if (exactRoomId) {
-                        joinRoom(exactRoomId);
-                    } else {
-                        let otherRoomId = Object.keys(rooms).find(k => rooms[k].whitePlayer !== currentUser);
-                        if (otherRoomId && confirm(`No match found for ${timeFormatStr}. Someone is waiting in ${rooms[otherRoomId].format}. Join them?`)) {
-                            whiteTime = rooms[otherRoomId].whiteTime; blackTime = rooms[otherRoomId].blackTime;
-                            timeFormatStr = rooms[otherRoomId].format;
-                            isUnlimitedTime = (timeFormatStr === 'none');
-                            joinRoom(otherRoomId);
-                        } else {
-                            createRoom();
+                    for (let k in rooms) {
+                        let r = rooms[k];
+                        // Match if exact format and creator is actually online to avoid ghost rooms
+                        if (r.format === timeFormatStr && r.whitePlayer !== currentUser && users[r.whitePlayer] && users[r.whitePlayer].online) {
+                            exactRoomId = k;
+                            break;
                         }
                     }
+                }
+
+                if (exactRoomId) {
+                    joinRoom(exactRoomId);
                 } else {
                     createRoom();
                 }
@@ -813,6 +813,10 @@
         function joinRoom(roomId) {
             onlineRoomId = roomId; playerColor = 'b';
             db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing', drawOffer: null, drawDeclined: null });
+            
+            // Delete room completely if you disconnect while playing
+            db.ref('rooms/' + roomId).onDisconnect().remove(); 
+            
             listenToOnlineRoom(); startGameInternal('b');
             activateGameChat();
         }
@@ -824,9 +828,81 @@
                 status: 'waiting', whiteTime: whiteTime, blackTime: blackTime, format: timeFormatStr,
                 lastMoveTime: firebase.database.ServerValue.TIMESTAMP, drawOffer: null, drawDeclined: null
             });
+            // Automatically remove ghost room when creator disconnects
+            db.ref('rooms/' + onlineRoomId).onDisconnect().remove();
+            
             listenToOnlineRoom(); startGameInternal('w');
             document.getElementById('gameStatus').innerText = "Waiting for an opponent...";
             activateGameChat();
+        }
+
+        // New Feature: Send a direct challenge to a user
+        function challengeUser(targetUser) {
+            if (targetUser === currentUser) return alert("Can't challenge yourself.");
+            if (!users[targetUser] || !users[targetUser].online) return alert("User is not online.");
+
+            const timeSettings = getMatchTimeSettings();
+            whiteTime = timeSettings.base; blackTime = timeSettings.base; increment = timeSettings.inc;
+
+            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w';
+            db.ref('rooms/' + onlineRoomId).set({
+                fen: game.fen(), whitePlayer: currentUser, blackPlayer: targetUser,
+                status: 'challenge', format: timeFormatStr,
+                whiteTime: whiteTime, blackTime: blackTime,
+                lastMoveTime: firebase.database.ServerValue.TIMESTAMP
+            });
+            db.ref('rooms/' + onlineRoomId).onDisconnect().remove();
+
+            db.ref(`users/${targetUser}/challenges/${currentUser}`).set({
+                roomId: onlineRoomId,
+                format: timeFormatStr,
+                time: firebase.database.ServerValue.TIMESTAMP
+            });
+
+            isOnlineGame = true;
+            listenToOnlineRoom();
+            startGameInternal('w');
+            document.getElementById('gameStatus').innerText = `Waiting for ${targetUser} to accept...`;
+            activateGameChat();
+            alert(`Challenge sent to ${targetUser}! Wait for them to accept.`);
+        }
+
+        // Listener for incoming challenges
+        function listenForChallenges() {
+            db.ref(`users/${currentUser}/challenges`).on('child_added', snap => {
+                let challenger = snap.key;
+                let data = snap.val();
+                
+                if (confirm(`⚔️ Challenge from ${challenger} to play ${data.format}! Accept?`)) {
+                    acceptChallenge(challenger, data.roomId);
+                } else {
+                    db.ref(`users/${challenger}/pings`).push({ from: currentUser, msg: "Declined your challenge.", time: firebase.database.ServerValue.TIMESTAMP });
+                }
+                snap.ref.remove(); // clear challenge
+            });
+        }
+
+        function acceptChallenge(challenger, roomId) {
+            db.ref('rooms/' + roomId).once('value').then(snap => {
+                let room = snap.val();
+                if (!room || room.status !== 'challenge') {
+                    alert("Challenge expired or room closed."); return;
+                }
+                
+                timeFormatStr = room.format;
+                isUnlimitedTime = (timeFormatStr === 'none');
+                whiteTime = room.whiteTime; blackTime = room.blackTime;
+
+                onlineRoomId = roomId;
+                playerColor = 'b';
+                db.ref('rooms/' + roomId).update({ status: 'playing' });
+                db.ref('rooms/' + roomId).onDisconnect().remove();
+
+                isOnlineGame = true;
+                listenToOnlineRoom();
+                startGameInternal('b');
+                activateGameChat();
+            });
         }
 
         function listenToOnlineRoom() {
@@ -834,11 +910,16 @@
             onlineRef = db.ref('rooms/' + onlineRoomId);
             
             onlineRef.on('value', snapshot => {
-                const data = snapshot.val(); if (!data) return;
+                const data = snapshot.val(); 
+                
+                // If room was deleted (graceful cleanup on disconnect preventing ghost matches)
+                if (!data) {
+                    if (gameActive) endGame(playerColor === 'w' ? 'Black' : 'White', 'Opponent Disconnected');
+                    return;
+                }
 
                 if (gameActive && data.forcedWinner) endGame(data.forcedWinner, data.reason);
 
-                // DRAW OFFER LISTENER FIX
                 if (gameActive && data.drawOffer && data.drawOffer !== currentUser) {
                     if (confirm(`${data.drawOffer} offered a draw. Accept?`)) {
                         db.ref('rooms/' + onlineRoomId).update({ drawOffer: null, forcedWinner: 'Draw', reason: 'Mutual Agreement' });
@@ -1044,7 +1125,6 @@
             }
         }
 
-        // MATCH HISTORY VIEWING LOGIC
         function viewHistory(username) {
             document.getElementById('historyModal').classList.remove('hidden');
             document.getElementById('historyTitle').innerText = `${username}'s Games`;
@@ -1060,10 +1140,10 @@
                 } else {
                     games.forEach(g => {
                         let date = new Date(g.time).toLocaleDateString();
-                        let resultColor = '#f39c12'; // Draw yellow
-                        if (g.result === 'white' && g.white === username) resultColor = '#27ae60'; // Win green
+                        let resultColor = '#f39c12';
+                        if (g.result === 'white' && g.white === username) resultColor = '#27ae60';
                         if (g.result === 'black' && g.black === username) resultColor = '#27ae60';
-                        if (g.result === 'white' && g.black === username) resultColor = '#e74c3c'; // Loss red
+                        if (g.result === 'white' && g.black === username) resultColor = '#e74c3c';
                         if (g.result === 'black' && g.white === username) resultColor = '#e74c3c';
 
                         html += `<div style="background:#34495e; padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px;">
@@ -1292,6 +1372,7 @@
                         <div style="display:flex; gap:5px;">
                             <button onclick="sendFriendRequest('${q}')" style="flex:1; background:#27ae60; font-size:11px;">➕ Add</button>
                             <button onclick="openDM('${q}')" style="flex:1; background:#8e44ad; font-size:11px;">💬 Msg</button>
+                            <button onclick="challengeUser('${q}')" style="flex:1; background:#e67e22; font-size:11px;">⚔️ Play</button>
                         </div>
                         <button onclick="viewHistory('${q}')" style="width:100%; background:#f39c12; font-size:11px;">📜 View Games</button>
                     </div>
@@ -1335,6 +1416,7 @@
                     <div style="display:flex;gap:4px;">
                         <button onclick="pingFriend('${f}')" style="font-size:10px;">🔔</button>
                         <button onclick="openDM('${f}')" style="font-size:10px;background:#8e44ad;">💬 Msg</button>
+                        <button onclick="challengeUser('${f}')" style="font-size:10px;background:#e67e22;">⚔️ Play</button>
                     </div></div>`;
             });
             list.innerHTML = html;
@@ -1349,6 +1431,7 @@
                         <div style="display:flex;gap:4px;">
                             <button onclick="sendFriendRequest('${k}')" style="font-size:10px;">➕ Add</button>
                             <button onclick="openDM('${k}')" style="font-size:10px;background:#8e44ad;">💬 Msg</button>
+                            <button onclick="challengeUser('${k}')" style="font-size:10px;background:#e67e22;">⚔️ Play</button>
                         </div></div>`;
                 }
             });
