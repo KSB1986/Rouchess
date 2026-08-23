@@ -38,8 +38,18 @@
         .navbar h1 { color: #3498db; font-size: 22px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
         .navbar-right { display: flex; gap: 10px; align-items: center; }
         .user-badge { background: #34495e; padding: 4px 12px; border-radius: 20px; font-size: 12px; border: 1px solid #3498db; display: flex; align-items: center; gap: 6px; }
+        
+        /* BADGES */
         .badge { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 10px; color: white; font-weight: bold; text-transform: uppercase; }
-        .owner { background: #e74c3c; } .verified { background: #27ae60; } .gm { background: #9b59b6; } .fm { background: #f39c12; } .im { background: #3498db; } .cm { background: #1abc9c; }
+        .owner { background: #e74c3c; } 
+        .admin { background: #e67e22; }
+        .noban { background: #2ecc71; border: 1px solid #f1c40f; }
+        .verified { background: #27ae60; } 
+        .gm { background: #9b59b6; } 
+        .fm { background: #f39c12; } 
+        .im { background: #3498db; } 
+        .cm { background: #1abc9c; }
+        .custom-badge { background: #34495e; border: 1px solid #f1c40f; color: #f1c40f; }
         
         button { padding: 8px 12px; cursor: pointer; border: none; border-radius: 6px; background: #3498db; color: white; font-size: 13px; transition: 0.2s; }
         button:hover { background: #2980b9; }
@@ -312,7 +322,7 @@
                     <button class="tab-btn active" onclick="switchMainTab('chat', event)">💬 Chat</button>
                     <button class="tab-btn" onclick="switchMainTab('social', event)">👥 Social</button>
                     <button class="tab-btn" onclick="switchMainTab('online', event)">🟢 Online</button>
-                    <button class="tab-btn hidden" id="adminTabBtn" onclick="switchMainTab('admin', event)">⚙️ Admin</button>
+                    <button class="tab-btn hidden" id="adminTabBtn" onclick="switchMainTab('admin', event)">⚙️ Admin/Mod</button>
                 </div>
 
                 <div class="tab-content active" id="chat-tab">
@@ -377,22 +387,27 @@
                 </div>
 
                 <div class="tab-content" id="admin-tab">
-                    <div class="card">
-                        <h3>⚙️ Badges</h3>
+                    <div class="card" id="badgeManagementCard">
+                        <h3>⚙️ Badge Management (Owner Only)</h3>
                         <input class="input" id="verifyUsername" placeholder="Target username">
-                        <select class="input" id="badgeSelect">
-                            <option value="">Select Badge</option>
+                        <select class="input" id="badgeSelect" style="margin-bottom: 5px;">
+                            <option value="">Select Pre-defined Badge</option>
+                            <option value="owner">👑 Owner</option>
+                            <option value="admin">🛡️ Admin</option>
+                            <option value="noban">✨ NoBan</option>
                             <option value="verified">✓ Verified</option>
                             <option value="gm">♛ GM</option>
                             <option value="fm">♖ FM</option>
                             <option value="im">♗ IM</option>
                             <option value="cm">♘ CM</option>
                         </select>
+                        <input class="input" id="customBadgeInput" placeholder="...or type custom badge name">
                         <button onclick="giveBadge()" style="width: 100%; margin-bottom: 6px;">Give Badge</button>
                         <button onclick="takeBadge()" style="width: 100%; background: #e67e22;">Take Badge</button>
                     </div>
-                    <div class="card">
-                        <h3>🚫 Moderation</h3>
+                    
+                    <div class="card" id="moderationCard">
+                        <h3>🚫 Moderation (Admin & Owner)</h3>
                         <input class="input" id="modUsername" placeholder="Target username">
                         <input class="input" id="banReason" placeholder="Reason">
                         <button onclick="adminBanPlayer()" style="width: 100%; background: #e74c3c; margin-bottom: 6px;">Ban User</button>
@@ -466,6 +481,17 @@
 
         if (Notification && Notification.permission !== "granted") {
             Notification.requestPermission();
+        }
+
+        // Helper function for badges (Applies correct custom classes or defaults)
+        function getBadgeHTML(badgesArray) {
+            if (!badgesArray || badgesArray.length === 0) return '';
+            const known = ['owner', 'verified', 'gm', 'fm', 'im', 'cm', 'admin', 'noban'];
+            return badgesArray.map(b => {
+                let lowerB = b.toLowerCase();
+                let cls = known.includes(lowerB) ? lowerB : 'custom-badge';
+                return `<span class="badge ${cls}">${b}</span>`;
+            }).join(' ');
         }
 
         function initApp() {
@@ -752,7 +778,7 @@
         }
 
         function makeBotMove() {
-            if (!gameActive || gameMode !== 'bot') return; // Strictly ignore bot if online
+            if (!gameActive || gameMode !== 'bot') return; 
             const moves = game.moves({ verbose: true });
             if (moves.length === 0) return;
             const selectedMove = moves[Math.floor(Math.random() * moves.length)];
@@ -767,7 +793,7 @@
             whiteTime = timeSettings.base; blackTime = timeSettings.base; increment = timeSettings.inc;
             document.getElementById('gameStatus').innerText = "Connecting to Matchmaking...";
             isOnlineGame = true;
-            gameMode = 'online'; // Ensure bot engine is completely off
+            gameMode = 'online'; 
             
             db.ref('rooms').orderByChild('status').equalTo('waiting').once('value').then(snapshot => {
                 const rooms = snapshot.val();
@@ -1058,6 +1084,7 @@
                 });
             }
 
+            /* ELO RECTIFICATION FIX */
             if (gameMode !== 'local' && users[currentUser]) {
                 let user = users[currentUser];
                 let format = (timeFormatStr === 'rapid' || timeFormatStr === 'none') ? 'rapid' : 'blitz';
@@ -1066,7 +1093,8 @@
                 let oppRating = 1500;
 
                 if (gameMode === 'bot') {
-                    oppRating = 400 + ((parseInt(document.getElementById('botLevelSlider').value) - 1) * 100);
+                    let botLvl = parseInt(document.getElementById('botLevelSlider').value) || 10;
+                    oppRating = 700 + (botLvl * 100); 
                 } else if (gameMode === 'online') {
                     if (users[currentOpponentName]) oppRating = parseInt(format === 'rapid' ? (users[currentOpponentName].rapidRating || 1500) : (users[currentOpponentName].blitzRating || 1500));
                 }
@@ -1076,14 +1104,31 @@
                 let kFactor = currentRating < 2100 ? 32 : (currentRating < 2400 ? 24 : 16);
                 let ratingChange = Math.round(kFactor * (actualScore - expectedScore));
 
-                if (format === 'rapid') user.rapidRating = Math.max(100, currentRating + ratingChange);
-                else user.blitzRating = Math.max(100, currentRating + ratingChange);
+                // Guaranteed gain and penalty logic (minimum +8 for Win, minimum -8 for Loss)
+                if (actualScore === 1) {
+                    ratingChange = Math.max(ratingChange, 8);
+                } else if (actualScore === 0) {
+                    ratingChange = Math.min(ratingChange, -8);
+                }
+
+                let newRating = Math.max(100, currentRating + ratingChange);
+
+                if (format === 'rapid') user.rapidRating = newRating;
+                else user.blitzRating = newRating;
 
                 if (actualScore === 1) user.wins = (user.wins || 0) + 1;
                 else if (actualScore === 0) user.losses = (user.losses || 0) + 1;
 
-                db.ref('users/' + currentUser).update({ blitzRating: user.blitzRating || 1500, rapidRating: user.rapidRating || 1500, wins: user.wins || 0, losses: user.losses || 0 });
-                resultText += `<br><span style="font-size: 14px; color: ${ratingChange>=0?'#27ae60':'#e74c3c'}; display: block; margin-top: 6px;">📊 Rating: ${currentRating} (${ratingChange>=0?'+':''}${ratingChange}) ➝ ${currentRating + ratingChange}</span>`;
+                db.ref('users/' + currentUser).update({ 
+                    blitzRating: user.blitzRating || 1500, 
+                    rapidRating: user.rapidRating || 1500, 
+                    wins: user.wins || 0, 
+                    losses: user.losses || 0 
+                });
+
+                displayStats();
+
+                resultText += `<br><span style="font-size: 14px; color: ${ratingChange>=0?'#27ae60':'#e74c3c'}; display: block; margin-top: 6px;">📊 Rating: ${currentRating} (${ratingChange>=0?'+':''}${ratingChange}) ➝ ${newRating}</span>`;
             }
 
             document.getElementById('gameStatus').innerHTML = `<strong>${resultText}</strong>`;
@@ -1303,8 +1348,20 @@
         /* SOCIAL & MULTI-TAB CHAT SYSTEM */
         function updateUI() { 
             const u = users[currentUser]; if(!u) return;
-            document.getElementById('userDisplay').innerHTML = `<img src="${u.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;border:none;"> ${currentUser} ${(u.badges||[]).map(b=>`<span class="badge ${b}">${b}</span>`).join('')}`;
-            if ((u.badges||[]).includes('owner')) document.getElementById('adminTabBtn').classList.remove('hidden');
+            
+            let bHtml = getBadgeHTML(u.badges);
+            document.getElementById('userDisplay').innerHTML = `<img src="${u.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;border:none;"> ${currentUser} ${bHtml}`;
+            
+            // ADMIN & OWNER TAB PERMISSIONS
+            let isOwner = (u.badges||[]).includes('owner');
+            let isAdmin = (u.badges||[]).includes('admin');
+
+            if (isOwner || isAdmin) {
+                document.getElementById('adminTabBtn').classList.remove('hidden');
+                document.getElementById('badgeManagementCard').style.display = isOwner ? 'block' : 'none';
+            } else {
+                document.getElementById('adminTabBtn').classList.add('hidden');
+            }
         }
 
         function displayProfile() { 
@@ -1331,7 +1388,7 @@
         function searchProfile() {
             let q = document.getElementById('searchUserInput').value.trim(); let resArea = document.getElementById('searchResultArea');
             if(!q || !users[q]) { resArea.innerHTML = `<span class="error">User not found.</span>`; return; }
-            let u = users[q]; let bHtml = (u.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+            let u = users[q]; let bHtml = getBadgeHTML(u.badges);
             resArea.innerHTML = `
                 <div class="profile-card" style="border-left-color: #27ae60;">
                     <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar">
@@ -1378,7 +1435,7 @@
             if(!users[currentUser]?.friends) { list.innerHTML = "No friends yet."; return; }
             let html = '';
             Object.keys(users[currentUser].friends).forEach(f => {
-                let u = users[f]; let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+                let u = users[f]; let bHtml = getBadgeHTML(u?.badges);
                 html += `<div class="social-item" style="border-left: 3px solid ${u?.online ? '#27ae60' : '#7f8c8d'}">
                     <div style="display:flex;align-items:center;gap:6px;"><img src="${u?.avatar || DEFAULT_AVATAR}" class="avatar" style="width:20px;height:20px;"> <strong>${f}</strong> ${bHtml}</div>
                     <div style="display:flex;gap:4px;">
@@ -1469,7 +1526,7 @@
         }
 
         function formatChatMessage(m) {
-            let u = users[m.user]; let bHtml = (u?.badges || []).map(b => `<span class="badge ${b}">${b}</span>`).join('');
+            let u = users[m.user]; let bHtml = getBadgeHTML(u?.badges);
             return `<div class="chat-msg">
                 <div class="chat-header"><span><img src="${u?.avatar || DEFAULT_AVATAR}" style="width:14px;height:14px;border-radius:50%;vertical-align:middle;"> <strong>${m.user}</strong> ${bHtml}</span> <span>${formatTime(m.time)}</span></div>
                 <div>${m.text}</div>
@@ -1555,29 +1612,82 @@
             if(dmListenerRef) dmListenerRef.off();
         }
 
-        /* ADMIN CONTROLS */
+        /* STRICT ADMIN CONTROLS */
         function giveBadge() {
-            const target = document.getElementById('verifyUsername').value.trim(), badge = document.getElementById('badgeSelect').value;
+            let u = users[currentUser];
+            if (!(u.badges||[]).includes('owner')) return alert("Permission Denied: Only owners can give badges.");
+            
+            const target = document.getElementById('verifyUsername').value.trim();
+            const badgeInput = document.getElementById('customBadgeInput').value.trim();
+            const badgeSelect = document.getElementById('badgeSelect').value;
+            
+            const badge = badgeInput || badgeSelect;
+            
             if (target && badge && users[target]) {
-                let b = users[target].badges || []; if (!b.includes(badge)) b.push(badge); db.ref('users/' + target + '/badges').set(b);
+                let b = users[target].badges || []; 
+                if (!b.includes(badge)) b.push(badge); 
+                db.ref('users/' + target + '/badges').set(b);
+                document.getElementById('customBadgeInput').value = '';
+                alert(`Badge '${badge}' given to ${target}`);
+            } else {
+                alert("Missing target username or badge name.");
             }
         }
+        
         function takeBadge() {
-            const target = document.getElementById('verifyUsername').value.trim(), badge = document.getElementById('badgeSelect').value;
+            let u = users[currentUser];
+            if (!(u.badges||[]).includes('owner')) return alert("Permission Denied: Only owners can remove badges.");
+            
+            const target = document.getElementById('verifyUsername').value.trim();
+            const badgeInput = document.getElementById('customBadgeInput').value.trim();
+            const badgeSelect = document.getElementById('badgeSelect').value;
+            
+            const badge = badgeInput || badgeSelect;
+            
             if (target && badge && users[target]) {
-                let b = (users[target].badges || []).filter(x => x !== badge); db.ref('users/' + target + '/badges').set(b);
+                let b = (users[target].badges || []).filter(x => x.toLowerCase() !== badge.toLowerCase()); 
+                db.ref('users/' + target + '/badges').set(b);
+                alert(`Badge '${badge}' removed from ${target}`);
+            } else {
+                alert("Missing target username or badge name.");
             }
         }
+        
         function adminBanPlayer() {
-            const target = document.getElementById('modUsername').value.trim(), reason = document.getElementById('banReason').value.trim();
-            if (users[target]) db.ref('users/' + target).update({ banned: true, banReason: reason || 'Violation' });
-        }
-        function adminUnbanPlayer() {
+            let u = users[currentUser];
+            if (!(u.badges||[]).includes('owner') && !(u.badges||[]).includes('admin')) return alert("Permission Denied.");
+            
             const target = document.getElementById('modUsername').value.trim();
-            if (users[target]) db.ref('users/' + target).update({ banned: false, banReason: '' });
+            const reason = document.getElementById('banReason').value.trim();
+            
+            if (users[target]) {
+                let targetBadges = users[target].badges || [];
+                
+                // Security Checks
+                if (targetBadges.includes('noban')) return alert(`Cannot ban ${target}: User possesses the NoBan badge.`);
+                if (targetBadges.includes('owner')) return alert(`Cannot ban an owner.`);
+                
+                db.ref('users/' + target).update({ banned: true, banReason: reason || 'Administrative Action' });
+                alert(`${target} has been banned.`);
+            } else {
+                alert("User not found.");
+            }
+        }
+        
+        function adminUnbanPlayer() {
+            let u = users[currentUser];
+            if (!(u.badges||[]).includes('owner') && !(u.badges||[]).includes('admin')) return alert("Permission Denied.");
+            
+            const target = document.getElementById('modUsername').value.trim();
+            if (users[target]) {
+                db.ref('users/' + target).update({ banned: false, banReason: '' });
+                alert(`${target} has been unbanned.`);
+            } else {
+                alert("User not found.");
+            }
         }
 
         initApp();
     </script>
 </body>
-</html>     
+</html>
