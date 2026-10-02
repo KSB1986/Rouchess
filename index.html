@@ -31,7 +31,7 @@
         .auth-msg { margin-top: 12px; font-size: 13px; text-align: center; }
         .error { color: #e74c3c; } .success { color: #27ae60; }
         
-        /* MAIN DASHBOARD */
+        /* DASHBOARD SCREEN */
         .app-container { display: none; flex-direction: column; min-height: 100vh; }
         .app-container.active { display: flex; }
         .navbar { background: #1f2329; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 55px; }
@@ -111,9 +111,17 @@
         .game-controls-bar { display: flex; gap: 6px; width: 100%; max-width: 520px; margin-top: 8px; }
         .game-control-btn { flex: 1; padding: 10px 8px; font-weight: bold; font-size: 13px; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 4px; }
         
-        .game-alert-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(20, 22, 25, 0.96); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 20px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none; border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.7); width: 85%; }
+        .game-alert-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: rgba(20, 22, 25, 0.96); color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 18px; font-weight: bold; text-align: center; z-index: 999; pointer-events: none; border: 3px solid #3498db; box-shadow: 0 10px 30px rgba(0,0,0,0.7); width: 85%; }
         @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         .animate-pop { animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* PAWN PROMOTION OVERLAY */
+        .promotion-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1200; border-radius: 4px; }
+        .promotion-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #3498db; }
+        .promotion-options { display: flex; gap: 12px; }
+        .promotion-btn { background: #2f3846; border: 2px solid #3498db; border-radius: 8px; padding: 8px; cursor: pointer; transition: 0.2s; width: 62px; height: 62px; display: flex; justify-content: center; align-items: center; }
+        .promotion-btn:hover { background: #3498db; transform: scale(1.06); }
+        .promotion-btn img { width: 100%; height: 100%; object-fit: contain; }
 
         /* MATCHMAKING WAITING OVERLAY */
         #waitingOverlay { position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(18, 19, 20, 0.96); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; }
@@ -121,6 +129,11 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .game-info { background: #20242b; padding: 10px; border-radius: 6px; margin: 8px 0; font-size: 13px; border-left: 4px solid #3498db; text-align: center; font-weight: bold; width: 100%; max-width: 520px; }
+
+        /* LEARN / LESSON CARD ON GAME SCREEN */
+        .lesson-banner { background: #1c2833; border: 2px solid #2ecc71; border-radius: 8px; padding: 12px; margin-bottom: 10px; width: 100%; }
+        .lesson-title { font-weight: bold; font-size: 16px; color: #2ecc71; margin-bottom: 4px; }
+        .lesson-goal { font-size: 13px; color: #ecf0f1; line-height: 1.4; }
 
         .moves-list { background: #1c1e22; padding: 10px; border-radius: 6px; font-size: 13px; flex: 1; min-height: 110px; overflow-y: auto; line-height: 1.9; border: 1px solid #2a2e35; }
         .move-item { display: inline-flex; align-items: center; margin-right: 8px; margin-bottom: 4px; background: #282c34; border-radius: 4px; padding: 2px 7px; }
@@ -140,6 +153,10 @@
         .chat-msg { margin: 6px 0; padding: 8px; background: #252a33; border-radius: 6px; font-size: 13px; border-left: 3px solid #3498db; display: flex; flex-direction: column;}
         .chat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 11px; color: #bdc3c7;}
         .chat-input-area { padding: 8px; display: flex; gap: 6px; }
+
+        .lesson-category-title { color: #f1c40f; font-size: 13px; font-weight: bold; margin-top: 10px; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .lesson-btn { background: #252a32; border: 1px solid #3498db; text-align: left; padding: 9px 12px; font-size: 13px; border-radius: 6px; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .lesson-btn:hover { background: #2c3e50; border-color: #3498db; }
 
         .game-setup-panel { background: #20242b; padding: 16px; border-radius: 10px; border: 1px solid #2e343e; display: flex; flex-direction: column; gap: 10px; }
         .setup-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; }
@@ -252,14 +269,44 @@
             
             <div class="right-panel">
                 <div class="tabs">
-                    <button class="tab-btn active" onclick="switchMainTab('chat', event)">💬 Chat</button>
+                    <button class="tab-btn active" onclick="switchMainTab('learn', event)">📖 Learn Chess</button>
+                    <button class="tab-btn" onclick="switchMainTab('chat', event)">💬 Chat</button>
                     <button class="tab-btn" onclick="switchMainTab('social', event)">👥 Social</button>
-                    <button class="tab-btn" onclick="switchMainTab('learn', event)">📖 Learn</button>
                     <button class="tab-btn hidden" id="adminTabBtn" onclick="switchMainTab('admin', event)">⚙️ Admin Panel</button>
                 </div>
 
-                <!-- 1. CHAT TAB -->
-                <div class="tab-content active" id="chat-tab">
+                <!-- 1. LEARN CHESS ACADEMY TAB -->
+                <div class="tab-content active" id="learn-tab">
+                    <div class="card">
+                        <h3>📖 Interactive Chess Academy</h3>
+                        <p style="font-size:12px; color:#8ca2ad; margin-bottom:8px;">Interactive lessons with visual board targets. Learn every piece & rule hands-on!</p>
+                        
+                        <div style="display:flex; flex-direction:column; gap:6px; max-height: 480px; overflow-y: auto; padding-right: 4px;">
+                            <div class="lesson-category-title">♟️ How Pieces Move</div>
+                            <button class="lesson-btn" onclick="loadLesson(0)"><span>♖ The Rook (Lines & Files)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(1)"><span>♗ The Bishop (Diagonals)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(2)"><span>♕ The Queen (The Strongest Piece)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(3)"><span>♔ The King (One Step & Safety)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(4)"><span>♘ The Knight (The L-Shape Jump)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(5)"><span>♙ The Pawn (Marching Forward)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(6)"><span>♙ Pawn Captures (Diagonal Strike)</span><span>▶</span></button>
+
+                            <div class="lesson-category-title">⚡ Special Rules</div>
+                            <button class="lesson-btn" onclick="loadLesson(7)"><span>🏰 Castling (King Security)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(8)"><span>👑 Pawn Promotion (Any Piece Choice)</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(9)"><span>✂️ En Passant (Special Capture)</span><span>▶</span></button>
+
+                            <div class="lesson-category-title">🎯 Essential Tactics</div>
+                            <button class="lesson-btn" onclick="loadLesson(10)"><span>🛡️ Defending Scholar's Mate</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(11)"><span>🍴 The Royal Knight Fork</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(12)"><span>🧱 Back-Rank Deflection Checkmate</span><span>▶</span></button>
+                            <button class="lesson-btn" onclick="loadLesson(13)"><span>🎯 Exploiting the Absolute Pin</span><span>▶</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. CHAT TAB -->
+                <div class="tab-content" id="chat-tab">
                     <div class="chat-box">
                         <div class="chat-nav">
                             <button class="chat-nav-btn active" id="btnChatGlobal" onclick="switchSubChat('global')">Global Room</button>
@@ -288,7 +335,7 @@
                     </div>
                 </div>
 
-                <!-- 2. SOCIAL TAB -->
+                <!-- 3. SOCIAL TAB -->
                 <div class="tab-content" id="social-tab">
                     <div class="card">
                         <h3>🔍 Search Users</h3>
@@ -312,19 +359,6 @@
                     <div class="card">
                         <h3>🟢 Online Players</h3>
                         <div id="onlinePlayersArea" style="font-size:13px; color:#8ca2ad;">No other players online.</div>
-                    </div>
-                </div>
-
-                <!-- 3. LEARN TAB -->
-                <div class="tab-content" id="learn-tab">
-                    <div class="card">
-                        <h3>📖 Interactive Practical Lessons</h3>
-                        <div style="display:flex; flex-direction:column; gap:8px;">
-                            <button onclick="loadPractical(0)" style="background:#252a32; border:1px solid #3498db; text-align:left; padding:10px;">🛡️ 1. Defend Scholar's Mate</button>
-                            <button onclick="loadPractical(1)" style="background:#252a32; border:1px solid #3498db; text-align:left; padding:10px;">🍴 2. Absolute Knight Fork</button>
-                            <button onclick="loadPractical(2)" style="background:#252a32; border:1px solid #3498db; text-align:left; padding:10px;">🧱 3. Back-Rank Deflection</button>
-                            <button onclick="loadPractical(3)" style="background:#252a32; border:1px solid #3498db; text-align:left; padding:10px;">🎯 4. Exploiting the Pin</button>
-                        </div>
                     </div>
                 </div>
 
@@ -360,7 +394,7 @@
 
                     <div class="card" id="moderationCard">
                         <h3>🚫 Moderation (Admin & Owner)</h3>
-                        <p style="font-size:11px; color:#e74c3c; margin-bottom:6px;">⚠️ Owners and Admins are permanently immune to bans.</p>
+                        <p style="font-size:11px; color:#e74c3c; margin-bottom:6px;">⚠️️ Owners and Admins are permanently immune to bans.</p>
                         <input class="input" id="modUsername" placeholder="Target username">
                         <input class="input" id="banReason" placeholder="Reason">
                         <button onclick="adminBanPlayer()" style="width: 100%; background: #e74c3c; margin-bottom: 6px;">Ban User</button>
@@ -406,6 +440,17 @@
                     <!-- Chessboard -->
                     <div class="board-container">
                         <div id="board"></div>
+
+                        <!-- PROMOTION MODAL OVERLAY -->
+                        <div id="promotionOverlay" class="promotion-overlay hidden">
+                            <div class="promotion-title">Promote Pawn To:</div>
+                            <div class="promotion-options">
+                                <button class="promotion-btn" onclick="selectPromotionPiece('q')"><img id="promQ" src="https://chessboardjs.com/img/chesspieces/wikipedia/wQ.png" alt="Queen"></button>
+                                <button class="promotion-btn" onclick="selectPromotionPiece('r')"><img id="promR" src="https://chessboardjs.com/img/chesspieces/wikipedia/wR.png" alt="Rook"></button>
+                                <button class="promotion-btn" onclick="selectPromotionPiece('b')"><img id="promB" src="https://chessboardjs.com/img/chesspieces/wikipedia/wB.png" alt="Bishop"></button>
+                                <button class="promotion-btn" onclick="selectPromotionPiece('n')"><img id="promN" src="https://chessboardjs.com/img/chesspieces/wikipedia/wN.png" alt="Knight"></button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Bottom Player -->
@@ -419,8 +464,9 @@
 
                     <!-- ACTION BAR -->
                     <div class="game-controls-bar">
-                        <button onclick="resignCurrentGame()" class="game-control-btn" style="background:#c0392b;">🏳️ Resign</button>
-                        <button onclick="offerCurrentDraw()" class="game-control-btn" style="background:#d35400;">🤝 Draw</button>
+                        <button onclick="resignCurrentGame()" id="btnResign" class="game-control-btn" style="background:#c0392b;">🏳 Resign</button>
+                        <button onclick="offerCurrentDraw()" id="btnDraw" class="game-control-btn" style="background:#d35400;">🤝 Draw</button>
+                        <button onclick="nextLesson()" id="btnNextLesson" class="game-control-btn hidden" style="background:#27ae60;">Next Lesson ➡️</button>
                         <button id="mobileChatToggleBtn" onclick="toggleMobileChat(true)" class="game-control-btn" style="background:#2980b9;">💬 Chat</button>
                     </div>
                 </div>
@@ -434,6 +480,12 @@
                 <div id="mobileChatCloseBar">
                     <h4 style="color:#3498db; margin:0;">Game Tools & Chat</h4>
                     <button onclick="toggleMobileChat(false)" style="background:#e74c3c; padding:6px 14px; font-size:12px; border-radius:6px; font-weight:bold;">✖ Exit Chat</button>
+                </div>
+
+                <!-- Academy Lesson Explanation Box -->
+                <div id="lessonBox" class="lesson-banner hidden">
+                    <div class="lesson-title" id="lessonTitle">Lesson</div>
+                    <div class="lesson-goal" id="lessonGoal">Instructions here...</div>
                 </div>
 
                 <h4 style="margin-bottom:6px; color:#3498db;">📜 Move History & Evaluations</h4>
@@ -468,7 +520,19 @@
         const db = firebase.database();
         
         const DEFAULT_AVATAR = "https://i.imgur.com/8Q5g16S.png";
-        const BOT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2334495e'/%3E%3Ctext x='50' y='60' font-size='50' text-anchor='middle' dominant-baseline='middle'%3E🤖%3C/text%3E%3C/svg%3E";
+
+        /* GLICKO-1 RATING FORMULA (CHESS.COM SPECIFICATION) */
+        function calculateGlicko(r0, rd0, r1, rd1, outcome) {
+            const q = 0.00575646273;
+            const g = (rd) => 1 / Math.sqrt(1 + 3 * q * q * rd * rd / (Math.PI * Math.PI));
+            const E = (r, ri, rdi) => 1 / (1 + Math.pow(10, -g(rdi) * (r - ri) / 400));
+            const g_rd1 = g(rd1);
+            const exp = E(r0, r1, rd1);
+            const d2 = 1 / (q * q * g_rd1 * g_rd1 * exp * (1 - exp));
+            const newR = Math.round(r0 + (q / (1 / (rd0 * rd0) + 1 / d2)) * g_rd1 * (outcome - exp));
+            const newRD = Math.round(Math.sqrt(1 / (1 / (rd0 * rd0) + 1 / d2)));
+            return { rating: Math.max(100, Math.min(3300, newR)), rd: Math.max(30, Math.min(350, newRD)), change: newR - r0 };
+        }
 
         /* STOCKFISH WEB WORKER */
         let stockfishWorker = null;
@@ -497,6 +561,7 @@
         let whiteTime = 300, blackTime = 300, increment = 3, gameTimer = null;
         let isWhiteTurn = true;
         let selectedPiece = null;
+        let pendingPromotionMove = null;
         
         let gameMode = 'bot', playerColor = 'w', currentVariant = 'standard';
         let whiteChecksCount = 0, blackChecksCount = 0;
@@ -510,13 +575,115 @@
         let activeDMUser = null;
         let dmListenerRef = null;
 
-        /* PRACTICAL LESSONS DATA */
-        let activePractical = null;
-        const PRACTICAL_LESSONS = [
-            { title: "Defending Against Scholar's Mate", fen: "r1bqkb1r/pppp1ppp/2n5/4p3/2B1n3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 1", goal: "Block Queen from f7 with Nf6!", targetMove: { from: "g8", to: "f6" }, explanation: "Brilliant! Nf6 develops while defending the f7 checkmate." },
-            { title: "The Absolute Knight Fork", fen: "r1b1k2r/pppp1ppp/8/4q3/1bP5/2N1P3/PP3PPP/R2QKB1R w KQkq - 0 1", goal: "Fork King and Rook!", targetMove: { from: "d1", to: "a4" }, explanation: "Great! Qa4+ checks king and forks the bishop." },
-            { title: "Back-Rank Deflection", fen: "3r2k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1", goal: "Deliver back-rank mate!", targetMove: { from: "e1", to: "e8" }, explanation: "Checkmate! Pawns trap their own king." },
-            { title: "Exploiting the Absolute Pin", fen: "r1b1k2r/pppp1ppp/2n5/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR w KQkq - 0 1", goal: "Develop aggressively!", targetMove: { from: "g1", to: "f3" }, explanation: "Solid! Developing Nf3 controls the center." }
+        /* INTERACTIVE CHESS ACADEMY (LEARN CHESS) DATA */
+        let currentLessonIndex = 0;
+        let activeLesson = null;
+
+        const CHESS_ACADEMY = [
+            // 1. HOW PIECES MOVE
+            {
+                title: "The Rook (♖)",
+                fen: "8/8/8/8/4R3/8/8/8 w - - 0 1",
+                goal: "Rooks move in straight horizontal lines (ranks) or vertical lines (files) as far as they want. Move the Rook from e4 to e8!",
+                from: "e4", to: "e8",
+                explanation: "Brilliant! The Rook commands entire ranks and files."
+            },
+            {
+                title: "The Bishop (♗)",
+                fen: "8/8/8/8/4B3/8/8/8 w - - 0 1",
+                goal: "Bishops move diagonally on squares of their color. Move the light-squared Bishop from e4 to h7!",
+                from: "e4", to: "h7",
+                explanation: "Spot on! Bishops stay locked onto their starting square color for the entire game."
+            },
+            {
+                title: "The Queen (♕)",
+                fen: "8/8/8/8/4Q3/8/8/8 w - - 0 1",
+                goal: "The Queen is the most powerful piece on the board! She combines the Rook and Bishop. Move her across the board to a8!",
+                from: "e4", to: "a8",
+                explanation: "Outstanding! The Queen can glide in any straight or diagonal direction."
+            },
+            {
+                title: "The King (♔)",
+                fen: "8/8/8/8/4K3/8/8/8 w - - 0 1",
+                goal: "The King moves only 1 square in any direction, but he is the most important piece! Step the King to e5!",
+                from: "e4", to: "e5",
+                explanation: "Great! Protect your King at all costs. If he is checkmated, the game is lost."
+            },
+            {
+                title: "The Knight (♘)",
+                fen: "8/8/8/8/4N3/8/8/8 w - - 0 1",
+                goal: "Knights move in an 'L' shape (2 squares forward, 1 to the side) and can jump over any piece! Move the Knight from e4 to f6!",
+                from: "e4", to: "f6",
+                explanation: "Superb! Knights are tricky because they are the only pieces that can jump over others."
+            },
+            {
+                title: "The Pawn: Moving (♙)",
+                fen: "8/8/8/8/8/8/4P3/8 w - - 0 1",
+                goal: "Pawns normally move 1 square forward, but on their very first move, they can choose to jump 2 squares! Push the pawn from e2 to e4!",
+                from: "e2", to: "e4",
+                explanation: "Well done! Remember, pawns only march forward and can never move backward."
+            },
+            {
+                title: "The Pawn: Capturing",
+                fen: "8/8/8/8/3p4/4P3/8/8 w - - 0 1",
+                goal: "Unlike other pieces, Pawns capture differently than they move! They attack 1 square diagonally. Capture the black pawn on d4!",
+                from: "e3", to: "d4",
+                explanation: "Perfect capture! Pawns move straight, but attack diagonally."
+            },
+
+            // 2. SPECIAL RULES
+            {
+                title: "Castling (King Safety)",
+                fen: "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1",
+                goal: "Castling lets the King jump 2 squares toward a Rook while the Rook hops over him! Castle kingside by moving King e1 to g1!",
+                from: "e1", to: "g1",
+                explanation: "Masterful! Castling safeguards your King into the corner while bringing the Rook into action."
+            },
+            {
+                title: "Pawn Promotion (Choose Any Piece)",
+                fen: "8/4P3/8/8/8/8/8/k6K w - - 0 1",
+                goal: "Push the pawn from e7 to e8 to trigger promotion! Pick Queen, Knight, Rook, or Bishop from the overlay!",
+                from: "e7", to: "e8",
+                anyPromotion: true,
+                explanation: "Promotion complete! You can promote your pawn into a Queen, Rook, Bishop, or Knight depending on your strategy."
+            },
+            {
+                title: "En Passant (Special Pawn Strike)",
+                fen: "rnbqkbnr/ppp1p1pp/8/3pPp2/8/8/PPPP1PPP/RNBQKBNR w KQkq f6 0 3",
+                goal: "When an opponent pawn advances 2 squares past yours, you can capture it diagonally behind them! Take on f6!",
+                from: "e5", to: "f6",
+                explanation: "En Passant executed! A legendary rule available only on the immediate move after a 2-square pawn push."
+            },
+
+            // 3. TACTICS
+            {
+                title: "Defending Against Scholar's Mate",
+                fen: "r1bqkb1r/pppp1ppp/2n5/4p3/2B1n3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 1",
+                goal: "Black to move: White's Queen is eyeing a checkmate on f7. Play Nf6 to block the Queen!",
+                from: "g8", to: "f6",
+                explanation: "Brilliant defense! Nf6 develops a piece while shutting down the f7 checkmate."
+            },
+            {
+                title: "The Royal Knight Fork",
+                fen: "r1b1k2r/pppp1ppp/8/4q3/1bP5/2N1P3/PP3PPP/R2QKB1R w KQkq - 0 1",
+                goal: "Find the double attack checking the King and attacking the loose Bishop!",
+                from: "d1", to: "a4",
+                explanation: "Fork! Qa4+ attacks the king and picks up the undefended bishop."
+            },
+            {
+                title: "Back-Rank Deflection",
+                fen: "3r2k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1",
+                goal: "Deliver back-rank checkmate along the 8th rank!",
+                from: "e1", to: "e8",
+                explanation: "Checkmate! The pawns blocked their own king's escape."
+            },
+            {
+                title: "Exploiting the Absolute Pin",
+                fen: "r1b1k2r/pppp1ppp/2n5/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR w KQkq - 0 1",
+                goal: "Develop your pieces and take control of the center with Nf3!",
+                from: "g1", to: "f3",
+                explanation: "Solid! Developing Nf3 controls the key central squares."
+            }
         ];
 
         function updateBotSliderLabel(val) {
@@ -565,7 +732,6 @@
             });
         }
 
-        /* MOBILE CHAT TOGGLE */
         function toggleMobileChat(show) {
             const sidebar = document.getElementById('gameSidebar');
             if (show) {
@@ -577,12 +743,12 @@
             }
         }
 
-        /* SCREEN SWITCHING */
         function openGameScreen() {
             document.getElementById('appContainer').classList.remove('active');
             document.getElementById('gameScreen').classList.add('active');
             document.getElementById('gameSidebar').classList.remove('mobile-open');
         }
+
         function leaveGameScreen() {
             if (gameActive && !confirm("Exit match? Running game will remain active in the background.")) return;
             document.getElementById('gameScreen').classList.remove('active');
@@ -612,12 +778,36 @@
 
         function isMyTurn() {
             if (!gameActive) return false;
-            if (gameMode === 'local' || activePractical) return true;
+            if (gameMode === 'local' || gameMode === 'learn') return true;
             return (isWhiteTurn && playerColor === 'w') || (!isWhiteTurn && playerColor === 'b');
         }
 
+        function showPromotionOverlay(color) {
+            const baseUrl = 'https://chessboardjs.com/img/chesspieces/wikipedia/';
+            document.getElementById('promQ').src = `${baseUrl}${color}Q.png`;
+            document.getElementById('promR').src = `${baseUrl}${color}R.png`;
+            document.getElementById('promB').src = `${baseUrl}${color}B.png`;
+            document.getElementById('promN').src = `${baseUrl}${color}N.png`;
+            document.getElementById('promotionOverlay').classList.remove('hidden');
+        }
+
+        function selectPromotionPiece(pieceType) {
+            if (!pendingPromotionMove) return;
+            const move = game.move({ 
+                from: pendingPromotionMove.from, 
+                to: pendingPromotionMove.to, 
+                promotion: pieceType 
+            });
+            document.getElementById('promotionOverlay').classList.add('hidden');
+            lastMove = { from: pendingPromotionMove.from, to: pendingPromotionMove.to };
+            pendingPromotionMove = null;
+            selectedPiece = null;
+            clearHighlights();
+            if (move !== null) finishMoveLogic(move);
+        }
+
         function handleSquareTap(square) {
-            if (!gameActive) return;
+            if (!gameActive || pendingPromotionMove) return;
             let turnColor = isWhiteTurn ? 'w' : 'b';
             if (!isMyTurn() || (selectedPiece === null && game.get(square)?.color !== turnColor)) {
                 clearHighlights(); selectedPiece = null; return;
@@ -627,6 +817,21 @@
             } else {
                 if (square === selectedPiece) { selectedPiece = null; clearHighlights(); return; }
                 if (game.get(square)?.color === turnColor) { clearHighlights(); selectedPiece = square; highlightSquare(square, '#bac835'); showLegalMoves(square); return; }
+                
+                // Pawn Promotion Detection
+                const movingPiece = game.get(selectedPiece);
+                const isPawn = movingPiece && movingPiece.type === 'p';
+                const isPromoting = isPawn && ((movingPiece.color === 'w' && square.charAt(1) === '8') || (movingPiece.color === 'b' && square.charAt(1) === '1'));
+
+                if (isPromoting) {
+                    const testMoves = game.moves({ square: selectedPiece, verbose: true });
+                    if (testMoves.some(m => m.to === square)) {
+                        pendingPromotionMove = { from: selectedPiece, to: square };
+                        showPromotionOverlay(movingPiece.color);
+                        return;
+                    }
+                }
+
                 const move = game.move({ from: selectedPiece, to: square, promotion: 'q' });
                 if (move === null) { selectedPiece = null; clearHighlights(); return; }
                 lastMove = { from: selectedPiece, to: square }; selectedPiece = null; clearHighlights(); finishMoveLogic(move);
@@ -635,7 +840,15 @@
 
         function highlightSquare(s, c) { $(`#board .square-${s}`).css('background-color', c); }
         function showLegalMoves(s) { game.moves({ square: s, verbose: true }).forEach(m => { const d = document.querySelector(`#board .square-${m.to}`); if(d) d.innerHTML += m.captured ? "<div class='move-dot capture-ring'></div>" : "<div class='move-dot'></div>"; }); }
-        function clearHighlights() { $('.move-dot').remove(); $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', ''); if (lastMove) { $(`#board .square-${lastMove.from}`).addClass('highlight-lastmove'); $(`#board .square-${lastMove.to}`).addClass('highlight-lastmove'); } }
+        function clearHighlights() { 
+            $('.move-dot').remove(); 
+            $('.square-55d63, .square-b58863').removeClass('highlight-lastmove highlight-premove').css('background-color', ''); 
+            if (lastMove) { $(`#board .square-${lastMove.from}`).addClass('highlight-lastmove'); $(`#board .square-${lastMove.to}`).addClass('highlight-lastmove'); } 
+            if (activeLesson) {
+                highlightSquare(activeLesson.from, 'rgba(52, 152, 219, 0.5)');
+                highlightSquare(activeLesson.to, 'rgba(46, 204, 113, 0.55)');
+            }
+        }
 
         /* STOCKFISH WITH EMERGENCY FALLBACK */
         function triggerStockfishCalculation() {
@@ -652,7 +865,6 @@
                 try {
                     let skill = parseInt(document.getElementById('botLevelSlider').value) || 10;
                     let depth = Math.max(3, Math.floor(skill * 0.7));
-                    
                     const prevHandler = stockfishWorker.onmessage;
                     stockfishWorker.onmessage = function(e) {
                         const line = e.data;
@@ -664,17 +876,13 @@
                                 moveMade = true;
                                 applyStockfishMove(moveStr);
                             }
-                        } else if (prevHandler) {
-                            prevHandler(e);
-                        }
+                        } else if (prevHandler) { prevHandler(e); }
                     };
                     stockfishWorker.postMessage('position fen ' + game.fen());
                     stockfishWorker.postMessage('setoption name Skill Level value ' + skill);
                     stockfishWorker.postMessage('go depth ' + depth);
                     return;
-                } catch(err) {
-                    console.warn("Stockfish postMessage failed, using fallback.", err);
-                }
+                } catch(err) { console.warn("Stockfish postMessage failed, using fallback.", err); }
             }
         }
 
@@ -726,8 +934,16 @@
         }
 
         function triggerPlayConfiguration() {
-            isOnlineGame = false; activePractical = null;
-            gameMode = document.getElementById('gameModeSelect').value; currentVariant = document.getElementById('variantSelect').value;
+            isOnlineGame = false; activeLesson = null;
+            document.getElementById('btnResign').classList.remove('hidden');
+            document.getElementById('btnDraw').classList.remove('hidden');
+            document.getElementById('btnNextLesson').classList.add('hidden');
+            document.getElementById('lessonBox').classList.add('hidden');
+            document.getElementById('promotionOverlay').classList.add('hidden');
+            pendingPromotionMove = null;
+
+            gameMode = document.getElementById('gameModeSelect').value; 
+            currentVariant = document.getElementById('variantSelect').value;
             playerColor = document.getElementById('playerColorSelect').value === 'random' ? (Math.random()>0.5?'w':'b') : document.getElementById('playerColorSelect').value;
             if(gameMode === 'local') playerColor = 'w';
             timeFormatStr = document.getElementById('matchTimeFormat').value;
@@ -737,7 +953,8 @@
         function startGameInternal(orientation) {
             gameActive = true; whiteChecksCount = 0; blackChecksCount = 0;
             if (currentVariant === '960') game = new Chess(generateChess960FEN()); else game = new Chess();
-            moveEvaluations = []; lastMove = null; selectedPiece = null;
+            moveEvaluations = []; lastMove = null; selectedPiece = null; pendingPromotionMove = null;
+            document.getElementById('promotionOverlay').classList.add('hidden');
             initializeBoard(orientation === 'b' ? 'black' : 'white');
             if (currentVariant === '960') board.position(game.fen());
             isWhiteTurn = true; clearHighlights();
@@ -768,7 +985,7 @@
         }
 
         function calculateImmediateEvaluation(move) {
-            if (!move) return;
+            if (!move || activeLesson) return;
             if (game.history().length <= 4) { moveEvaluations.push({ label: "Book 📖", class: "book" }); return; }
             game.undo(); let turnBefore = game.turn(); let cpBefore = evaluatePositionScore(game);
             let myCpBefore = (turnBefore === 'w') ? cpBefore : -cpBefore; let winPctBefore = 100 / (1 + Math.pow(10, -myCpBefore / 400));
@@ -791,6 +1008,26 @@
         function finishMoveLogic(move) {
             calculateImmediateEvaluation(move);
 
+            // LESSON CHECK
+            if (activeLesson) {
+                board.position(game.fen());
+                clearHighlights();
+                updateMovesList();
+                if (move.from === activeLesson.from && move.to === activeLesson.to) {
+                    showGameAlert("🌟 Correct Move!", "best");
+                    document.getElementById('lessonGoal').innerHTML = `<strong style="color:#2ecc71;">Awesome!</strong> ${activeLesson.explanation}`;
+                    document.getElementById('btnNextLesson').classList.remove('hidden');
+                    gameActive = false;
+                } else {
+                    showGameAlert("❌ Try Again!", "blunder");
+                    game.undo();
+                    board.position(game.fen());
+                    clearHighlights();
+                    updateMovesList();
+                }
+                return;
+            }
+
             if (currentVariant === 'koth') {
                 if (game.get(move.to)?.type === 'k' && ['d4','e4','d5','e5'].includes(move.to)) {
                     board.position(game.fen()); clearHighlights(); updateMovesList(); endGame(game.get(move.to).color === 'w' ? 'White' : 'Black', 'King of the Hill'); return;
@@ -804,8 +1041,6 @@
                 if (blackChecksCount >= 3) { board.position(game.fen()); endGame('Black', '3-Check Victory'); return; }
             }
 
-            if (activePractical) { board.position(game.fen()); clearHighlights(); updateMovesList(); handlePracticalMove(move); return; }
-
             if (!isUnlimitedTime) { if (isWhiteTurn) whiteTime += increment; else blackTime += increment; }
             isWhiteTurn = !isWhiteTurn; board.position(game.fen()); clearHighlights(); updateMovesList(); updateGameStatus();
 
@@ -818,34 +1053,88 @@
             }
         }
 
-        /* PRACTICAL LESSONS */
-        function loadPractical(index) {
-            activePractical = PRACTICAL_LESSONS[index]; openGameScreen(); gameMode = 'practical'; gameActive = true;
-            game = new Chess(activePractical.fen); initializeBoard('white'); board.position(activePractical.fen);
-            document.getElementById('gameStatus').innerText = `Lesson: ${activePractical.goal}`;
+        /* INTERACTIVE ACADEMY (LEARN CHESS) ENGINE */
+        function loadLesson(index) {
+            currentLessonIndex = index;
+            activeLesson = CHESS_ACADEMY[index];
+            gameMode = 'learn';
+            currentVariant = 'standard';
+            isOnlineGame = false;
+            pendingPromotionMove = null;
+
+            openGameScreen();
+            gameActive = true;
+            game = new Chess(activeLesson.fen);
+            playerColor = (game.turn() === 'w') ? 'w' : 'b';
+            initializeBoard(playerColor === 'w' ? 'white' : 'black');
+            board.position(activeLesson.fen);
+
+            // Setup Screen UI for Lesson
+            document.getElementById('btnResign').classList.add('hidden');
+            document.getElementById('btnDraw').classList.add('hidden');
+            document.getElementById('btnNextLesson').classList.add('hidden');
+            document.getElementById('lessonBox').classList.remove('hidden');
+            document.getElementById('promotionOverlay').classList.add('hidden');
+
+            document.getElementById('lessonTitle').innerText = activeLesson.title;
+            document.getElementById('lessonGoal').innerText = activeLesson.goal;
+            document.getElementById('gameModeHeading').innerText = "Rouchess Academy";
+            document.getElementById('variantLiveTag').innerText = "Interactive Tutorial";
+            document.getElementById('gameStatus').innerText = `Lesson ${index + 1} of ${CHESS_ACADEMY.length}`;
+            
+            document.getElementById('topPlayer').innerHTML = `<span>🎓 Chess Instructor</span>`;
+            document.getElementById('bottomPlayer').innerHTML = `<span>Student: ${currentUser}</span>`;
+            document.getElementById('topClock').innerText = "∞";
+            document.getElementById('bottomClock').innerText = "∞";
+
+            clearHighlights();
         }
-        function handlePracticalMove(move) {
-            if (move.from === activePractical.targetMove.from && move.to === activePractical.targetMove.to) { showGameAlert("🎯 Lesson Completed!", "best"); gameActive = false; }
-            else { showGameAlert("❌ Incorrect.", "blunder"); game.undo(); board.position(game.fen()); updateMovesList(); }
+
+        function nextLesson() {
+            let nextIndex = currentLessonIndex + 1;
+            if (nextIndex < CHESS_ACADEMY.length) {
+                loadLesson(nextIndex);
+            } else {
+                alert("🎉 Congratulations! You have completed all lessons in the Chess Academy!");
+                leaveGameScreen();
+            }
         }
 
         /* RESIGN, DRAW & CLOCK */
         function resignCurrentGame() {
-            if (!gameActive) return;
-            if (!confirm("Are you sure you want to resign?")) return;
-            let winner = (playerColor === 'w') ? 'Black' : 'White'; if (gameMode === 'local') winner = 'Black';
+            if (!gameActive) { alert("No game currently active."); return; }
+            if (!confirm("Are you sure you want to resign the game?")) return;
+            let winner = (playerColor === 'w') ? 'Black' : 'White';
+            if (gameMode === 'local') winner = isWhiteTurn ? 'Black' : 'White';
             endGame(winner, 'Resignation');
             if (isOnlineGame && onlineRoomId) db.ref('rooms/' + onlineRoomId).update({ forcedWinner: winner, reason: 'Resignation' });
         }
+
         function offerCurrentDraw() {
-            if (!gameActive) return;
-            if (gameMode === 'bot') { showGameAlert("Stockfish declined draw", "draw"); return; }
-            if (gameMode === 'local' && confirm("Accept draw?")) endGame('Draw', 'Mutual Agreement');
-            else if (isOnlineGame && onlineRoomId) { showGameAlert("Draw offer sent", "draw"); db.ref('rooms/' + onlineRoomId).update({ drawOffer: currentUser }); }
+            if (!gameActive) { alert("No game currently active."); return; }
+            if (gameMode === 'bot') {
+                let evalScore = evaluatePositionScore(game);
+                if (game.history().length < 4) { showGameAlert("Stockfish: Too early for a draw!", "draw"); return; }
+                if (Math.abs(evalScore) < 250) {
+                    showGameAlert("Stockfish accepted draw!", "draw");
+                    setTimeout(() => endGame('Draw', 'Mutual Agreement'), 400);
+                } else { showGameAlert("Stockfish declined draw", "draw"); }
+                return;
+            }
+            if (gameMode === 'local') {
+                if (confirm("Opponent: Do you accept the draw offer?")) endGame('Draw', 'Mutual Agreement');
+                else showGameAlert("Draw declined", "draw");
+                return;
+            }
+            if (isOnlineGame && onlineRoomId) {
+                showGameAlert("Draw offer sent...", "draw");
+                db.ref('rooms/' + onlineRoomId).update({ drawOffer: currentUser });
+            }
         }
+
         function startClock() {
             if (gameTimer) clearInterval(gameTimer); updateClocks();
-            if (isUnlimitedTime || activePractical) { document.getElementById('topClock').innerText = "∞"; document.getElementById('bottomClock').innerText = "∞"; return; }
+            if (isUnlimitedTime || activeLesson) { document.getElementById('topClock').innerText = "∞"; document.getElementById('bottomClock').innerText = "∞"; return; }
             gameTimer = setInterval(() => {
                 if (!gameActive) return;
                 if (isWhiteTurn) whiteTime--; else blackTime--;
@@ -856,22 +1145,75 @@
             if(isUnlimitedTime) return; const f = s => `${Math.floor(s/60)}:${s%60<10?'0':''}${s%60}`;
             document.getElementById('bottomClock').textContent = f(playerColor === 'w' ? whiteTime : blackTime); document.getElementById('topClock').textContent = f(playerColor === 'w' ? blackTime : whiteTime);
         }
+
+        /* GUARANTEED RATING SYSTEM UPDATER */
         function endGame(forcedWinner = null, reason = null) {
-            if (!gameActive) return; gameActive = false; clearInterval(gameTimer);
-            let resultText = 'Game Over';
-            if (forcedWinner) { resultText = `${forcedWinner} won by ${reason}`; }
-            else if (game.in_checkmate()) { resultText = `${game.turn() === 'w' ? 'Black' : 'White'} won by Checkmate`; }
-            else if (game.in_stalemate() || game.in_draw()) { resultText = 'Draw'; }
-            else if (whiteTime <= 0) { resultText = 'Black won on time'; }
-            else if (blackTime <= 0) { resultText = 'White won on time'; }
-            document.getElementById('gameStatus').innerHTML = `<strong>${resultText}</strong>`; showGameAlert(forcedWinner ? `${forcedWinner} Won!` : resultText, 'draw');
+            if (!gameActive) return;
+            gameActive = false; clearInterval(gameTimer);
+            let resultTextHeader = 'Game Over', outcome = null;
+
+            if (forcedWinner) {
+                if (forcedWinner.toLowerCase() === 'draw') { outcome = 'draw'; resultTextHeader = reason ? `Draw (${reason})` : 'Draw by Agreement'; }
+                else { outcome = forcedWinner.toLowerCase(); resultTextHeader = `${forcedWinner} won by ${reason || 'Decision'}`; }
+            } else if (game.in_checkmate()) { outcome = (game.turn() === 'w') ? 'black' : 'white'; resultTextHeader = `${outcome === 'white' ? 'White' : 'Black'} won by Checkmate`; }
+            else if (game.in_stalemate() || game.in_draw()) { outcome = 'draw'; resultTextHeader = 'Draw by Rule'; }
+            else if (whiteTime <= 0) { outcome = 'black'; resultTextHeader = 'Black won on time'; }
+            else if (blackTime <= 0) { outcome = 'white'; resultTextHeader = 'White won on time'; }
+
+            let ratingChangeMarkup = '';
+            if (currentUser && users[currentUser] && (gameMode === 'bot' || gameMode === 'online')) {
+                let u = users[currentUser];
+                let isUserWhite = (playerColor === 'w');
+                let userWon = (outcome === 'white' && isUserWhite) || (outcome === 'black' && !isUserWhite);
+                let userLost = (outcome === 'black' && isUserWhite) || (outcome === 'white' && !isUserWhite);
+                let isDraw = (outcome === 'draw');
+                let actualScore = userWon ? 1 : (isDraw ? 0.5 : 0);
+
+                let currentRating = parseInt(u.blitzRating) || 1500;
+                let currentRD = parseInt(u.blitzRD) || 250;
+                let oppRating = 1500, oppRD = 150;
+                if (gameMode === 'bot') {
+                    let lvl = parseInt(document.getElementById('botLevelSlider').value) || 10;
+                    oppRating = 700 + (lvl * 85); oppRD = 80;
+                } else if (gameMode === 'online' && users[currentOpponentName]) {
+                    oppRating = parseInt(users[currentOpponentName].blitzRating) || 1500;
+                    oppRD = parseInt(users[currentOpponentName].blitzRD) || 150;
+                }
+
+                let glickoRes = calculateGlicko(currentRating, currentRD, oppRating, oppRD, actualScore);
+                let diff = glickoRes.change;
+                if (userWon && diff <= 0) diff = 10;
+                if (userLost && diff >= 0) diff = -10;
+
+                let newRating = Math.max(100, currentRating + diff);
+                u.blitzRating = newRating; u.blitzRD = glickoRes.rd;
+                u.wins = (u.wins || 0) + (userWon ? 1 : 0);
+                u.losses = (u.losses || 0) + (userLost ? 1 : 0);
+                u.draws = (u.draws || 0) + (isDraw ? 1 : 0);
+
+                db.ref('users/' + currentUser).update({ blitzRating: newRating, blitzRD: glickoRes.rd, wins: u.wins, losses: u.losses, draws: u.draws });
+                displayStats(); updateUI();
+
+                let diffSign = diff >= 0 ? `+${diff}` : `${diff}`;
+                let diffColor = diff >= 0 ? '#27ae60' : '#e74c3c';
+                ratingChangeMarkup = `<br><span style="color:${diffColor}; font-size:15px; font-weight:bold; display:block; margin-top:6px;">📊 Rating: ${currentRating} (${diffSign}) ➔ ${newRating}</span>`;
+            }
+
+            document.getElementById('gameStatus').innerHTML = `<strong>${resultTextHeader}</strong>${ratingChangeMarkup}`;
+            showGameAlert(resultTextHeader, outcome === 'draw' ? 'draw' : 'best');
         }
 
         /* ONLINE MATCHMAKING WITH SEARCH SCREEN */
         function findOnlineMatch() {
             timeFormatStr = document.getElementById('matchTimeFormat').value;
             currentVariant = document.getElementById('variantSelect').value;
-            isOnlineGame = true; gameMode = 'online';
+            isOnlineGame = true; gameMode = 'online'; activeLesson = null;
+            document.getElementById('btnResign').classList.remove('hidden');
+            document.getElementById('btnDraw').classList.remove('hidden');
+            document.getElementById('btnNextLesson').classList.add('hidden');
+            document.getElementById('lessonBox').classList.add('hidden');
+            document.getElementById('promotionOverlay').classList.add('hidden');
+            pendingPromotionMove = null;
             
             openGameScreen();
             document.getElementById('waitingOverlay').classList.remove('hidden');
@@ -883,68 +1225,41 @@
                 for (let rid in rooms) {
                     let r = rooms[rid];
                     if (r.status === 'waiting' && r.whitePlayer !== currentUser && r.format === timeFormatStr && (r.variant || 'standard') === currentVariant) {
-                        availableRoomId = rid;
-                        break;
+                        availableRoomId = rid; break;
                     }
                 }
-                if (availableRoomId) {
-                    joinRoom(availableRoomId);
-                } else {
-                    createRoom();
-                }
+                if (availableRoomId) joinRoom(availableRoomId); else createRoom();
             });
         }
 
         function createRoom() {
-            onlineRoomId = db.ref('rooms').push().key;
-            playerColor = 'w';
-            
+            onlineRoomId = db.ref('rooms').push().key; playerColor = 'w';
             const timeSettings = { blitz: 300, rapid: 600, none: 9999 }[timeFormatStr] || 300;
             whiteTime = timeSettings; blackTime = timeSettings; increment = 3;
 
             db.ref('rooms/' + onlineRoomId).set({
-                fen: game.fen(),
-                whitePlayer: currentUser,
-                blackPlayer: null,
-                status: 'waiting',
-                whiteTime: whiteTime,
-                blackTime: blackTime,
-                format: timeFormatStr,
-                variant: currentVariant,
-                created: firebase.database.ServerValue.TIMESTAMP
+                fen: game.fen(), whitePlayer: currentUser, blackPlayer: null, status: 'waiting',
+                whiteTime: whiteTime, blackTime: blackTime, format: timeFormatStr, variant: currentVariant,
+                drawOffer: null, drawDeclinedBy: null, created: firebase.database.ServerValue.TIMESTAMP
             });
 
             db.ref('rooms/' + onlineRoomId).onDisconnect().remove();
-            listenToOnlineRoom();
-            startGameInternal('w');
+            listenToOnlineRoom(); startGameInternal('w');
             document.getElementById('waitingOverlay').classList.remove('hidden');
         }
 
         function joinRoom(roomId) {
-            onlineRoomId = roomId;
-            playerColor = 'b';
-            
+            onlineRoomId = roomId; playerColor = 'b';
             db.ref('rooms/' + roomId).once('value').then(snap => {
                 const r = snap.val();
-                if (!r || r.status !== 'waiting') {
-                    findOnlineMatch();
-                    return;
-                }
-                timeFormatStr = r.format || 'blitz';
-                currentVariant = r.variant || 'standard';
-                whiteTime = r.whiteTime || 300;
-                blackTime = r.blackTime || 300;
+                if (!r || r.status !== 'waiting') { findOnlineMatch(); return; }
+                timeFormatStr = r.format || 'blitz'; currentVariant = r.variant || 'standard';
+                whiteTime = r.whiteTime || 300; blackTime = r.blackTime || 300;
 
-                db.ref('rooms/' + roomId).update({
-                    blackPlayer: currentUser,
-                    status: 'playing'
-                });
+                db.ref('rooms/' + roomId).update({ blackPlayer: currentUser, status: 'playing', drawOffer: null, drawDeclinedBy: null });
                 db.ref('rooms/' + roomId).onDisconnect().remove();
-
                 document.getElementById('waitingOverlay').classList.add('hidden');
-                listenToOnlineRoom();
-                startGameInternal('b');
-                showGameAlert("Opponent Joined!", "great");
+                listenToOnlineRoom(); startGameInternal('b'); showGameAlert("Opponent Joined!", "great");
             });
         }
 
@@ -952,9 +1267,7 @@
             if (onlineRef) onlineRef.off();
             onlineRef = db.ref('rooms/' + onlineRoomId);
             onlineRef.on('value', snapshot => {
-                const data = snapshot.val();
-                if (!data) return;
-
+                const data = snapshot.val(); if (!data) return;
                 if (data.status === 'playing') {
                     document.getElementById('waitingOverlay').classList.add('hidden');
                     let isWhiteSelf = (playerColor === 'w');
@@ -965,60 +1278,54 @@
                     updateGameStatus();
                 }
 
-                if (data.forcedWinner) {
-                    endGame(data.forcedWinner, data.reason || 'Resignation');
+                if (gameActive && data.drawOffer && data.drawOffer !== currentUser) {
+                    if (!window.activeDrawOfferPrompt) {
+                        window.activeDrawOfferPrompt = true;
+                        setTimeout(() => {
+                            let accept = confirm(`${data.drawOffer} offered a draw. Accept?`);
+                            window.activeDrawOfferPrompt = false;
+                            if (accept) db.ref('rooms/' + onlineRoomId).update({ drawOffer: null, forcedWinner: 'Draw', reason: 'Mutual Agreement' });
+                            else db.ref('rooms/' + onlineRoomId).update({ drawOffer: null, drawDeclinedBy: currentUser });
+                        }, 50);
+                    }
                 }
+
+                if (data.drawDeclinedBy && data.drawDeclinedBy !== currentUser) {
+                    showGameAlert("Opponent declined draw", "draw");
+                    db.ref('rooms/' + onlineRoomId).update({ drawDeclinedBy: null });
+                }
+
+                if (data.forcedWinner && gameActive) endGame(data.forcedWinner, data.reason || 'Decision');
 
                 if (data.fen !== game.fen() && data.lastMoveFrom !== currentUser && data.lastMoveData) {
                     game.move(data.lastMoveData.san);
                     lastMove = { from: data.lastMoveData.from, to: data.lastMoveData.to };
                     board.position(game.fen());
                     isWhiteTurn = (game.turn() === 'w');
-                    clearHighlights();
-                    updateMovesList();
-                    if (game.game_over()) endGame();
+                    clearHighlights(); updateMovesList(); if (game.game_over()) endGame();
                 }
             });
 
             db.ref(`rooms/${onlineRoomId}/chat`).on('value', snap => {
-                let html = '';
-                snap.forEach(c => {
-                    let m = c.val();
-                    html += `<div style="font-size:11px; margin-bottom:4px;"><strong>${m.user}:</strong> ${m.text}</div>`;
-                });
-                const cb = document.getElementById('inGameChatMessages');
-                cb.innerHTML = html;
-                cb.scrollTop = cb.scrollHeight;
+                let html = ''; snap.forEach(c => { let m = c.val(); html += `<div style="font-size:11px; margin-bottom:4px;"><strong>${m.user}:</strong> ${m.text}</div>`; });
+                const cb = document.getElementById('inGameChatMessages'); cb.innerHTML = html; cb.scrollTop = cb.scrollHeight;
             });
         }
 
         function cancelMatchmaking() {
-            if (onlineRoomId) {
-                db.ref('rooms/' + onlineRoomId).remove();
-                onlineRoomId = null;
-            }
+            if (onlineRoomId) { db.ref('rooms/' + onlineRoomId).remove(); onlineRoomId = null; }
             document.getElementById('waitingOverlay').classList.add('hidden');
-            isOnlineGame = false;
-            gameActive = false;
-            leaveGameScreen();
+            isOnlineGame = false; gameActive = false; leaveGameScreen();
         }
 
         function sendInGameMessage() {
-            const input = document.getElementById('inGameChatInput');
-            const txt = input.value.trim();
-            if (!txt) return;
-
-            if (isOnlineGame && onlineRoomId) {
-                db.ref(`rooms/${onlineRoomId}/chat`).push({ user: currentUser, text: txt, time: Date.now() });
-            } else {
-                const cb = document.getElementById('inGameChatMessages');
-                cb.innerHTML += `<div style="font-size:11px; margin-bottom:4px;"><strong>${currentUser}:</strong> ${txt}</div>`;
-                cb.scrollTop = cb.scrollHeight;
-            }
+            const input = document.getElementById('inGameChatInput'); const txt = input.value.trim(); if (!txt) return;
+            if (isOnlineGame && onlineRoomId) db.ref(`rooms/${onlineRoomId}/chat`).push({ user: currentUser, text: txt, time: Date.now() });
+            else { const cb = document.getElementById('inGameChatMessages'); cb.innerHTML += `<div style="font-size:11px; margin-bottom:4px;"><strong>${currentUser}:</strong> ${txt}</div>`; cb.scrollTop = cb.scrollHeight; }
             input.value = '';
         }
 
-        /* DIRECT MESSAGING & GLOBAL CHAT SYSTEM */
+        /* DIRECT MESSAGING & GLOBAL CHAT */
         function switchSubChat(context) {
             currentChatContext = context;
             document.querySelectorAll('.chat-nav-btn').forEach(b => b.classList.remove('active'));
@@ -1036,10 +1343,7 @@
         }
 
         function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const txt = input.value.trim();
-            if (!txt) return;
-
+            const input = document.getElementById('chatInput'); const txt = input.value.trim(); if (!txt) return;
             if (currentChatContext === 'global') {
                 db.ref('globalChat').push({ user: currentUser, text: txt, time: firebase.database.ServerValue.TIMESTAMP });
             } else if (currentChatContext === 'dm' && activeDMUser) {
@@ -1055,25 +1359,15 @@
             db.ref('globalChat').limitToLast(40).on('value', snap => {
                 let html = '';
                 snap.forEach(c => {
-                    let m = c.val();
-                    let u = users[m.user];
-                    if (!u || !u.banned) {
-                        html += `<div class="chat-msg">
-                            <div class="chat-header"><span><strong>${m.user}</strong> ${getBadgeHTML(u?.badges)}</span></div>
-                            <div>${m.text}</div>
-                        </div>`;
-                    }
+                    let m = c.val(); let u = users[m.user];
+                    if (!u || !u.banned) html += `<div class="chat-msg"><div class="chat-header"><span><strong>${m.user}</strong> ${getBadgeHTML(u?.badges)}</span></div><div>${m.text}</div></div>`;
                 });
-                const cb = document.getElementById('chatMessagesGlobal');
-                cb.innerHTML = html;
-                cb.scrollTop = cb.scrollHeight;
+                const cb = document.getElementById('chatMessagesGlobal'); cb.innerHTML = html; cb.scrollTop = cb.scrollHeight;
             });
         }
 
         function openDM(targetUser) {
             if (targetUser === currentUser) return alert("You cannot send direct messages to yourself.");
-            
-            // Switch tabs
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelector("button[onclick*='chat']").classList.add('active');
@@ -1088,26 +1382,19 @@
 
             let dmId = [currentUser, targetUser].sort().join('_');
             if (dmListenerRef) dmListenerRef.off();
-
             dmListenerRef = db.ref(`dms/${dmId}`);
             dmListenerRef.limitToLast(50).on('value', snap => {
                 let html = '';
                 snap.forEach(c => {
                     let m = c.val();
-                    html += `<div class="chat-msg" style="border-left-color: ${m.user === currentUser ? '#27ae60' : '#3498db'};">
-                        <div class="chat-header"><span><strong>${m.user}</strong></span></div>
-                        <div>${m.text}</div>
-                    </div>`;
+                    html += `<div class="chat-msg" style="border-left-color: ${m.user === currentUser ? '#27ae60' : '#3498db'};"><div class="chat-header"><span><strong>${m.user}</strong></span></div><div>${m.text}</div></div>`;
                 });
-                const cb = document.getElementById('dmMessageHistory');
-                cb.innerHTML = html || '<div style="color:#7f8c8d; text-align:center; margin-top:20px;">No messages yet. Say hi!</div>';
-                cb.scrollTop = cb.scrollHeight;
+                const cb = document.getElementById('dmMessageHistory'); cb.innerHTML = html || '<div style="color:#7f8c8d; text-align:center; margin-top:20px;">No messages yet. Say hi!</div>'; cb.scrollTop = cb.scrollHeight;
             });
         }
 
         function closeDM() {
-            activeDMUser = null;
-            document.getElementById('dmActiveChat').classList.add('hidden');
+            activeDMUser = null; document.getElementById('dmActiveChat').classList.add('hidden');
             document.getElementById('dmUserList').classList.remove('hidden');
             document.getElementById('mainChatInputArea').style.display = 'none';
             if (dmListenerRef) dmListenerRef.off();
@@ -1115,18 +1402,12 @@
         }
 
         function loadDMList() {
-            let list = users[currentUser]?.dmList;
-            let html = '';
+            let list = users[currentUser]?.dmList; let html = '';
             if (list) {
                 Object.keys(list).sort((a,b) => list[b] - list[a]).forEach(user => {
-                    html += `<div class="social-item" style="cursor:pointer;" onclick="openDM('${user}')">
-                        <span><strong>${user}</strong></span>
-                        <span style="color:#3498db; font-size:11px;">Open DM 💬</span>
-                    </div>`;
+                    html += `<div class="social-item" style="cursor:pointer;" onclick="openDM('${user}')"><span><strong>${user}</strong></span><span style="color:#3498db; font-size:11px;">Open DM 💬</span></div>`;
                 });
-            } else {
-                html = '<div style="color:#7f8c8d; text-align:center; padding:15px;">No active conversations. Start one from the Social tab.</div>';
-            }
+            } else { html = '<div style="color:#7f8c8d; text-align:center; padding:15px;">No active conversations. Start one from the Social tab.</div>'; }
             document.getElementById('dmUserList').innerHTML = html;
         }
 
@@ -1134,20 +1415,11 @@
         function renderFriends() {
             let list = document.getElementById('friendsListArea');
             let myFriends = users[currentUser]?.friends;
-            if (!myFriends || Object.keys(myFriends).length === 0) {
-                list.innerHTML = "No friends added yet.";
-                return;
-            }
+            if (!myFriends || Object.keys(myFriends).length === 0) { list.innerHTML = "No friends added yet."; return; }
             let html = '';
             Object.keys(myFriends).forEach(f => {
                 let isOnline = users[f]?.online;
-                html += `<div class="social-item">
-                    <span>${isOnline ? '🟢' : '⚪'} <strong>${f}</strong> ${getBadgeHTML(users[f]?.badges)}</span>
-                    <div style="display:flex; gap:4px;">
-                        <button onclick="openDM('${f}')" style="padding:4px 8px; font-size:11px; background:#8e44ad;">💬 DM</button>
-                        <button onclick="challengeFriend('${f}')" style="padding:4px 8px; font-size:11px; background:#e67e22;">⚔️ Play</button>
-                    </div>
-                </div>`;
+                html += `<div class="social-item"><span>${isOnline ? '🟢' : '⚪'} <strong>${f}</strong> ${getBadgeHTML(users[f]?.badges)}</span><div style="display:flex; gap:4px;"><button onclick="openDM('${f}')" style="padding:4px 8px; font-size:11px; background:#8e44ad;">💬 DM</button><button onclick="challengeFriend('${f}')" style="padding:4px 8px; font-size:11px; background:#e67e22;">⚔️ Play</button></div></div>`;
             });
             list.innerHTML = html;
         }
@@ -1155,76 +1427,39 @@
         function renderFriendRequests() {
             let list = document.getElementById('friendRequestsArea');
             let reqs = users[currentUser]?.friendRequests;
-            if (!reqs || Object.keys(reqs).length === 0) {
-                list.innerHTML = "No pending requests.";
-                return;
-            }
+            if (!reqs || Object.keys(reqs).length === 0) { list.innerHTML = "No pending requests."; return; }
             let html = '';
             Object.keys(reqs).forEach(fromUser => {
-                html += `<div class="social-item">
-                    <span><strong>${fromUser}</strong> wants to be friends</span>
-                    <div style="display:flex; gap:4px;">
-                        <button onclick="acceptFriend('${fromUser}')" style="background:#27ae60; padding:4px 8px; font-size:11px;">Accept</button>
-                        <button onclick="declineFriend('${fromUser}')" style="background:#e74c3c; padding:4px 8px; font-size:11px;">Decline</button>
-                    </div>
-                </div>`;
+                html += `<div class="social-item"><span><strong>${fromUser}</strong> wants to be friends</span><div style="display:flex; gap:4px;"><button onclick="acceptFriend('${fromUser}')" style="background:#27ae60; padding:4px 8px; font-size:11px;">Accept</button><button onclick="declineFriend('${fromUser}')" style="background:#e74c3c; padding:4px 8px; font-size:11px;">Decline</button></div></div>`;
             });
             list.innerHTML = html;
         }
 
         function sendFriendRequest(target) {
             if (target === currentUser) return alert("You cannot add yourself.");
-            db.ref(`users/${target}/friendRequests/${currentUser}`).set(true);
-            alert(`Friend request sent to ${target}!`);
+            db.ref(`users/${target}/friendRequests/${currentUser}`).set(true); alert(`Friend request sent to ${target}!`);
         }
-
         function acceptFriend(target) {
-            db.ref(`users/${currentUser}/friends/${target}`).set(true);
-            db.ref(`users/${target}/friends/${currentUser}`).set(true);
+            db.ref(`users/${currentUser}/friends/${target}`).set(true); db.ref(`users/${target}/friends/${currentUser}`).set(true);
             db.ref(`users/${currentUser}/friendRequests/${target}`).remove();
         }
-
-        function declineFriend(target) {
-            db.ref(`users/${currentUser}/friendRequests/${target}`).remove();
-        }
+        function declineFriend(target) { db.ref(`users/${currentUser}/friendRequests/${target}`).remove(); }
 
         function renderOnlinePlayers() {
-            let list = document.getElementById('onlinePlayersArea');
-            let html = '';
+            let list = document.getElementById('onlinePlayersArea'); let html = '';
             Object.keys(users).forEach(k => {
                 if (k !== currentUser && users[k].online) {
-                    html += `<div class="social-item">
-                        <span>🟢 <strong>${k}</strong></span>
-                        <div style="display:flex; gap:4px;">
-                            <button onclick="sendFriendRequest('${k}')" style="padding:4px 8px; font-size:11px; background:#27ae60;">➕ Add</button>
-                            <button onclick="openDM('${k}')" style="padding:4px 8px; font-size:11px; background:#8e44ad;">💬 DM</button>
-                        </div>
-                    </div>`;
+                    html += `<div class="social-item"><span>🟢 <strong>${k}</strong></span><div style="display:flex; gap:4px;"><button onclick="sendFriendRequest('${k}')" style="padding:4px 8px; font-size:11px; background:#27ae60;">➕ Add</button><button onclick="openDM('${k}')" style="padding:4px 8px; font-size:11px; background:#8e44ad;">💬 DM</button></div></div>`;
                 }
             });
             list.innerHTML = html || 'No other players online.';
         }
 
         function searchProfile() {
-            let q = document.getElementById('searchUserInput').value.trim();
-            let resArea = document.getElementById('searchResultArea');
-            if (!q || !users[q]) {
-                resArea.innerHTML = `<span class="error" style="font-size:12px;">User not found.</span>`;
-                return;
-            }
+            let q = document.getElementById('searchUserInput').value.trim(); let resArea = document.getElementById('searchResultArea');
+            if (!q || !users[q]) { resArea.innerHTML = `<span class="error" style="font-size:12px;">User not found.</span>`; return; }
             let u = users[q];
-            resArea.innerHTML = `
-                <div class="card" style="border-left: 4px solid #3498db; margin-top:8px; padding:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <strong>${q}</strong> ${getBadgeHTML(u.badges, u.banned)}
-                        <span style="font-size:11px; color:#8ca2ad;">Blitz: ${u.blitzRating || 1500}</span>
-                    </div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="sendFriendRequest('${q}')" style="flex:1; padding:5px; font-size:11px; background:#27ae60;">➕ Add Friend</button>
-                        <button onclick="openDM('${q}')" style="flex:1; padding:5px; font-size:11px; background:#8e44ad;">💬 Send DM</button>
-                    </div>
-                </div>
-            `;
+            resArea.innerHTML = `<div class="card" style="border-left: 4px solid #3498db; margin-top:8px; padding:10px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;"><strong>${q}</strong> ${getBadgeHTML(u.badges, u.banned)}<span style="font-size:11px; color:#8ca2ad;">Blitz: ${u.blitzRating || 1500}</span></div><div style="display:flex; gap:5px;"><button onclick="sendFriendRequest('${q}')" style="flex:1; padding:5px; font-size:11px; background:#27ae60;">➕ Add Friend</button><button onclick="openDM('${q}')" style="flex:1; padding:5px; font-size:11px; background:#8e44ad;">💬 Send DM</button></div></div>`;
         }
 
         function challengeFriend(target) {
@@ -1233,7 +1468,7 @@
             findOnlineMatch();
         }
 
-        /* AUTH & PROFILE */
+        /* AUTH & STATS */
         function switchAuthTab(t, e) { $('.auth-form, .auth-tab').removeClass('active');$(`#${t}Form`).addClass('active'); $(e.target).addClass('active'); }
         function switchMainTab(t, e) { $('.tab-content, .tab-btn').removeClass('active');$(`#${t}-tab`).addClass('active'); $(e.target).addClass('active'); }
 
@@ -1247,11 +1482,8 @@
                 if (u && u.password === pass) {
                     if (u.banned) { msg.innerText = `✗ Banned: ${u.banReason || 'Banned'}`; msg.className = "auth-msg error"; return; }
                     currentUser = user; localStorage.setItem('currentUser', currentUser);
-                    msg.innerText = '✓ Success!'; msg.className = "auth-msg success";
-                    setTimeout(() => initApp(), 300);
-                } else {
-                    msg.innerText = '✗ Invalid details'; msg.className = "auth-msg error";
-                }
+                    msg.innerText = '✓ Success!'; msg.className = "auth-msg success"; setTimeout(() => initApp(), 300);
+                } else { msg.innerText = '✗ Invalid details'; msg.className = "auth-msg error"; }
             });
         }
 
@@ -1262,13 +1494,9 @@
             const pass = document.getElementById('signupPassword').value.trim();
             const msg = document.getElementById('signupMsg');
             db.ref('users/' + user).once('value').then(snap => {
-                if (snap.exists()) {
-                    msg.innerText = '✗ Username taken'; msg.className = "auth-msg error";
-                } else {
-                    db.ref('users/' + user).set({
-                        password: pass, realname: real, badges: [], blitzRating: 1500, blitzRD: 350,
-                        wins: 0, losses: 0, banned: false, avatar: DEFAULT_AVATAR
-                    }).then(() => {
+                if (snap.exists()) { msg.innerText = '✗ Username taken'; msg.className = "auth-msg error"; }
+                else {
+                    db.ref('users/' + user).set({ password: pass, realname: real, badges: [], blitzRating: 1500, blitzRD: 250, wins: 0, losses: 0, draws: 0, banned: false, avatar: DEFAULT_AVATAR }).then(() => {
                         msg.innerText = '✓ Account Created!'; msg.className = "auth-msg success";
                         setTimeout(() => switchAuthTab('login', { target: document.querySelectorAll('.auth-tab')[0] }), 500);
                     });
@@ -1276,49 +1504,35 @@
             });
         }
 
-        function logout() {
-            if (currentUser) db.ref(`users/${currentUser}/online`).set(false);
-            currentUser = null; localStorage.removeItem('currentUser'); window.location.reload();
-        }
+        function logout() { if (currentUser) db.ref(`users/${currentUser}/online`).set(false); currentUser = null; localStorage.removeItem('currentUser'); window.location.reload(); }
 
         function updateUI() { 
             const u = users[currentUser]; if(!u) return;
             let bHtml = getBadgeHTML(u.badges, u.banned);
             document.getElementById('userDisplay').innerHTML = `<span>${currentUser}</span> ${bHtml}`;
-            
             let isOwner = (u.badges || []).some(b => b.toLowerCase() === 'owner');
             let isAdmin = (u.badges || []).some(b => b.toLowerCase() === 'admin');
-            
             if (isOwner || isAdmin) {
                 document.getElementById('adminTabBtn').classList.remove('hidden');
                 document.getElementById('membersCard').style.display = isOwner ? 'block' : 'none';
                 document.getElementById('reportsCard').style.display = isOwner ? 'block' : 'none';
                 document.getElementById('badgeManagementCard').style.display = isOwner ? 'block' : 'none';
-            } else {
-                document.getElementById('adminTabBtn').classList.add('hidden');
-            }
+            } else { document.getElementById('adminTabBtn').classList.add('hidden'); }
         }
 
         function displayProfile() { 
             const u = users[currentUser]; if(!u) return;
-            document.getElementById('myProfile').innerHTML = `
-                <div style="display:flex; gap:12px; align-items:center;">
-                    <img src="${u.avatar || DEFAULT_AVATAR}" class="avatar-lg">
-                    <div><strong>${u.realname}</strong><br>@${currentUser}</div>
-                </div>
-            `;
+            document.getElementById('myProfile').innerHTML = `<div style="display:flex; gap:12px; align-items:center;"><img src="${u.avatar || DEFAULT_AVATAR}" class="avatar-lg"><div><strong>${u.realname}</strong><br>@${currentUser}</div></div>`;
         }
 
         function displayStats() { 
             const u = users[currentUser]; if(!u) return;
-            const total = (u.wins || 0) + (u.losses || 0);
-            document.getElementById('statsInfo').innerHTML = `
-                <div class="rating-box"><div class="label">Blitz Rating</div><div class="value">${u.blitzRating || 1500}</div></div>
-                <div class="rating-box"><div class="label">Win Rate</div><div class="value">${total>0?Math.round(((u.wins || 0)/total)*100):0}%</div></div>
-            `;
+            const total = (u.wins || 0) + (u.losses || 0) + (u.draws || 0);
+            const winRate = total > 0 ? Math.round(((u.wins || 0) / total) * 100) : 0;
+            document.getElementById('statsInfo').innerHTML = `<div class="rating-box"><div class="label">Blitz Rating</div><div class="value">${u.blitzRating || 1500}</div></div><div class="rating-box"><div class="label">Dev (RD)</div><div class="value">±${u.blitzRD || 250}</div></div><div class="rating-box"><div class="label">W / L / D</div><div class="value">${u.wins || 0}/${u.losses || 0}/${u.draws || 0}</div></div><div class="rating-box"><div class="label">Win Rate</div><div class="value">${winRate}%</div></div>`;
         }
 
-        /* ADMIN & OWNER ACTIONS */
+        /* ADMIN & OWNER */
         function renderAdminData() {
             const u = users[currentUser]; if (!u) return;
             const isOwner = (u.badges || []).some(b => b.toLowerCase() === 'owner');
@@ -1328,9 +1542,7 @@
             Object.keys(users).forEach(k => {
                 let status = users[k].online ? '<span style="color:#27ae60;">🟢 Online</span>' : '<span style="color:#7f8c8d;">⚪ Offline</span>';
                 let bStatus = users[k].banned ? '<span class="badge banned">BANNED</span>' : '';
-                mHtml += `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid #2e343e;">
-                    <span><strong>${k}</strong> ${bStatus}</span> <span>${status}</span>
-                </div>`;
+                mHtml += `<div style="display:flex; justify-content:space-between; align-items:center; padding:6px; border-bottom:1px solid #2e343e;"><span><strong>${k}</strong> ${bStatus}</span> <span>${status}</span></div>`;
             });
             document.getElementById('adminMembersArea').innerHTML = mHtml;
 
@@ -1338,11 +1550,7 @@
                 let rHtml = '';
                 snap.forEach(child => {
                     let r = child.val();
-                    rHtml += `<div style="background:#c0392b; padding:8px; border-radius:6px; margin-bottom:6px; color:white;">
-                        <strong>Target:</strong> ${r.target} | <strong>By:</strong> ${r.by}<br>
-                        <strong>Reason:</strong> ${r.reason}<br>
-                        <button onclick="dismissReport('${child.key}')" style="margin-top:4px; padding:3px 8px; font-size:10px;">Dismiss</button>
-                    </div>`;
+                    rHtml += `<div style="background:#c0392b; padding:8px; border-radius:6px; margin-bottom:6px; color:white;"><strong>Target:</strong> ${r.target} | <strong>By:</strong> ${r.by}<br><strong>Reason:</strong> ${r.reason}<br><button onclick="dismissReport('${child.key}')" style="margin-top:4px; padding:3px 8px; font-size:10px;">Dismiss</button></div>`;
                 });
                 document.getElementById('adminReportsArea').innerHTML = rHtml || '<div style="color:#7f8c8d; text-align:center;">No active reports.</div>';
             });
@@ -1351,50 +1559,38 @@
         function dismissReport(k) { db.ref('reports/' + k).remove(); }
 
         function giveBadge() {
-            const u = users[currentUser];
-            if (!(u?.badges || []).some(b => b.toLowerCase() === 'owner')) return alert("Permission Denied: Owner only.");
+            const u = users[currentUser]; if (!(u?.badges || []).some(b => b.toLowerCase() === 'owner')) return alert("Owner only.");
             const target = document.getElementById('verifyUsername').value.trim();
             const badge = document.getElementById('customBadgeInput').value.trim() || document.getElementById('badgeSelect').value;
             if (target && badge && users[target]) {
-                let b = users[target].badges || [];
-                if (!b.includes(badge)) b.push(badge);
-                db.ref('users/' + target + '/badges').set(b);
-                alert(`Badge '${badge}' granted to ${target}`);
-            } else { alert("User not found or badge not specified."); }
+                let b = users[target].badges || []; if (!b.includes(badge)) b.push(badge);
+                db.ref('users/' + target + '/badges').set(b); alert(`Badge '${badge}' granted to ${target}`);
+            } else alert("Invalid username or badge.");
         }
 
         function takeBadge() {
-            const u = users[currentUser];
-            if (!(u?.badges || []).some(b => b.toLowerCase() === 'owner')) return alert("Permission Denied: Owner only.");
+            const u = users[currentUser]; if (!(u?.badges || []).some(b => b.toLowerCase() === 'owner')) return alert("Owner only.");
             const target = document.getElementById('verifyUsername').value.trim();
             const badge = document.getElementById('customBadgeInput').value.trim() || document.getElementById('badgeSelect').value;
             if (target && badge && users[target]) {
                 let b = (users[target].badges || []).filter(x => x.toLowerCase() !== badge.toLowerCase());
-                db.ref('users/' + target + '/badges').set(b);
-                alert(`Badge '${badge}' removed from ${target}`);
-            } else { alert("User not found or badge not specified."); }
+                db.ref('users/' + target + '/badges').set(b); alert(`Badge '${badge}' removed from ${target}`);
+            } else alert("Invalid username or badge.");
         }
 
         function adminBanPlayer() {
             const target = document.getElementById('modUsername').value.trim();
             const reason = document.getElementById('banReason').value.trim();
             if (!users[target]) return alert("User not found.");
-
-            const targetBadges = users[target].badges || [];
-            if (targetBadges.some(b => ['owner', 'admin'].includes(b.toLowerCase()))) {
+            if ((users[target].badges || []).some(b => ['owner', 'admin'].includes(b.toLowerCase()))) {
                 return alert("PERMISSION DENIED: Admins and Owners cannot be banned under any circumstances!");
             }
-
-            db.ref('users/' + target).update({ banned: true, banReason: reason || 'Banned by Administration' });
-            alert(`${target} has been banned.`);
+            db.ref('users/' + target).update({ banned: true, banReason: reason || 'Banned by Administration' }); alert(`${target} banned.`);
         }
 
         function adminUnbanPlayer() {
             const target = document.getElementById('modUsername').value.trim();
-            if (users[target]) {
-                db.ref('users/' + target).update({ banned: false });
-                alert(`${target} unbanned.`);
-            }
+            if (users[target]) { db.ref('users/' + target).update({ banned: false }); alert(`${target} unbanned.`); }
         }
 
         function updateGameStatus() { document.getElementById('gameStatus').textContent = gameActive ? `Active • ${isWhiteTurn ? "White" : "Black"}'s turn` : 'Game Finished'; }
@@ -1411,7 +1607,7 @@
             $('#gameAlert').remove();
             const alertEl = $(`<div id="gameAlert" class="game-alert-overlay animate-pop">${text}</div>`);
             $('.board-container').append(alertEl);
-            setTimeout(() => alertEl.remove(), 2000);
+            setTimeout(() => alertEl.remove(), 2200);
         }
 
         initApp();
